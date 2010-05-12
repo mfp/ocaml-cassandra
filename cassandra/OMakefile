@@ -1,0 +1,32 @@
+
+OCAMLPACKS[] = unix threads
+OCAMLFLAGS = -thread
+
+SRCS[] =
+    cassandra_consts.ml
+    Cassandra.ml
+    Cassandra.mli
+    cassandra_types.ml
+    cassandra_types.mli
+
+OBJS[] =
+    cassandra_types
+    cassandra_consts
+    Cassandra
+
+$(addprefix gen-ocaml/, $(SRCS)): cassandra.thrift
+	$(THRIFT) --gen ocaml $<
+
+OCAMLINCLUDES = $(THRIFT_INCLUDE)
+
+.SUBDIRS: gen-ocaml
+    OCamlLibrary(cassandra, $(OBJS))
+    # not detected for some reason, quick workaround
+    Cassandra.cmi: cassandra_types.cmi
+    cassandra_consts.cmi: cassandra_types.cmi
+
+CASSANDRA_INCLUDE = $(file gen-ocaml)
+CASSANDRA_LIB = $(file gen-ocaml)/cassandra
+
+export CASSANDRA_INCLUDE CASSANDRA_LIB
+
