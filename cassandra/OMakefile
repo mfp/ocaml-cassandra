@@ -17,10 +17,13 @@ OBJS[] =
 $(addprefix gen-ocaml/, $(SRCS)): cassandra.thrift
 	$(THRIFT) --gen ocaml $<
 
+OCamlPackage(cassandra_thrift, $(addprefix gen-ocaml/, $(OBJS)))
+OCamlLibrary(cassandra, cassandra_thrift cassandra)
+
 OCAMLINCLUDES = $(THRIFT_INCLUDE)
 
 .SUBDIRS: gen-ocaml
-    OCamlLibrary(cassandra, $(OBJS))
+    OCAMLFLAGS += -for-pack Cassandra_thrift
     # not detected for some reason, quick workaround
     Cassandra.cmi: cassandra_types.cmi
     cassandra_consts.cmi: cassandra_types.cmi
