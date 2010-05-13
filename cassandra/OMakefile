@@ -33,3 +33,7 @@ CASSANDRA_LIB = $(file gen-ocaml)/cassandra
 
 export CASSANDRA_INCLUDE CASSANDRA_LIB
 
+clean:
+	rm -f gen-ocaml/*
+	touch gen-ocaml/EMPTY
+	$(CamlCleanRecursive)
