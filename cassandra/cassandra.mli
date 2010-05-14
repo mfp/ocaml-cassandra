@@ -69,12 +69,16 @@ val insert : connection ->
   column_path -> timestamp -> string -> unit
 
 val remove_key : connection ->
-  keyspace:string -> ?consistency_level:consistency_level ->
-  timestamp -> column_family:string -> key:string -> unit
+  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  timestamp -> string -> unit
 
 val remove_column : connection ->
   keyspace:string -> key:string -> ?consistency_level:consistency_level ->
   timestamp -> column_path -> unit
+
+val remove_super_column : connection ->
+  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  timestamp -> super_column_path -> unit
 
 (** (key * (column_family * mutation list)) list *)
 (*

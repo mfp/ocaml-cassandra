@@ -193,12 +193,17 @@ let make_column_path ?super ?column family =
     r
 
 let remove_key
-      t ~keyspace ?(consistency_level = `ONE) timestamp ~column_family ~key =
+      t ~keyspace ~key ?(consistency_level = `ONE) timestamp column_family =
   t.client#remove keyspace key (make_column_path column_family) timestamp
     (clevel consistency_level)
 
 let remove_column
       t ~keyspace ~key ?(consistency_level = `ONE) timestamp cpath =
   t.client#remove keyspace key (column_path cpath) timestamp
+    (clevel consistency_level)
+
+let remove_super_column
+      t ~keyspace ~key ?(consistency_level = `ONE) timestamp path =
+  t.client#remove keyspace key (super_column_path path) timestamp
     (clevel consistency_level)
 
