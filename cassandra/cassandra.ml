@@ -5,7 +5,7 @@ open Cassandra_types
 
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
-type column' = { sc_name : string; sc_columns : column list }
+type super_column = { sc_name : string; sc_columns : column list }
 
 type column_path = string * [`Column of string | `Subcolumn of string * string]
 
@@ -24,7 +24,7 @@ type key_range =
     [ `Key_range of string * string | `Token_range of string * string ] * int
 
 type key_slice = string * column list
-type key_slice' = string * column' list
+type key_slice' = string * super_column list
 
 type mutation =
     [
@@ -32,7 +32,7 @@ type mutation =
         [ `Key | `Super_column of string | `Columns of slice_predicate
         | `Columns' of string * slice_predicate ]
     | `Insert of column
-    | `Insert' of column'
+    | `Insert_super of super_column
     ]
 
 type connection = {
@@ -83,13 +83,13 @@ let of_column c =
     c_timestamp = c#grab_timestamp;
   }
 
-let column' c =
+let super_column c =
   let r = new superColumn in
     r#set_name c.sc_name;
     r#set_columns (List.map column c.sc_columns);
     r
 
-let of_column' c =
+let of_super_column c =
   { sc_name = c#grab_name; sc_columns = List.map of_column c#grab_columns; }
 
 let column_path (family, path) =
@@ -137,7 +137,7 @@ let slice_predicate p =
 let get_columns l = List.filter_map (fun r -> Option.map of_column r#get_column) l
 
 let get_columns' l =
-  List.filter_map (fun r -> Option.map of_column' r#get_super_column) l
+  List.filter_map (fun r -> Option.map of_super_column r#get_super_column) l
 
 let key_range (r, count) =
   let o = new keyRange in
@@ -161,7 +161,7 @@ let get t ~keyspace ~key ?(consistency_level = `ONE) cpath =
 let get' t ~keyspace ~key ?(consistency_level = `ONE) cpath =
   let r = t.client#get keyspace key (super_column_path cpath)
             (clevel consistency_level)
-  in of_column' r#grab_super_column
+  in of_super_column r#grab_super_column
 
 let get_slice t ~keyspace ~key ?(consistency_level = `ONE) ~parent pred =
   let cols = t.client#get_slice keyspace key

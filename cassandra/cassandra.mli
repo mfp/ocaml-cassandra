@@ -1,7 +1,7 @@
 
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
-type column' = { sc_name : string; sc_columns : column list }
+type super_column = { sc_name : string; sc_columns : column list }
 
 type column_path =
     string * [`Column of string | `Subcolumn of string * string]
@@ -21,7 +21,7 @@ type key_range =
     [ `Key_range of string * string | `Token_range of string * string ] * int
 
 type key_slice = string * column list
-type key_slice' = string * column' list
+type key_slice' = string * super_column list
 
 type mutation =
     [
@@ -29,7 +29,7 @@ type mutation =
         [ `Key | `Super_column of string | `Columns of slice_predicate
         | `Columns' of string * slice_predicate ]
     | `Insert of column
-    | `Insert' of column'
+    | `Insert_super of super_column
     ]
 
 type connection
@@ -45,7 +45,7 @@ val get : connection ->
 
 val get' : connection ->
   keyspace:string -> key:string -> ?consistency_level:consistency_level ->
-  super_column_path -> column'
+  super_column_path -> super_column
 
 val get_slice : connection ->
   keyspace:string -> key:string -> ?consistency_level:consistency_level ->
