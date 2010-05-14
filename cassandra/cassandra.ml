@@ -7,8 +7,9 @@ type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type column' = { sc_name : string; sc_columns : column list }
 
-type column_path = { cp_family : string; cp_column : string }
-type column_path' = column_path * string
+type column_path = string * [`Column of string | `Subcolumn of string * string]
+
+type super_column_path = string * string
 
 type column_parent = string
 type column_parent' = column_parent * string
@@ -91,17 +92,22 @@ let column' c =
 let of_column' c =
   { sc_name = c#grab_name; sc_columns = List.map of_column c#grab_columns; }
 
-let column_path cp =
+let column_path (family, path) =
   let r = new columnPath in
-    r#set_column_family cp.cp_family;
-    r#set_column cp.cp_column;
+    r#set_column_family family;
+    begin
+      match path with
+          `Column n -> r#set_column n
+        | `Subcolumn (sup, sub) ->
+            r#set_super_column sup;
+            r#set_column sub
+    end;
     r
 
-let column_path' (cp, subcol) =
+let super_column_path (family, sup) =
   let r = new columnPath in
-    r#set_column_family cp.cp_family;
-    r#set_super_column cp.cp_column;
-    r#set_super_column subcol;
+    r#set_column_family family;
+    r#set_super_column sup;
     r
 
 let column_parent family =
@@ -153,8 +159,9 @@ let get t ~keyspace ~key ?(consistency_level = `ONE) cpath =
     of_column r#grab_column
 
 let get' t ~keyspace ~key ?(consistency_level = `ONE) cpath =
-  let r = t.client#get keyspace key (column_path cpath) (clevel consistency_level) in
-    of_column' r#grab_super_column
+  let r = t.client#get keyspace key (super_column_path cpath)
+            (clevel consistency_level)
+  in of_column' r#grab_super_column
 
 let get_slice t ~keyspace ~key ?(consistency_level = `ONE) ~parent pred =
   let cols = t.client#get_slice keyspace key

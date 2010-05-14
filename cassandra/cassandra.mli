@@ -3,8 +3,10 @@ type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type column' = { sc_name : string; sc_columns : column list }
 
-type column_path = { cp_family : string; cp_column : string }
-type column_path' = column_path * string
+type column_path =
+    string * [`Column of string | `Subcolumn of string * string]
+
+type super_column_path = string * string
 
 type column_parent = string
 type column_parent' = column_parent * string
@@ -43,7 +45,7 @@ val get : connection ->
 
 val get' : connection ->
   keyspace:string -> key:string -> ?consistency_level:consistency_level ->
-  column_path -> column'
+  super_column_path -> column'
 
 val get_slice : connection ->
   keyspace:string -> key:string -> ?consistency_level:consistency_level ->
