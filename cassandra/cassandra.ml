@@ -30,7 +30,7 @@ type mutation =
     [
       `Delete of timestamp *
         [ `Key | `Super_column of string | `Columns of slice_predicate
-        | `Columns' of string * slice_predicate ]
+        | `Sub_columns of string * slice_predicate ]
     | `Insert of column
     | `Insert_super of super_column
     ]
@@ -206,4 +206,47 @@ let remove_super_column
       t ~keyspace ~key ?(consistency_level = `ONE) timestamp path =
   t.client#remove keyspace key (super_column_path path) timestamp
     (clevel consistency_level)
+
+let make_deletion ?super_column ?predicate timestamp =
+  let r = new deletion in
+    Option.may r#set_super_column super_column;
+    Option.may r#set_predicate (Option.map slice_predicate predicate);
+    r
+
+let make_column_or_supercolumn ?col ?super () =
+  let c = new columnOrSuperColumn in
+    Option.may c#set_column (Option.map column col);
+    Option.may c#set_super_column (Option.map super_column super);
+    c
+
+let mutation (m : mutation) =
+  let r = new mutation in
+    begin
+      match m with
+          `Insert col ->
+            r#set_column_or_supercolumn (make_column_or_supercolumn ~col ())
+        | `Insert_super super ->
+            r#set_column_or_supercolumn (make_column_or_supercolumn ~super ())
+        | `Delete (timestamp, what) ->
+            r#set_deletion begin match what with
+                `Key -> make_deletion timestamp
+              | `Super_column super_column ->
+                  make_deletion ~super_column timestamp
+              | `Columns predicate -> make_deletion ~predicate timestamp
+              | `Sub_columns (super_column, predicate) ->
+                  make_deletion ~super_column ~predicate timestamp
+            end
+    end;
+    r
+
+let batch_mutate t ~keyspace ?(consistency_level = `ONE) l =
+  let h = Hashtbl.create (List.length l) in
+    List.iter
+      (fun (key, l1) ->
+         let h1 = Hashtbl.create (List.length l1) in
+           Hashtbl.add h key h1;
+           List.iter
+             (fun (cf, muts) -> Hashtbl.add h1 cf (List.map mutation muts)) l1)
+      l;
+    t.client#batch_mutate keyspace h (clevel consistency_level)
 

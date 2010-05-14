@@ -27,7 +27,7 @@ type mutation =
     [
       `Delete of timestamp *
         [ `Key | `Super_column of string | `Columns of slice_predicate
-        | `Columns' of string * slice_predicate ]
+        | `Sub_columns of string * slice_predicate ]
     | `Insert of column
     | `Insert_super of super_column
     ]
@@ -80,9 +80,7 @@ val remove_super_column : connection ->
   keyspace:string -> key:string -> ?consistency_level:consistency_level ->
   timestamp -> super_column_path -> unit
 
-(** (key * (column_family * mutation list)) list *)
-(*
+(** (key * (column_family * mutation list) list) list *)
 val batch_mutate : connection ->
   keyspace:string -> ?consistency_level:consistency_level ->
-  (string * (string * mutation list)) list -> unit
- *)
+  (string * (string * mutation list) list) list -> unit
