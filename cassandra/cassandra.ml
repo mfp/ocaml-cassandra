@@ -38,14 +38,15 @@ type mutation =
 type connection = {
   proto : Thrift.Protocol.t;
   client : Cassandra.client;
+  keyspace : string;
 }
 
-let connect host port =
+let connect ~keyspace ~host port =
   let tx = new TSocket.t host port in
   let proto = new TBinaryProtocol.t tx in
   let client = new Cassandra.client proto proto in
     tx#opn;
-    { proto = proto; client = client; }
+    { proto = proto; client = client; keyspace = keyspace; }
 
 let disconnect t =
   let tx = t.proto#getTransport in
@@ -154,36 +155,36 @@ let key_range (r, count) =
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_slice' r = (r#grab_key, get_columns' r#grab_columns)
 
-let get t ~keyspace ~key ?(consistency_level = `ONE) cpath =
-  let r = t.client#get keyspace key (column_path cpath) (clevel consistency_level) in
+let get t ~key ?(consistency_level = `ONE) cpath =
+  let r = t.client#get t.keyspace key (column_path cpath) (clevel consistency_level) in
     of_column r#grab_column
 
-let get' t ~keyspace ~key ?(consistency_level = `ONE) cpath =
-  let r = t.client#get keyspace key (super_column_path cpath)
+let get' t ~key ?(consistency_level = `ONE) cpath =
+  let r = t.client#get t.keyspace key (super_column_path cpath)
             (clevel consistency_level)
   in of_super_column r#grab_super_column
 
-let get_slice t ~keyspace ~key ?(consistency_level = `ONE) ~parent pred =
-  let cols = t.client#get_slice keyspace key
+let get_slice t ~key ?(consistency_level = `ONE) ~parent pred =
+  let cols = t.client#get_slice t.keyspace key
                (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in get_columns cols
 
-let multiget_slice t ~keyspace keys ?(consistency_level = `ONE) ~parent pred =
-  let h = t.client#multiget_slice keyspace keys
+let multiget_slice t keys ?(consistency_level = `ONE) ~parent pred =
+  let h = t.client#multiget_slice t.keyspace keys
             (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
-let count t ~keyspace ~key ?(consistency_level = `ONE) parent =
-  t.client#get_count keyspace key (column_parent parent) (clevel consistency_level)
+let count t ~key ?(consistency_level = `ONE) parent =
+  t.client#get_count t.keyspace key (column_parent parent) (clevel consistency_level)
 
 let get_range_slices
-      t ~keyspace ~parent ?(consistency_level = `ONE) pred range =
-  let r = t.client#get_range_slices keyspace (column_parent parent)
+      t ~parent ?(consistency_level = `ONE) pred range =
+  let r = t.client#get_range_slices t.keyspace (column_parent parent)
             (slice_predicate pred) (key_range range) (clevel consistency_level)
   in List.map of_key_slice r
 
-let insert t ~keyspace ~key ?(consistency_level = `ONE) cpath timestamp value =
-  t.client#insert keyspace key (column_path cpath) value timestamp (clevel consistency_level)
+let insert t ~key ?(consistency_level = `ONE) cpath timestamp value =
+  t.client#insert t.keyspace key (column_path cpath) value timestamp (clevel consistency_level)
 
 let make_column_path ?super ?column family =
   let r = new columnPath in
@@ -193,18 +194,18 @@ let make_column_path ?super ?column family =
     r
 
 let remove_key
-      t ~keyspace ~key ?(consistency_level = `ONE) timestamp column_family =
-  t.client#remove keyspace key (make_column_path column_family) timestamp
+      t ~key ?(consistency_level = `ONE) timestamp column_family =
+  t.client#remove t.keyspace key (make_column_path column_family) timestamp
     (clevel consistency_level)
 
 let remove_column
-      t ~keyspace ~key ?(consistency_level = `ONE) timestamp cpath =
-  t.client#remove keyspace key (column_path cpath) timestamp
+      t ~key ?(consistency_level = `ONE) timestamp cpath =
+  t.client#remove t.keyspace key (column_path cpath) timestamp
     (clevel consistency_level)
 
 let remove_super_column
-      t ~keyspace ~key ?(consistency_level = `ONE) timestamp path =
-  t.client#remove keyspace key (super_column_path path) timestamp
+      t ~key ?(consistency_level = `ONE) timestamp path =
+  t.client#remove t.keyspace key (super_column_path path) timestamp
     (clevel consistency_level)
 
 let make_deletion ?super_column ?predicate timestamp =
@@ -239,7 +240,7 @@ let mutation (m : mutation) =
     end;
     r
 
-let batch_mutate t ~keyspace ?(consistency_level = `ONE) l =
+let batch_mutate t ?(consistency_level = `ONE) l =
   let h = Hashtbl.create (List.length l) in
     List.iter
       (fun (key, l1) ->
@@ -248,5 +249,5 @@ let batch_mutate t ~keyspace ?(consistency_level = `ONE) l =
            List.iter
              (fun (cf, muts) -> Hashtbl.add h1 cf (List.map mutation muts)) l1)
       l;
-    t.client#batch_mutate keyspace h (clevel consistency_level)
+    t.client#batch_mutate t.keyspace h (clevel consistency_level)
 

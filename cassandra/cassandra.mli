@@ -34,53 +34,53 @@ type mutation =
 
 type connection
 
-val connect : string -> int -> connection
+val connect : keyspace:string -> host:string -> int -> connection
 val disconnect : connection -> unit
 val reconnect : connection -> unit
 val valid_connection : connection -> bool
 
 val get : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   column_path -> column
 
 val get' : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   super_column_path -> super_column
 
 val get_slice : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   parent:column_parent -> slice_predicate -> column list
 
 val multiget_slice : connection ->
-  keyspace:string -> string list -> ?consistency_level:consistency_level ->
+  string list -> ?consistency_level:consistency_level ->
   parent:column_parent -> slice_predicate -> (string, column list) Hashtbl.t
 
 val count : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   column_parent -> int
 
 val get_range_slices : connection ->
-  keyspace:string -> parent:column_parent ->
+  parent:column_parent ->
   ?consistency_level:consistency_level -> slice_predicate ->
   key_range -> key_slice list
 
 val insert : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   column_path -> timestamp -> string -> unit
 
 val remove_key : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   timestamp -> string -> unit
 
 val remove_column : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   timestamp -> column_path -> unit
 
 val remove_super_column : connection ->
-  keyspace:string -> key:string -> ?consistency_level:consistency_level ->
+  key:string -> ?consistency_level:consistency_level ->
   timestamp -> super_column_path -> unit
 
 (** (key * (column_family * mutation list) list) list *)
 val batch_mutate : connection ->
-  keyspace:string -> ?consistency_level:consistency_level ->
+  ?consistency_level:consistency_level ->
   (string * (string * mutation list) list) list -> unit
