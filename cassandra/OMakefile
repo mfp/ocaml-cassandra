@@ -1,5 +1,5 @@
 
-OCAMLPACKS[] = unix threads
+OCAMLPACKS[] = extlib unix threads
 OCAMLFLAGS = -thread
 
 SRCS[] =
