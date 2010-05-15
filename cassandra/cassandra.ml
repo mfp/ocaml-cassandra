@@ -21,7 +21,7 @@ type key_superslice = string * supercolumn list
 
 type mutation =
     [
-      `Delete of timestamp *
+      `Delete of timestamp option *
         [ `Key | `Super_column of string | `Columns of slice_predicate
         | `Sub_columns of string * slice_predicate ]
     | `Insert of column
@@ -37,6 +37,8 @@ type keyspace = {
   ks_name : string;
   ks_client : Cassandra.client;
 }
+
+let make_timestamp () = Int64.of_float (1e6 *. Unix.gettimeofday ())
 
 let connect ~host port =
   let tx = new TSocket.t host port in
@@ -205,31 +207,39 @@ let get_range_superslices t ~cf ?consistency_level pred range =
             (slice_predicate pred) (key_range range) (clevel consistency_level)
   in List.map of_key_super_slice r
 
-let insert t ~key ?consistency_level ~cf ?supercolumn ~name timestamp value =
-  t.ks_client#insert t.ks_name key
-    (column_path ~cf ?supercolumn name) value timestamp (clevel consistency_level)
+let mk_timestamp = function
+    None -> make_timestamp ()
+  | Some t -> t
+
+let insert t ~key ?consistency_level ~cf ?supercolumn ~name ?timestamp value =
+  t.ks_client#insert t.ks_name key (column_path ~cf ?supercolumn name)
+    value (mk_timestamp timestamp) (clevel consistency_level)
 
 let insert_column t ~key ?consistency_level ~cf ?supercolumn ?timestamp column =
   insert t ~key ?consistency_level ~cf ?supercolumn
     ~name:column.c_name
-    (Option.default column.c_timestamp timestamp)
+    ~timestamp:(Option.default column.c_timestamp timestamp)
     column.c_value
 
-let remove_key t ~key ?consistency_level timestamp cf =
+let remove_key t ~key ?consistency_level ?timestamp cf =
   let cpath = new columnPath in
     cpath#set_column_family cf;
-    t.ks_client#remove t.ks_name key cpath timestamp (clevel consistency_level)
+    t.ks_client#remove t.ks_name key cpath
+      (mk_timestamp timestamp) (clevel consistency_level)
 
-let remove_column t ~key ?consistency_level ~cf ?supercolumn timestamp name =
+let remove_column t ~key ?consistency_level ~cf ?supercolumn ?timestamp name =
   t.ks_client#remove t.ks_name key
-    (column_path ~cf ?supercolumn name) timestamp (clevel consistency_level)
+    (column_path ~cf ?supercolumn name)
+    (mk_timestamp timestamp) (clevel consistency_level)
 
-let remove_supercolumn t ~key ?consistency_level ~cf timestamp name =
+let remove_supercolumn t ~key ?consistency_level ~cf ?timestamp name =
   t.ks_client#remove t.ks_name key
-    (supercolumn_path ~cf name) timestamp (clevel consistency_level)
+    (supercolumn_path ~cf name)
+    (mk_timestamp timestamp) (clevel consistency_level)
 
 let make_deletion ?supercolumn ?predicate timestamp =
   let r = new deletion in
+    r#set_timestamp (mk_timestamp timestamp);
     Option.may r#set_super_column supercolumn;
     Option.may r#set_predicate (Option.map slice_predicate predicate);
     r

@@ -17,7 +17,7 @@ type key_superslice = string * supercolumn list
 
 type mutation =
     [
-      `Delete of timestamp *
+      `Delete of timestamp option *
         [ `Key | `Super_column of string | `Columns of slice_predicate
         | `Sub_columns of string * slice_predicate ]
     | `Insert of column
@@ -26,6 +26,8 @@ type mutation =
 
 type connection
 type keyspace
+
+val make_timestamp : unit -> timestamp
 
 val connect : host:string -> int -> connection
 val disconnect : connection -> unit
@@ -84,23 +86,25 @@ val get_range_superslices : keyspace ->
 
 val insert : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  cf:string -> ?supercolumn:string -> name:string -> timestamp -> string -> unit
+  cf:string -> ?supercolumn:string -> name:string ->
+  ?timestamp:timestamp -> string -> unit
 
+(** Use the timestamp in [column] unless another one is specified. *)
 val insert_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   cf:string -> ?supercolumn:string -> ?timestamp:timestamp -> column -> unit
 
 val remove_key : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  timestamp -> string -> unit
+  ?timestamp:timestamp -> string -> unit
 
 val remove_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  cf:string -> ?supercolumn:string -> timestamp -> string -> unit
+  cf:string -> ?supercolumn:string -> ?timestamp:timestamp -> string -> unit
 
 val remove_supercolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  cf:string -> timestamp -> string -> unit
+  cf:string -> ?timestamp:timestamp -> string -> unit
 
 (** (key * (column_family * mutation list) list) list *)
 val batch_mutate : keyspace ->
