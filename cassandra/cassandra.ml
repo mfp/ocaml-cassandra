@@ -7,11 +7,6 @@ type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = { sc_name : string; sc_columns : column list }
 
-type column_path =
-    [`C of string * string | `SC of string * string * string]
-
-type column_parent = [`CF of string | `SC of string * string]
-
 type consistency_level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
 
@@ -111,12 +106,10 @@ let supercolumn_path ~cf sup =
     r#set_super_column sup;
     r
 
-let column_parent p =
+let column_parent ?supercolumn cf =
   let o = new columnParent in
-    begin match p with
-        `CF s -> o#set_column_family s
-      | `SC (cf, c) -> o#set_column_family cf; o#set_super_column c
-    end;
+    o#set_column_family cf;
+    Option.may o#set_super_column supercolumn;
     o
 
 let slice_predicate p =
@@ -166,44 +159,28 @@ let get' t ~key ?consistency_level ~cf name =
 
 let get_supercolumn = get'
 
-let get_slice t ~key ?consistency_level ~parent pred =
+let get_slice t ~key ?consistency_level ~cf ?supercolumn pred =
   let cols =
     t.ks_client#get_slice t.ks_name key
-      (column_parent parent) (slice_predicate pred) (clevel consistency_level)
+      (column_parent cf ?supercolumn)
+      (slice_predicate pred) (clevel consistency_level)
   in get_columns cols
 
-let get_column_slice t ~key ?consistency_level ~cf pred =
-  get_slice t ~key ?consistency_level ~parent:(`CF cf) pred
-
-let get_subcolumn_slice t ~key ?consistency_level ~cf ~supercolumn pred =
-  get_slice t ~key ?consistency_level ~parent:(`SC (cf, supercolumn)) pred
-
-let multiget_slice t keys ?consistency_level ~parent pred =
+let multiget_slice t keys ?consistency_level ~cf ?supercolumn pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
-      (column_parent parent) (slice_predicate pred) (clevel consistency_level)
+      (column_parent cf ?supercolumn)
+      (slice_predicate pred) (clevel consistency_level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
-let multiget_column_slice t keys ?consistency_level ~cf pred =
-  multiget_slice t keys ?consistency_level ~parent:(`CF cf) pred
-
-let multiget_subcolumn_slice
-      t keys ?consistency_level ~cf ~supercolumn pred =
-  multiget_slice t keys ?consistency_level ~parent:(`SC (cf, supercolumn)) pred
-
-let count t ~key ?consistency_level parent =
+let count t ~key ?consistency_level ~cf ?supercolumn () =
   t.ks_client#get_count t.ks_name
-    key (column_parent parent) (clevel consistency_level)
-
-let count_columns t ~key ?consistency_level cf =
-  count t ~key ?consistency_level (`CF cf)
-
-let count_subcolumns t ~key ?consistency_level ~cf supercol =
-  count t ~key ?consistency_level (`SC (cf, supercol))
+    key (column_parent cf ?supercolumn) (clevel consistency_level)
 
 let get_range_slices
-      t ~parent ?consistency_level pred range =
-  let r = t.ks_client#get_range_slices t.ks_name (column_parent parent)
+      t ~cf ?supercolumn ?consistency_level pred range =
+  let r = t.ks_client#get_range_slices t.ks_name
+            (column_parent cf ?supercolumn)
             (slice_predicate pred) (key_range range) (clevel consistency_level)
   in List.map of_key_slice r
 
@@ -211,7 +188,7 @@ let insert t ~key ?consistency_level ~cf ?supercolumn ~name timestamp value =
   t.ks_client#insert t.ks_name key
     (column_path ~cf ?supercolumn name) value timestamp (clevel consistency_level)
 
-let make_column_path ?super ?column cf =
+let make_column_path ?super ?column ~cf =
   let r = new columnPath in
     r#set_column_family cf;
     Option.may r#set_super_column super;
