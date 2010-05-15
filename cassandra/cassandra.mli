@@ -115,3 +115,32 @@ val remove_supercolumn : keyspace ->
 val batch_mutate : keyspace ->
   ?consistency_level:consistency_level ->
   (string * (string * mutation list) list) list -> unit
+
+module Typed :
+sig
+  type 'a column
+  type 'a subcolumn
+
+  val column :
+    ?consistency_level:consistency_level ->
+    cf:string -> of_s:(string -> 'a) -> to_s:('a -> string) ->
+    string -> 'a column
+
+  val subcolumn :
+    ?consistency_level:consistency_level ->
+    cf:string -> of_s:(string -> 'a) -> to_s:('a -> string) ->
+    string -> 'a subcolumn
+
+  val get : keyspace -> ?consistency_level:consistency_level ->
+    key:string -> 'a column -> 'a
+
+  val set : keyspace -> ?consistency_level:consistency_level ->
+    key:string -> 'a column -> ?timestamp:timestamp -> 'a -> unit
+
+  val get' : keyspace -> ?consistency_level:consistency_level ->
+    key:string -> supercolumn:string -> 'a subcolumn -> 'a
+
+  val set' : keyspace -> ?consistency_level:consistency_level ->
+    key:string -> supercolumn:string -> 'a subcolumn ->
+    ?timestamp:timestamp -> 'a -> unit
+end

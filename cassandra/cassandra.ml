@@ -289,3 +289,36 @@ let insert_supercolumn t ~key ?consistency_level ~cf ~name ?timestamp l =
   let mutation = `Insert_super { sc_name = name; sc_columns = columns } in
     batch_mutate t ?consistency_level [key, [cf, [mutation]]]
 
+module Typed =
+struct
+  type 'a column =
+      {
+        lev : consistency_level; cf : string; name : string;
+        of_s : string -> 'a; to_s : 'a -> string
+      }
+
+  type 'a subcolumn = 'a column
+
+  let column ?(consistency_level = `ONE) ~cf ~of_s ~to_s name =
+    { lev = consistency_level; name = name; cf = cf; of_s = of_s; to_s = to_s }
+
+  let level col consistency_level = Option.default col.lev consistency_level
+
+  let subcolumn = column
+
+  let get t ?consistency_level ~key col =
+    col.of_s (get_value t ~consistency_level:(level col consistency_level)
+                ~key ~cf:col.cf col.name)
+
+  let get' t ?consistency_level ~key ~supercolumn col =
+    col.of_s (get_value t ~consistency_level:(level col consistency_level)
+                ~key ~cf:col.cf ~supercolumn col.name)
+
+  let set t ?consistency_level ~key col ?timestamp x =
+    insert t ~consistency_level:(level col consistency_level)
+      ~key ~cf:col.cf ~name:col.name ?timestamp (col.to_s x)
+
+  let set' t ?consistency_level ~key ~supercolumn col ?timestamp x =
+    insert t ~consistency_level:(level col consistency_level)
+      ~key ~cf:col.cf ~name:col.name ~supercolumn ?timestamp (col.to_s x)
+end
