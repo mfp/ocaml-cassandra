@@ -182,15 +182,34 @@ let get_slice t ~key ?(consistency_level = `ONE) ~parent pred =
       (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in get_columns cols
 
+let get_column_slice t ~key ?consistency_level ~family pred =
+  get_slice t ~key ?consistency_level ~parent:(`CF family) pred
+
+let get_subcolumn_slice t ~key ?consistency_level ~family ~supercolumn pred =
+  get_slice t ~key ?consistency_level ~parent:(`SC (family, supercolumn)) pred
+
 let multiget_slice t keys ?(consistency_level = `ONE) ~parent pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
       (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
+let multiget_column_slice t keys ?consistency_level ~family pred =
+  multiget_slice t keys ?consistency_level ~parent:(`CF family) pred
+
+let multiget_subcolumn_slice
+      t keys ?consistency_level ~family ~supercolumn pred =
+  multiget_slice t keys ?consistency_level ~parent:(`SC (family, supercolumn)) pred
+
 let count t ~key ?(consistency_level = `ONE) parent =
   t.ks_client#get_count t.ks_name
     key (column_parent parent) (clevel consistency_level)
+
+let count_columns t ~key ?consistency_level family =
+  count t ~key ?consistency_level (`CF family)
+
+let count_subcolumns t ~key ?consistency_level ~family supercol =
+  count t ~key ?consistency_level (`SC (family, supercol))
 
 let get_range_slices
       t ~parent ?(consistency_level = `ONE) pred range =
@@ -201,6 +220,14 @@ let get_range_slices
 let insert t ~key ?(consistency_level = `ONE) cpath timestamp value =
   t.ks_client#insert t.ks_name key
     (column_path cpath) value timestamp (clevel consistency_level)
+
+let insert_column t ~key ?consistency_level ~family ~name timestamp value =
+  insert t ~key ?consistency_level (family, `Column name) timestamp value
+
+let insert_subcolumn
+      t ~key ?consistency_level ~family ~supercolumn ~name timestamp value =
+  insert t ~key ?consistency_level
+    (family, `Subcolumn (supercolumn, name)) timestamp value
 
 let make_column_path ?super ?column family =
   let r = new columnPath in

@@ -63,13 +63,38 @@ val get_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   parent:column_parent -> slice_predicate -> column list
 
+val get_column_slice : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  family:string -> slice_predicate -> column list
+
+val get_subcolumn_slice : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  family:string -> supercolumn:string -> slice_predicate -> column list
+
 val multiget_slice : keyspace ->
   string list -> ?consistency_level:consistency_level ->
   parent:column_parent -> slice_predicate -> (string, column list) Hashtbl.t
 
+val multiget_column_slice : keyspace ->
+  string list -> ?consistency_level:consistency_level ->
+  family:string -> slice_predicate -> (string, column list) Hashtbl.t
+
+val multiget_subcolumn_slice : keyspace ->
+  string list -> ?consistency_level:consistency_level ->
+  family:string -> supercolumn:string -> slice_predicate ->
+  (string, column list) Hashtbl.t
+
 val count : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   column_parent -> int
+
+val count_columns : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  string -> int
+
+val count_subcolumns : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  family:string -> string -> int
 
 val get_range_slices : keyspace ->
   parent:column_parent ->
@@ -79,6 +104,15 @@ val get_range_slices : keyspace ->
 val insert : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   column_path -> timestamp -> string -> unit
+
+val insert_column : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  family:string -> name:string -> timestamp -> string -> unit
+
+val insert_subcolumn : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  family:string -> supercolumn:string -> name:string ->
+  timestamp -> string -> unit
 
 val remove_key : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
