@@ -188,16 +188,10 @@ let insert t ~key ?consistency_level ~cf ?supercolumn ~name timestamp value =
   t.ks_client#insert t.ks_name key
     (column_path ~cf ?supercolumn name) value timestamp (clevel consistency_level)
 
-let make_column_path ?super ?column ~cf =
-  let r = new columnPath in
-    r#set_column_family cf;
-    Option.may r#set_super_column super;
-    Option.may r#set_column column;
-    r
-
-let remove_key t ~key ?consistency_level timestamp column_family =
-  t.ks_client#remove t.ks_name key (make_column_path column_family) timestamp
-    (clevel consistency_level)
+let remove_key t ~key ?consistency_level timestamp cf =
+  let cpath = new columnPath in
+    cpath#set_column_family cf;
+    t.ks_client#remove t.ks_name key cpath timestamp (clevel consistency_level)
 
 let remove_column t ~key ?consistency_level ~cf ?supercolumn timestamp name =
   t.ks_client#remove t.ks_name key
