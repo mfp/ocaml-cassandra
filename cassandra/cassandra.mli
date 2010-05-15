@@ -38,6 +38,10 @@ val get : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   cf:string -> ?supercolumn:string -> string -> column
 
+val get_value : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  cf:string -> ?supercolumn:string -> string -> string
+
 val get' : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   cf:string -> string -> supercolumn
@@ -81,6 +85,10 @@ val get_range_superslices : keyspace ->
 val insert : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   cf:string -> ?supercolumn:string -> name:string -> timestamp -> string -> unit
+
+val insert_column : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  cf:string -> ?supercolumn:string -> ?timestamp:timestamp -> column -> unit
 
 val remove_key : keyspace ->
   key:string -> ?consistency_level:consistency_level ->

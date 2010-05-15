@@ -152,6 +152,9 @@ let get t ~key ?consistency_level ~cf ?supercolumn column =
             key (column_path ~cf ?supercolumn column) (clevel consistency_level)
   in of_column r#grab_column
 
+let get_value t ~key ?consistency_level ~cf ?supercolumn col =
+  (get t ~key ?consistency_level ~cf ?supercolumn col).c_value
+
 let get' t ~key ?consistency_level ~cf name =
   let r = t.ks_client#get t.ks_name key (supercolumn_path ~cf name)
             (clevel consistency_level)
@@ -205,6 +208,12 @@ let get_range_superslices t ~cf ?consistency_level pred range =
 let insert t ~key ?consistency_level ~cf ?supercolumn ~name timestamp value =
   t.ks_client#insert t.ks_name key
     (column_path ~cf ?supercolumn name) value timestamp (clevel consistency_level)
+
+let insert_column t ~key ?consistency_level ~cf ?supercolumn ?timestamp column =
+  insert t ~key ?consistency_level ~cf ?supercolumn
+    ~name:column.c_name
+    (Option.default column.c_timestamp timestamp)
+    column.c_value
 
 let remove_key t ~key ?consistency_level timestamp cf =
   let cpath = new columnPath in
