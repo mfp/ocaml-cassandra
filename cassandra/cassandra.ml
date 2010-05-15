@@ -68,13 +68,14 @@ let get_keyspace t name = { ks_name = name; ks_client = t.client; }
 open ConsistencyLevel
 
 let clevel = function
-    `ZERO -> ZERO
-  | `ONE -> ONE
-  | `QUORUM -> QUORUM
-  | `DCQUORUM -> DCQUORUM
-  | `DCQUORUMSYNC -> DCQUORUMSYNC
-  | `ALL -> ALL
-  | `ANY -> ANY
+    None -> ONE
+  | Some `ZERO -> ZERO
+  | Some `ONE -> ONE
+  | Some `QUORUM -> QUORUM
+  | Some `DCQUORUM -> DCQUORUM
+  | Some `DCQUORUMSYNC -> DCQUORUMSYNC
+  | Some `ALL -> ALL
+  | Some `ANY -> ANY
 
 let column c =
   let r = new column in
@@ -158,7 +159,7 @@ let key_range (r, count) =
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_slice' r = (r#grab_key, get_columns' r#grab_columns)
 
-let get t ~key ?(consistency_level = `ONE) cpath =
+let get t ~key ?consistency_level cpath =
   let r = t.ks_client#get t.ks_name
             key (column_path cpath) (clevel consistency_level)
   in of_column r#grab_column
@@ -169,14 +170,14 @@ let get_column t ?consistency_level ~key ~cf column =
 let get_subcolumn t ?consistency_level ~key ~cf supercol subcol =
   get t ~key ?consistency_level (cf, `Subcolumn (supercol, subcol))
 
-let get' t ~key ?(consistency_level = `ONE) cpath =
+let get' t ~key ?consistency_level cpath =
   let r = t.ks_client#get t.ks_name key (super_column_path cpath)
             (clevel consistency_level)
   in of_super_column r#grab_super_column
 
 let get_supercolumn = get'
 
-let get_slice t ~key ?(consistency_level = `ONE) ~parent pred =
+let get_slice t ~key ?consistency_level ~parent pred =
   let cols =
     t.ks_client#get_slice t.ks_name key
       (column_parent parent) (slice_predicate pred) (clevel consistency_level)
@@ -188,7 +189,7 @@ let get_column_slice t ~key ?consistency_level ~family pred =
 let get_subcolumn_slice t ~key ?consistency_level ~family ~supercolumn pred =
   get_slice t ~key ?consistency_level ~parent:(`SC (family, supercolumn)) pred
 
-let multiget_slice t keys ?(consistency_level = `ONE) ~parent pred =
+let multiget_slice t keys ?consistency_level ~parent pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
       (column_parent parent) (slice_predicate pred) (clevel consistency_level)
@@ -201,7 +202,7 @@ let multiget_subcolumn_slice
       t keys ?consistency_level ~family ~supercolumn pred =
   multiget_slice t keys ?consistency_level ~parent:(`SC (family, supercolumn)) pred
 
-let count t ~key ?(consistency_level = `ONE) parent =
+let count t ~key ?consistency_level parent =
   t.ks_client#get_count t.ks_name
     key (column_parent parent) (clevel consistency_level)
 
@@ -212,12 +213,12 @@ let count_subcolumns t ~key ?consistency_level ~family supercol =
   count t ~key ?consistency_level (`SC (family, supercol))
 
 let get_range_slices
-      t ~parent ?(consistency_level = `ONE) pred range =
+      t ~parent ?consistency_level pred range =
   let r = t.ks_client#get_range_slices t.ks_name (column_parent parent)
             (slice_predicate pred) (key_range range) (clevel consistency_level)
   in List.map of_key_slice r
 
-let insert t ~key ?(consistency_level = `ONE) cpath timestamp value =
+let insert t ~key ?consistency_level cpath timestamp value =
   t.ks_client#insert t.ks_name key
     (column_path cpath) value timestamp (clevel consistency_level)
 
@@ -236,15 +237,15 @@ let make_column_path ?super ?column family =
     Option.may r#set_column column;
     r
 
-let remove_key t ~key ?(consistency_level = `ONE) timestamp column_family =
+let remove_key t ~key ?consistency_level timestamp column_family =
   t.ks_client#remove t.ks_name key (make_column_path column_family) timestamp
     (clevel consistency_level)
 
-let remove_column t ~key ?(consistency_level = `ONE) timestamp cpath =
+let remove_column t ~key ?consistency_level timestamp cpath =
   t.ks_client#remove t.ks_name key (column_path cpath) timestamp
     (clevel consistency_level)
 
-let remove_super_column t ~key ?(consistency_level = `ONE) timestamp path =
+let remove_super_column t ~key ?consistency_level timestamp path =
   t.ks_client#remove t.ks_name key (super_column_path path) timestamp
     (clevel consistency_level)
 
@@ -280,7 +281,7 @@ let mutation (m : mutation) =
     end;
     r
 
-let batch_mutate t ?(consistency_level = `ONE) l =
+let batch_mutate t ?consistency_level l =
   let h = Hashtbl.create (List.length l) in
     List.iter
       (fun (key, l1) ->
