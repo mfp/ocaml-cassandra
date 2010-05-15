@@ -141,7 +141,7 @@ let slice_predicate p =
     end;
     r
 
-let get_columns l = List.filter_map (fun r -> Option.map of_column r#get_column) l
+let get_columns = List.filter_map (fun r -> Option.map of_column r#get_column)
 
 let get_columns' l =
   List.filter_map (fun r -> Option.map of_super_column r#get_super_column) l
@@ -162,8 +162,9 @@ let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_slice' r = (r#grab_key, get_columns' r#grab_columns)
 
 let get t ~key ?(consistency_level = `ONE) cpath =
-  let r = t.ks_client#get t.ks_name key (column_path cpath) (clevel consistency_level) in
-    of_column r#grab_column
+  let r = t.ks_client#get t.ks_name
+            key (column_path cpath) (clevel consistency_level)
+  in of_column r#grab_column
 
 let get_column t ?consistency_level ~key ~cf column =
   get t ~key ?consistency_level (cf, `Column column)
@@ -179,17 +180,20 @@ let get' t ~key ?(consistency_level = `ONE) cpath =
 let get_supercolumn = get'
 
 let get_slice t ~key ?(consistency_level = `ONE) ~parent pred =
-  let cols = t.ks_client#get_slice t.ks_name key
-               (column_parent parent) (slice_predicate pred) (clevel consistency_level)
+  let cols =
+    t.ks_client#get_slice t.ks_name key
+      (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in get_columns cols
 
 let multiget_slice t keys ?(consistency_level = `ONE) ~parent pred =
-  let h = t.ks_client#multiget_slice t.ks_name keys
-            (column_parent parent) (slice_predicate pred) (clevel consistency_level)
+  let h =
+    t.ks_client#multiget_slice t.ks_name keys
+      (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
 let count t ~key ?(consistency_level = `ONE) parent =
-  t.ks_client#get_count t.ks_name key (column_parent parent) (clevel consistency_level)
+  t.ks_client#get_count t.ks_name
+    key (column_parent parent) (clevel consistency_level)
 
 let get_range_slices
       t ~parent ?(consistency_level = `ONE) pred range =
@@ -198,7 +202,8 @@ let get_range_slices
   in List.map of_key_slice r
 
 let insert t ~key ?(consistency_level = `ONE) cpath timestamp value =
-  t.ks_client#insert t.ks_name key (column_path cpath) value timestamp (clevel consistency_level)
+  t.ks_client#insert t.ks_name key
+    (column_path cpath) value timestamp (clevel consistency_level)
 
 let make_column_path ?super ?column family =
   let r = new columnPath in
@@ -207,18 +212,15 @@ let make_column_path ?super ?column family =
     Option.may r#set_column column;
     r
 
-let remove_key
-      t ~key ?(consistency_level = `ONE) timestamp column_family =
+let remove_key t ~key ?(consistency_level = `ONE) timestamp column_family =
   t.ks_client#remove t.ks_name key (make_column_path column_family) timestamp
     (clevel consistency_level)
 
-let remove_column
-      t ~key ?(consistency_level = `ONE) timestamp cpath =
+let remove_column t ~key ?(consistency_level = `ONE) timestamp cpath =
   t.ks_client#remove t.ks_name key (column_path cpath) timestamp
     (clevel consistency_level)
 
-let remove_super_column
-      t ~key ?(consistency_level = `ONE) timestamp path =
+let remove_super_column t ~key ?(consistency_level = `ONE) timestamp path =
   t.ks_client#remove t.ks_name key (super_column_path path) timestamp
     (clevel consistency_level)
 
