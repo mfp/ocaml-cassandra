@@ -8,8 +8,7 @@ type column_path =
 
 type super_column_path = string * string
 
-type column_parent = string
-type column_parent' = column_parent * string
+type column_parent = [`CF of string | `SC of string * string]
 
 type consistency_level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]

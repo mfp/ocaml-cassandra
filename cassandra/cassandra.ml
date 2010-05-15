@@ -11,8 +11,7 @@ type column_path = string * [`Column of string | `Subcolumn of string * string]
 
 type super_column_path = string * string
 
-type column_parent = string
-type column_parent' = column_parent * string
+type column_parent = [`CF of string | `SC of string * string]
 
 type consistency_level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
@@ -117,15 +116,13 @@ let super_column_path (family, sup) =
     r#set_super_column sup;
     r
 
-let column_parent family =
-  let r = new columnParent in
-    r#set_column_family family;
-    r
-
-let super_column_parent (family, supercol) =
-  let r = column_parent family in
-    r#set_super_column supercol;
-    r
+let column_parent p =
+  let o = new columnParent in
+    begin match p with
+        `CF s -> o#set_column_family s
+      | `SC (cf, c) -> o#set_column_family cf; o#set_super_column c
+    end;
+    o
 
 let slice_predicate p =
   let r = new slicePredicate in
