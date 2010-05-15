@@ -17,7 +17,7 @@ type key_range =
     [ `Key of string * string * int | `Token of string * string * int]
 
 type key_slice = string * column list
-type key_slice' = string * supercolumn list
+type key_superslice = string * supercolumn list
 
 type mutation =
     [
@@ -90,7 +90,7 @@ let supercolumn c =
     r#set_columns (List.map column c.sc_columns);
     r
 
-let of_supercolumn c =
+let of_super_column c =
   { sc_name = c#grab_name; sc_columns = List.map of_column c#grab_columns; }
 
 let column_path ~cf ?supercolumn c =
@@ -128,8 +128,8 @@ let slice_predicate p =
 
 let get_columns = List.filter_map (fun r -> Option.map of_column r#get_column)
 
-let get_columns' l =
-  List.filter_map (fun r -> Option.map of_supercolumn r#get_supercolumn) l
+let get_supercolumns =
+  List.filter_map (fun r -> Option.map of_super_column r#get_super_column)
 
 let key_range r =
   let o = new keyRange in
@@ -145,7 +145,7 @@ let key_range r =
     o
 
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
-let of_key_slice' r = (r#grab_key, get_columns' r#grab_columns)
+let of_key_super_slice r = (r#grab_key, get_supercolumns r#grab_columns)
 
 let get t ~key ?consistency_level ~cf ?supercolumn column =
   let r = t.ks_client#get t.ks_name
@@ -155,7 +155,7 @@ let get t ~key ?consistency_level ~cf ?supercolumn column =
 let get' t ~key ?consistency_level ~cf name =
   let r = t.ks_client#get t.ks_name key (supercolumn_path ~cf name)
             (clevel consistency_level)
-  in of_supercolumn r#grab_super_column
+  in of_super_column r#grab_super_column
 
 let get_supercolumn = get'
 
@@ -166,12 +166,24 @@ let get_slice t ~key ?consistency_level ~cf ?supercolumn pred =
       (slice_predicate pred) (clevel consistency_level)
   in get_columns cols
 
+let get_superslice t ~key ?consistency_level ~cf pred =
+  let cols =
+    t.ks_client#get_slice t.ks_name key
+      (column_parent cf) (slice_predicate pred) (clevel consistency_level)
+  in get_supercolumns cols
+
 let multiget_slice t keys ?consistency_level ~cf ?supercolumn pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
       (column_parent cf ?supercolumn)
       (slice_predicate pred) (clevel consistency_level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
+
+let multiget_superslice t keys ?consistency_level ~cf pred =
+  let h =
+    t.ks_client#multiget_slice t.ks_name keys
+      (column_parent cf) (slice_predicate pred) (clevel consistency_level)
+  in Hashtbl.map (List.map (fun r -> of_super_column r#grab_super_column)) h
 
 let count t ~key ?consistency_level ~cf ?supercolumn () =
   t.ks_client#get_count t.ks_name
@@ -183,6 +195,12 @@ let get_range_slices
             (column_parent cf ?supercolumn)
             (slice_predicate pred) (key_range range) (clevel consistency_level)
   in List.map of_key_slice r
+
+let get_range_superslices t ~cf ?consistency_level pred range =
+  let r = t.ks_client#get_range_slices t.ks_name
+            (column_parent cf)
+            (slice_predicate pred) (key_range range) (clevel consistency_level)
+  in List.map of_key_super_slice r
 
 let insert t ~key ?consistency_level ~cf ?supercolumn ~name timestamp value =
   t.ks_client#insert t.ks_name key

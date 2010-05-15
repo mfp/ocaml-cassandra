@@ -13,7 +13,7 @@ type key_range =
     [ `Key of string * string * int | `Token of string * string * int ]
 
 type key_slice = string * column list
-type key_slice' = string * supercolumn list
+type key_superslice = string * supercolumn list
 
 type mutation =
     [
@@ -50,10 +50,19 @@ val get_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   cf:string -> ?supercolumn:string -> slice_predicate -> column list
 
+val get_superslice : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  cf:string -> slice_predicate -> supercolumn list
+
 val multiget_slice : keyspace ->
   string list -> ?consistency_level:consistency_level ->
   cf:string -> ?supercolumn:string -> slice_predicate ->
   (string, column list) Hashtbl.t
+
+val multiget_superslice : keyspace ->
+  string list -> ?consistency_level:consistency_level ->
+  cf:string -> slice_predicate ->
+  (string, supercolumn list) Hashtbl.t
 
 val count : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
@@ -63,6 +72,11 @@ val get_range_slices : keyspace ->
   cf:string -> ?supercolumn:string ->
   ?consistency_level:consistency_level -> slice_predicate ->
   key_range -> key_slice list
+
+val get_range_superslices : keyspace ->
+  cf:string ->
+  ?consistency_level:consistency_level -> slice_predicate ->
+  key_range -> key_superslice list
 
 val insert : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
