@@ -165,10 +165,18 @@ let get t ~key ?(consistency_level = `ONE) cpath =
   let r = t.ks_client#get t.ks_name key (column_path cpath) (clevel consistency_level) in
     of_column r#grab_column
 
+let get_column t ?consistency_level ~key ~cf column =
+  get t ~key ?consistency_level (cf, `Column column)
+
+let get_subcolumn t ?consistency_level ~key ~cf supercol subcol =
+  get t ~key ?consistency_level (cf, `Subcolumn (supercol, subcol))
+
 let get' t ~key ?(consistency_level = `ONE) cpath =
   let r = t.ks_client#get t.ks_name key (super_column_path cpath)
             (clevel consistency_level)
   in of_super_column r#grab_super_column
+
+let get_supercolumn = get'
 
 let get_slice t ~key ?(consistency_level = `ONE) ~parent pred =
   let cols = t.ks_client#get_slice t.ks_name key

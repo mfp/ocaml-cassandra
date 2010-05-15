@@ -46,7 +46,17 @@ val get : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   column_path -> column
 
+val get_column : keyspace -> ?consistency_level:consistency_level ->
+  key:string -> cf:string -> string -> column
+
+val get_subcolumn : keyspace -> ?consistency_level:consistency_level ->
+  key:string -> cf:string -> string -> string -> column
+
 val get' : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  super_column_path -> super_column
+
+val get_supercolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   super_column_path -> super_column
 
