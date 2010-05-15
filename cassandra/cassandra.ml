@@ -5,11 +5,12 @@ open Cassandra_types
 
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
-type super_column = { sc_name : string; sc_columns : column list }
+type supercolumn = { sc_name : string; sc_columns : column list }
 
-type column_path = string * [`Column of string | `Subcolumn of string * string]
+type column_path =
+    [`C of string * string | `SC of string * string * string]
 
-type super_column_path = string * string
+type supercolumn_path = string * string
 
 type column_parent = [`CF of string | `SC of string * string]
 
@@ -20,10 +21,10 @@ type slice_predicate =
     [ `Columns of string list | `Range of string * string * bool * int ]
 
 type key_range =
-    [ `Key_range of string * string | `Token_range of string * string ] * int
+    [ `Key of string * string * int | `Token of string * string * int]
 
 type key_slice = string * column list
-type key_slice' = string * super_column list
+type key_slice' = string * supercolumn list
 
 type mutation =
     [
@@ -31,7 +32,7 @@ type mutation =
         [ `Key | `Super_column of string | `Columns of slice_predicate
         | `Sub_columns of string * slice_predicate ]
     | `Insert of column
-    | `Insert_super of super_column
+    | `Insert_super of supercolumn
     ]
 
 type connection = {
@@ -90,30 +91,28 @@ let of_column c =
     c_timestamp = c#grab_timestamp;
   }
 
-let super_column c =
+let supercolumn c =
   let r = new superColumn in
     r#set_name c.sc_name;
     r#set_columns (List.map column c.sc_columns);
     r
 
-let of_super_column c =
+let of_supercolumn c =
   { sc_name = c#grab_name; sc_columns = List.map of_column c#grab_columns; }
 
-let column_path (family, path) =
+let column_path p =
   let r = new columnPath in
-    r#set_column_family family;
-    begin
-      match path with
-          `Column n -> r#set_column n
-        | `Subcolumn (sup, sub) ->
-            r#set_super_column sup;
-            r#set_column sub
+    begin match p with
+          `C (cf, c) -> r#set_column_family cf; r#set_column c
+        | `SC (cf, sc, c) -> r#set_column_family cf;
+                             r#set_super_column sc;
+                             r#set_column c
     end;
     r
 
-let super_column_path (family, sup) =
+let supercolumn_path (cf, sup) =
   let r = new columnPath in
-    r#set_column_family family;
+    r#set_column_family cf;
     r#set_super_column sup;
     r
 
@@ -142,17 +141,18 @@ let slice_predicate p =
 let get_columns = List.filter_map (fun r -> Option.map of_column r#get_column)
 
 let get_columns' l =
-  List.filter_map (fun r -> Option.map of_super_column r#get_super_column) l
+  List.filter_map (fun r -> Option.map of_supercolumn r#get_supercolumn) l
 
-let key_range (r, count) =
+let key_range r =
   let o = new keyRange in
     begin
-      o#set_count count;
       match r with
-          `Key_range (start, stop) -> o#set_start_key start;
-                                      o#set_end_key stop
-        | `Token_range (start, stop) -> o#set_start_token start;
-                                        o#set_end_token stop
+          `Key (start, stop, count) -> o#set_start_key start;
+                                       o#set_end_key stop;
+                                       o#set_count count
+        | `Token (start, stop, count) -> o#set_start_token start;
+                                         o#set_end_token stop;
+                                         o#set_count count
     end;
     o
 
@@ -165,15 +165,15 @@ let get t ~key ?consistency_level cpath =
   in of_column r#grab_column
 
 let get_column t ?consistency_level ~key ~cf column =
-  get t ~key ?consistency_level (cf, `Column column)
+  get t ~key ?consistency_level (`C (cf, column))
 
 let get_subcolumn t ?consistency_level ~key ~cf supercol subcol =
-  get t ~key ?consistency_level (cf, `Subcolumn (supercol, subcol))
+  get t ~key ?consistency_level (`SC (cf, supercol, subcol))
 
 let get' t ~key ?consistency_level cpath =
-  let r = t.ks_client#get t.ks_name key (super_column_path cpath)
+  let r = t.ks_client#get t.ks_name key (supercolumn_path cpath)
             (clevel consistency_level)
-  in of_super_column r#grab_super_column
+  in of_supercolumn r#grab_super_column
 
 let get_supercolumn = get'
 
@@ -183,11 +183,11 @@ let get_slice t ~key ?consistency_level ~parent pred =
       (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in get_columns cols
 
-let get_column_slice t ~key ?consistency_level ~family pred =
-  get_slice t ~key ?consistency_level ~parent:(`CF family) pred
+let get_column_slice t ~key ?consistency_level ~cf pred =
+  get_slice t ~key ?consistency_level ~parent:(`CF cf) pred
 
-let get_subcolumn_slice t ~key ?consistency_level ~family ~supercolumn pred =
-  get_slice t ~key ?consistency_level ~parent:(`SC (family, supercolumn)) pred
+let get_subcolumn_slice t ~key ?consistency_level ~cf ~supercolumn pred =
+  get_slice t ~key ?consistency_level ~parent:(`SC (cf, supercolumn)) pred
 
 let multiget_slice t keys ?consistency_level ~parent pred =
   let h =
@@ -195,22 +195,22 @@ let multiget_slice t keys ?consistency_level ~parent pred =
       (column_parent parent) (slice_predicate pred) (clevel consistency_level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
-let multiget_column_slice t keys ?consistency_level ~family pred =
-  multiget_slice t keys ?consistency_level ~parent:(`CF family) pred
+let multiget_column_slice t keys ?consistency_level ~cf pred =
+  multiget_slice t keys ?consistency_level ~parent:(`CF cf) pred
 
 let multiget_subcolumn_slice
-      t keys ?consistency_level ~family ~supercolumn pred =
-  multiget_slice t keys ?consistency_level ~parent:(`SC (family, supercolumn)) pred
+      t keys ?consistency_level ~cf ~supercolumn pred =
+  multiget_slice t keys ?consistency_level ~parent:(`SC (cf, supercolumn)) pred
 
 let count t ~key ?consistency_level parent =
   t.ks_client#get_count t.ks_name
     key (column_parent parent) (clevel consistency_level)
 
-let count_columns t ~key ?consistency_level family =
-  count t ~key ?consistency_level (`CF family)
+let count_columns t ~key ?consistency_level cf =
+  count t ~key ?consistency_level (`CF cf)
 
-let count_subcolumns t ~key ?consistency_level ~family supercol =
-  count t ~key ?consistency_level (`SC (family, supercol))
+let count_subcolumns t ~key ?consistency_level ~cf supercol =
+  count t ~key ?consistency_level (`SC (cf, supercol))
 
 let get_range_slices
       t ~parent ?consistency_level pred range =
@@ -222,17 +222,17 @@ let insert t ~key ?consistency_level cpath timestamp value =
   t.ks_client#insert t.ks_name key
     (column_path cpath) value timestamp (clevel consistency_level)
 
-let insert_column t ~key ?consistency_level ~family ~name timestamp value =
-  insert t ~key ?consistency_level (family, `Column name) timestamp value
+let insert_column t ~key ?consistency_level ~cf ~name timestamp value =
+  insert t ~key ?consistency_level (`C (cf, name)) timestamp value
 
 let insert_subcolumn
-      t ~key ?consistency_level ~family ~supercolumn ~name timestamp value =
+      t ~key ?consistency_level ~cf ~supercolumn ~name timestamp value =
   insert t ~key ?consistency_level
-    (family, `Subcolumn (supercolumn, name)) timestamp value
+    (`SC (cf, supercolumn, name)) timestamp value
 
-let make_column_path ?super ?column family =
+let make_column_path ?super ?column cf =
   let r = new columnPath in
-    r#set_column_family family;
+    r#set_column_family cf;
     Option.may r#set_super_column super;
     Option.may r#set_column column;
     r
@@ -245,20 +245,20 @@ let remove_column t ~key ?consistency_level timestamp cpath =
   t.ks_client#remove t.ks_name key (column_path cpath) timestamp
     (clevel consistency_level)
 
-let remove_super_column t ~key ?consistency_level timestamp path =
-  t.ks_client#remove t.ks_name key (super_column_path path) timestamp
+let remove_supercolumn t ~key ?consistency_level timestamp path =
+  t.ks_client#remove t.ks_name key (supercolumn_path path) timestamp
     (clevel consistency_level)
 
-let make_deletion ?super_column ?predicate timestamp =
+let make_deletion ?supercolumn ?predicate timestamp =
   let r = new deletion in
-    Option.may r#set_super_column super_column;
+    Option.may r#set_super_column supercolumn;
     Option.may r#set_predicate (Option.map slice_predicate predicate);
     r
 
 let make_column_or_supercolumn ?col ?super () =
   let c = new columnOrSuperColumn in
     Option.may c#set_column (Option.map column col);
-    Option.may c#set_super_column (Option.map super_column super);
+    Option.may c#set_super_column (Option.map supercolumn super);
     c
 
 let mutation (m : mutation) =
@@ -272,11 +272,11 @@ let mutation (m : mutation) =
         | `Delete (timestamp, what) ->
             r#set_deletion begin match what with
                 `Key -> make_deletion timestamp
-              | `Super_column super_column ->
-                  make_deletion ~super_column timestamp
+              | `Super_column supercolumn ->
+                  make_deletion ~supercolumn timestamp
               | `Columns predicate -> make_deletion ~predicate timestamp
-              | `Sub_columns (super_column, predicate) ->
-                  make_deletion ~super_column ~predicate timestamp
+              | `Sub_columns (supercolumn, predicate) ->
+                  make_deletion ~supercolumn ~predicate timestamp
             end
     end;
     r

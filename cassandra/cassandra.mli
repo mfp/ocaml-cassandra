@@ -1,12 +1,12 @@
 
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
-type super_column = { sc_name : string; sc_columns : column list }
+type supercolumn = { sc_name : string; sc_columns : column list }
 
 type column_path =
-    string * [`Column of string | `Subcolumn of string * string]
+    [`C of string * string | `SC of string * string * string]
 
-type super_column_path = string * string
+type supercolumn_path = string * string
 
 type column_parent = [`CF of string | `SC of string * string]
 
@@ -17,10 +17,10 @@ type slice_predicate =
     [ `Columns of string list | `Range of string * string * bool * int ]
 
 type key_range =
-    [ `Key_range of string * string | `Token_range of string * string ] * int
+    [ `Key of string * string * int | `Token of string * string * int ]
 
 type key_slice = string * column list
-type key_slice' = string * super_column list
+type key_slice' = string * supercolumn list
 
 type mutation =
     [
@@ -28,7 +28,7 @@ type mutation =
         [ `Key | `Super_column of string | `Columns of slice_predicate
         | `Sub_columns of string * slice_predicate ]
     | `Insert of column
-    | `Insert_super of super_column
+    | `Insert_super of supercolumn
     ]
 
 type connection
@@ -53,11 +53,11 @@ val get_subcolumn : keyspace -> ?consistency_level:consistency_level ->
 
 val get' : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  super_column_path -> super_column
+  supercolumn_path -> supercolumn
 
 val get_supercolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  super_column_path -> super_column
+  supercolumn_path -> supercolumn
 
 val get_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
@@ -65,11 +65,11 @@ val get_slice : keyspace ->
 
 val get_column_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  family:string -> slice_predicate -> column list
+  cf:string -> slice_predicate -> column list
 
 val get_subcolumn_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  family:string -> supercolumn:string -> slice_predicate -> column list
+  cf:string -> supercolumn:string -> slice_predicate -> column list
 
 val multiget_slice : keyspace ->
   string list -> ?consistency_level:consistency_level ->
@@ -77,11 +77,11 @@ val multiget_slice : keyspace ->
 
 val multiget_column_slice : keyspace ->
   string list -> ?consistency_level:consistency_level ->
-  family:string -> slice_predicate -> (string, column list) Hashtbl.t
+  cf:string -> slice_predicate -> (string, column list) Hashtbl.t
 
 val multiget_subcolumn_slice : keyspace ->
   string list -> ?consistency_level:consistency_level ->
-  family:string -> supercolumn:string -> slice_predicate ->
+  cf:string -> supercolumn:string -> slice_predicate ->
   (string, column list) Hashtbl.t
 
 val count : keyspace ->
@@ -94,7 +94,7 @@ val count_columns : keyspace ->
 
 val count_subcolumns : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  family:string -> string -> int
+  cf:string -> string -> int
 
 val get_range_slices : keyspace ->
   parent:column_parent ->
@@ -107,11 +107,11 @@ val insert : keyspace ->
 
 val insert_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  family:string -> name:string -> timestamp -> string -> unit
+  cf:string -> name:string -> timestamp -> string -> unit
 
 val insert_subcolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  family:string -> supercolumn:string -> name:string ->
+  cf:string -> supercolumn:string -> name:string ->
   timestamp -> string -> unit
 
 val remove_key : keyspace ->
@@ -122,9 +122,9 @@ val remove_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   timestamp -> column_path -> unit
 
-val remove_super_column : keyspace ->
+val remove_supercolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  timestamp -> super_column_path -> unit
+  timestamp -> supercolumn_path -> unit
 
 (** (key * (column_family * mutation list) list) list *)
 val batch_mutate : keyspace ->
