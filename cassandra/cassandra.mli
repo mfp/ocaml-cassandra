@@ -1,7 +1,7 @@
 
 type timestamp = Int64.t
-type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
-type supercolumn = { sc_name : string; sc_columns : column list }
+type column = private { c_name : string; c_value : string; c_timestamp : timestamp; }
+type supercolumn = private { sc_name : string; sc_columns : column list }
 
 type consistency_level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
