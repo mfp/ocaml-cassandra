@@ -10,8 +10,6 @@ type supercolumn = { sc_name : string; sc_columns : column list }
 type column_path =
     [`C of string * string | `SC of string * string * string]
 
-type supercolumn_path = string * string
-
 type column_parent = [`CF of string | `SC of string * string]
 
 type consistency_level =
@@ -100,17 +98,14 @@ let supercolumn c =
 let of_supercolumn c =
   { sc_name = c#grab_name; sc_columns = List.map of_column c#grab_columns; }
 
-let column_path p =
+let column_path ~cf ?supercolumn c =
   let r = new columnPath in
-    begin match p with
-          `C (cf, c) -> r#set_column_family cf; r#set_column c
-        | `SC (cf, sc, c) -> r#set_column_family cf;
-                             r#set_super_column sc;
-                             r#set_column c
-    end;
+    r#set_column_family cf;
+    Option.may r#set_super_column supercolumn;
+    r#set_column c;
     r
 
-let supercolumn_path (cf, sup) =
+let supercolumn_path ~cf sup =
   let r = new columnPath in
     r#set_column_family cf;
     r#set_super_column sup;
@@ -159,19 +154,13 @@ let key_range r =
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_slice' r = (r#grab_key, get_columns' r#grab_columns)
 
-let get t ~key ?consistency_level cpath =
+let get t ~key ?consistency_level ~cf ?supercolumn column =
   let r = t.ks_client#get t.ks_name
-            key (column_path cpath) (clevel consistency_level)
+            key (column_path ~cf ?supercolumn column) (clevel consistency_level)
   in of_column r#grab_column
 
-let get_column t ?consistency_level ~key ~cf column =
-  get t ~key ?consistency_level (`C (cf, column))
-
-let get_subcolumn t ?consistency_level ~key ~cf supercol subcol =
-  get t ~key ?consistency_level (`SC (cf, supercol, subcol))
-
-let get' t ~key ?consistency_level cpath =
-  let r = t.ks_client#get t.ks_name key (supercolumn_path cpath)
+let get' t ~key ?consistency_level ~cf name =
+  let r = t.ks_client#get t.ks_name key (supercolumn_path ~cf name)
             (clevel consistency_level)
   in of_supercolumn r#grab_super_column
 
@@ -218,17 +207,9 @@ let get_range_slices
             (slice_predicate pred) (key_range range) (clevel consistency_level)
   in List.map of_key_slice r
 
-let insert t ~key ?consistency_level cpath timestamp value =
+let insert t ~key ?consistency_level ~cf ?supercolumn ~name timestamp value =
   t.ks_client#insert t.ks_name key
-    (column_path cpath) value timestamp (clevel consistency_level)
-
-let insert_column t ~key ?consistency_level ~cf ~name timestamp value =
-  insert t ~key ?consistency_level (`C (cf, name)) timestamp value
-
-let insert_subcolumn
-      t ~key ?consistency_level ~cf ~supercolumn ~name timestamp value =
-  insert t ~key ?consistency_level
-    (`SC (cf, supercolumn, name)) timestamp value
+    (column_path ~cf ?supercolumn name) value timestamp (clevel consistency_level)
 
 let make_column_path ?super ?column cf =
   let r = new columnPath in
@@ -241,13 +222,13 @@ let remove_key t ~key ?consistency_level timestamp column_family =
   t.ks_client#remove t.ks_name key (make_column_path column_family) timestamp
     (clevel consistency_level)
 
-let remove_column t ~key ?consistency_level timestamp cpath =
-  t.ks_client#remove t.ks_name key (column_path cpath) timestamp
-    (clevel consistency_level)
+let remove_column t ~key ?consistency_level ~cf ?supercolumn timestamp name =
+  t.ks_client#remove t.ks_name key
+    (column_path ~cf ?supercolumn name) timestamp (clevel consistency_level)
 
-let remove_supercolumn t ~key ?consistency_level timestamp path =
-  t.ks_client#remove t.ks_name key (supercolumn_path path) timestamp
-    (clevel consistency_level)
+let remove_supercolumn t ~key ?consistency_level ~cf timestamp name =
+  t.ks_client#remove t.ks_name key
+    (supercolumn_path ~cf name) timestamp (clevel consistency_level)
 
 let make_deletion ?supercolumn ?predicate timestamp =
   let r = new deletion in

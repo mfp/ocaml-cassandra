@@ -3,11 +3,6 @@ type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = { sc_name : string; sc_columns : column list }
 
-type column_path =
-    [`C of string * string | `SC of string * string * string]
-
-type supercolumn_path = string * string
-
 type column_parent = [`CF of string | `SC of string * string]
 
 type consistency_level =
@@ -43,21 +38,15 @@ val get_keyspace : connection -> string -> keyspace
 
 val get : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  column_path -> column
-
-val get_column : keyspace -> ?consistency_level:consistency_level ->
-  key:string -> cf:string -> string -> column
-
-val get_subcolumn : keyspace -> ?consistency_level:consistency_level ->
-  key:string -> cf:string -> string -> string -> column
+  cf:string -> ?supercolumn:string -> string -> column
 
 val get' : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  supercolumn_path -> supercolumn
+  cf:string -> string -> supercolumn
 
 val get_supercolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  supercolumn_path -> supercolumn
+  cf:string -> string -> supercolumn
 
 val get_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
@@ -103,16 +92,7 @@ val get_range_slices : keyspace ->
 
 val insert : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  column_path -> timestamp -> string -> unit
-
-val insert_column : keyspace ->
-  key:string -> ?consistency_level:consistency_level ->
-  cf:string -> name:string -> timestamp -> string -> unit
-
-val insert_subcolumn : keyspace ->
-  key:string -> ?consistency_level:consistency_level ->
-  cf:string -> supercolumn:string -> name:string ->
-  timestamp -> string -> unit
+  cf:string -> ?supercolumn:string -> name:string -> timestamp -> string -> unit
 
 val remove_key : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
@@ -120,11 +100,11 @@ val remove_key : keyspace ->
 
 val remove_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  timestamp -> column_path -> unit
+  cf:string -> ?supercolumn:string -> timestamp -> string -> unit
 
 val remove_supercolumn : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
-  timestamp -> supercolumn_path -> unit
+  cf:string -> timestamp -> string -> unit
 
 (** (key * (column_family * mutation list) list) list *)
 val batch_mutate : keyspace ->
