@@ -33,54 +33,57 @@ type mutation =
     ]
 
 type connection
+type keyspace
 
-val connect : keyspace:string -> host:string -> int -> connection
+val connect : host:string -> int -> connection
 val disconnect : connection -> unit
 val reconnect : connection -> unit
 val valid_connection : connection -> bool
 
-val get : connection ->
+val get_keyspace : connection -> string -> keyspace
+
+val get : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   column_path -> column
 
-val get' : connection ->
+val get' : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   super_column_path -> super_column
 
-val get_slice : connection ->
+val get_slice : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   parent:column_parent -> slice_predicate -> column list
 
-val multiget_slice : connection ->
+val multiget_slice : keyspace ->
   string list -> ?consistency_level:consistency_level ->
   parent:column_parent -> slice_predicate -> (string, column list) Hashtbl.t
 
-val count : connection ->
+val count : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   column_parent -> int
 
-val get_range_slices : connection ->
+val get_range_slices : keyspace ->
   parent:column_parent ->
   ?consistency_level:consistency_level -> slice_predicate ->
   key_range -> key_slice list
 
-val insert : connection ->
+val insert : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   column_path -> timestamp -> string -> unit
 
-val remove_key : connection ->
+val remove_key : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   timestamp -> string -> unit
 
-val remove_column : connection ->
+val remove_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   timestamp -> column_path -> unit
 
-val remove_super_column : connection ->
+val remove_super_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->
   timestamp -> super_column_path -> unit
 
 (** (key * (column_family * mutation list) list) list *)
-val batch_mutate : connection ->
+val batch_mutate : keyspace ->
   ?consistency_level:consistency_level ->
   (string * (string * mutation list) list) list -> unit
