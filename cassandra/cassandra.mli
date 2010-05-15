@@ -89,6 +89,11 @@ val insert : keyspace ->
   cf:string -> ?supercolumn:string -> name:string ->
   ?timestamp:timestamp -> string -> unit
 
+val insert_supercolumn : keyspace ->
+  key:string -> ?consistency_level:consistency_level ->
+  cf:string -> name:string -> ?timestamp:timestamp ->
+  (string * string) list -> unit
+
 (** Use the timestamp in [column] unless another one is specified. *)
 val insert_column : keyspace ->
   key:string -> ?consistency_level:consistency_level ->

@@ -281,3 +281,11 @@ let batch_mutate t ?consistency_level l =
       l;
     t.ks_client#batch_mutate t.ks_name h (clevel consistency_level)
 
+let insert_supercolumn t ~key ?consistency_level ~cf ~name ?timestamp l =
+  let timestamp = mk_timestamp timestamp in
+  let columns =
+    List.map
+      (fun (n, v) -> { c_name = n; c_timestamp = timestamp; c_value = v }) l in
+  let mutation = `Insert_super { sc_name = name; sc_columns = columns } in
+    batch_mutate t ?consistency_level [key, [cf, [mutation]]]
+
