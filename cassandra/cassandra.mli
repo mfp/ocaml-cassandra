@@ -36,84 +36,64 @@ val valid_connection : connection -> bool
 
 val get_keyspace : connection -> ?level:level -> string -> keyspace
 
-val get : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> string -> column
+val get : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> string -> column
 
-val get_value : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> string -> string
+val get_value : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> string -> string
 
-val get' : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> string -> supercolumn
+val get' : keyspace -> ?level:level ->
+  cf:string -> key:string -> string -> supercolumn
 
-val get_supercolumn : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> string -> supercolumn
+val get_supercolumn : keyspace -> ?level:level ->
+  cf:string -> key:string -> string -> supercolumn
 
-val get_slice : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> slice_predicate -> column list
+val get_slice : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> slice_predicate -> column list
 
-val get_superslice : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> slice_predicate -> supercolumn list
+val get_superslice : keyspace -> ?level:level ->
+  cf:string -> key:string -> slice_predicate -> supercolumn list
 
-val multiget_slice : keyspace ->
-  string list -> ?level:level ->
-  cf:string -> ?supercolumn:string -> slice_predicate ->
+val multiget_slice : keyspace -> ?level:level ->
+  cf:string -> string list -> ?sc:string -> slice_predicate ->
   (string, column list) Hashtbl.t
 
-val multiget_superslice : keyspace ->
-  string list -> ?level:level ->
-  cf:string -> slice_predicate ->
+val multiget_superslice : keyspace -> ?level:level ->
+  cf:string -> string list -> slice_predicate ->
   (string, supercolumn list) Hashtbl.t
 
-val count : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> unit -> int
+val count : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> unit -> int
 
-val get_range_slices : keyspace ->
-  cf:string -> ?supercolumn:string ->
-  ?level:level -> slice_predicate ->
-  key_range -> key_slice list
+val get_range_slices : keyspace -> ?level:level ->
+  cf:string -> ?sc:string -> slice_predicate -> key_range -> key_slice list
 
-val get_range_superslices : keyspace ->
-  cf:string ->
-  ?level:level -> slice_predicate ->
-  key_range -> key_superslice list
+val get_range_superslices : keyspace -> ?level:level ->
+  cf:string -> slice_predicate -> key_range -> key_superslice list
 
-val insert : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> name:string ->
+val insert : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> name:string ->
   ?timestamp:timestamp -> string -> unit
 
-val insert_supercolumn : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> name:string -> ?timestamp:timestamp ->
+val insert_supercolumn : keyspace -> ?level:level ->
+  cf:string -> key:string -> name:string -> ?timestamp:timestamp ->
   (string * string) list -> unit
 
 (** Use the timestamp in [column] unless another one is specified. *)
-val insert_column : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> ?timestamp:timestamp -> column -> unit
+val insert_column : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> ?timestamp:timestamp -> column -> unit
 
-val remove_key : keyspace ->
-  key:string -> ?level:level ->
-  ?timestamp:timestamp -> string -> unit
-
-val remove_column : keyspace ->
-  key:string -> ?level:level ->
-  cf:string -> ?supercolumn:string -> ?timestamp:timestamp -> string -> unit
-
-val remove_supercolumn : keyspace ->
-  key:string -> ?level:level ->
+val remove_key : keyspace -> ?level:level ->
   cf:string -> ?timestamp:timestamp -> string -> unit
 
+val remove_column : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?sc:string -> ?timestamp:timestamp -> string -> unit
+
+val remove_supercolumn : keyspace -> ?level:level ->
+  cf:string -> key:string -> ?timestamp:timestamp -> string -> unit
+
 (** (key * (column_family * mutation list) list) list *)
-val batch_mutate : keyspace ->
-  ?level:level ->
+val batch_mutate : keyspace -> ?level:level ->
   (string * (string * mutation list) list) list -> unit
 
 module Typed :
@@ -122,25 +102,21 @@ sig
   type 'a subcolumn
 
   val column :
-    ?level:level ->
-    cf:string -> of_s:(string -> 'a) -> to_s:('a -> string) ->
-    string -> 'a column
+    ?level:level -> cf:string ->
+    of_s:(string -> 'a) -> to_s:('a -> string) -> string -> 'a column
 
   val subcolumn :
-    ?level:level ->
-    cf:string -> of_s:(string -> 'a) -> to_s:('a -> string) ->
-    string -> 'a subcolumn
+    ?level:level -> cf:string ->
+    of_s:(string -> 'a) -> to_s:('a -> string) -> string -> 'a subcolumn
 
-  val get : keyspace -> ?level:level ->
-    key:string -> 'a column -> 'a
+  val get : keyspace -> ?level:level -> 'a column -> key:string -> 'a
 
   val set : keyspace -> ?level:level ->
-    key:string -> 'a column -> ?timestamp:timestamp -> 'a -> unit
+    'a column -> key:string -> ?timestamp:timestamp -> 'a -> unit
 
   val get' : keyspace -> ?level:level ->
-    key:string -> supercolumn:string -> 'a subcolumn -> 'a
+    sc:string -> 'a subcolumn -> key:string -> 'a
 
   val set' : keyspace -> ?level:level ->
-    key:string -> supercolumn:string -> 'a subcolumn ->
-    ?timestamp:timestamp -> 'a -> unit
+    sc:string -> 'a subcolumn -> key:string -> ?timestamp:timestamp -> 'a -> unit
 end

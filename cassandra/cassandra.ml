@@ -98,10 +98,10 @@ let supercolumn c =
 let of_super_column c =
   { sc_name = c#grab_name; sc_columns = List.map of_column c#grab_columns; }
 
-let column_path ~cf ?supercolumn c =
+let column_path ~cf ?sc c =
   let r = new columnPath in
     r#set_column_family cf;
-    Option.may r#set_super_column supercolumn;
+    Option.may r#set_super_column sc;
     r#set_column c;
     r
 
@@ -111,10 +111,10 @@ let supercolumn_path ~cf sup =
     r#set_super_column sup;
     r
 
-let column_parent ?supercolumn cf =
+let column_parent ?sc cf =
   let o = new columnParent in
     o#set_column_family cf;
-    Option.may o#set_super_column supercolumn;
+    Option.may o#set_super_column sc;
     o
 
 let slice_predicate p =
@@ -152,59 +152,58 @@ let key_range r =
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_super_slice r = (r#grab_key, get_supercolumns r#grab_columns)
 
-let get t ~key ?level ~cf ?supercolumn column =
+let get t ?level ~cf ~key ?sc column =
   let r = t.ks_client#get t.ks_name
-            key (column_path ~cf ?supercolumn column) (clevel t level)
+            key (column_path ~cf ?sc column) (clevel t level)
   in of_column r#grab_column
 
-let get_value t ~key ?level ~cf ?supercolumn col =
-  (get t ~key ?level ~cf ?supercolumn col).c_value
+let get_value t ?level ~cf ~key ?sc col =
+  (get t ~key ?level ~cf ?sc col).c_value
 
-let get' t ~key ?level ~cf name =
+let get' t ?level ~cf ~key name =
   let r = t.ks_client#get t.ks_name key (supercolumn_path ~cf name)
             (clevel t level)
   in of_super_column r#grab_super_column
 
 let get_supercolumn = get'
 
-let get_slice t ~key ?level ~cf ?supercolumn pred =
+let get_slice t ?level ~cf ~key ?sc pred =
   let cols =
     t.ks_client#get_slice t.ks_name key
-      (column_parent cf ?supercolumn)
+      (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level)
   in get_columns cols
 
-let get_superslice t ~key ?level ~cf pred =
+let get_superslice t ?level ~cf ~key pred =
   let cols =
     t.ks_client#get_slice t.ks_name key
       (column_parent cf) (slice_predicate pred) (clevel t level)
   in get_supercolumns cols
 
-let multiget_slice t keys ?level ~cf ?supercolumn pred =
+let multiget_slice t ?level ~cf keys ?sc pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
-      (column_parent cf ?supercolumn)
+      (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
-let multiget_superslice t keys ?level ~cf pred =
+let multiget_superslice t ?level ~cf keys pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
       (column_parent cf) (slice_predicate pred) (clevel t level)
   in Hashtbl.map (List.map (fun r -> of_super_column r#grab_super_column)) h
 
-let count t ~key ?level ~cf ?supercolumn () =
+let count t ?level ~cf ~key ?sc () =
   t.ks_client#get_count t.ks_name
-    key (column_parent cf ?supercolumn) (clevel t level)
+    key (column_parent cf ?sc) (clevel t level)
 
-let get_range_slices
-      t ~cf ?supercolumn ?level pred range =
+let get_range_slices t ?level ~cf ?sc pred range =
   let r = t.ks_client#get_range_slices t.ks_name
-            (column_parent cf ?supercolumn)
+            (column_parent cf ?sc)
             (slice_predicate pred) (key_range range) (clevel t level)
   in List.map of_key_slice r
 
-let get_range_superslices t ~cf ?level pred range =
+let get_range_superslices t ?level ~cf pred range =
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf)
             (slice_predicate pred) (key_range range) (clevel t level)
@@ -214,36 +213,36 @@ let mk_timestamp = function
     None -> make_timestamp ()
   | Some t -> t
 
-let insert t ~key ?level ~cf ?supercolumn ~name ?timestamp value =
-  t.ks_client#insert t.ks_name key (column_path ~cf ?supercolumn name)
+let insert t ?level ~cf ~key ?sc ~name ?timestamp value =
+  t.ks_client#insert t.ks_name key (column_path ~cf ?sc name)
     value (mk_timestamp timestamp) (clevel t level)
 
-let insert_column t ~key ?level ~cf ?supercolumn ?timestamp column =
-  insert t ~key ?level ~cf ?supercolumn
+let insert_column t ?level ~cf ~key ?sc ?timestamp column =
+  insert t ~key ?level ~cf ?sc
     ~name:column.c_name
     ~timestamp:(Option.default column.c_timestamp timestamp)
     column.c_value
 
-let remove_key t ~key ?level ?timestamp cf =
+let remove_key t ?level ~cf ?timestamp key =
   let cpath = new columnPath in
     cpath#set_column_family cf;
     t.ks_client#remove t.ks_name key cpath
       (mk_timestamp timestamp) (clevel t level)
 
-let remove_column t ~key ?level ~cf ?supercolumn ?timestamp name =
+let remove_column t ?level ~cf ~key ?sc ?timestamp name =
   t.ks_client#remove t.ks_name key
-    (column_path ~cf ?supercolumn name)
+    (column_path ~cf ?sc name)
     (mk_timestamp timestamp) (clevel t level)
 
-let remove_supercolumn t ~key ?level ~cf ?timestamp name =
+let remove_supercolumn t ?level ~cf ~key ?timestamp name =
   t.ks_client#remove t.ks_name key
     (supercolumn_path ~cf name)
     (mk_timestamp timestamp) (clevel t level)
 
-let make_deletion ?supercolumn ?predicate timestamp =
+let make_deletion ?sc ?predicate timestamp =
   let r = new deletion in
     r#set_timestamp (mk_timestamp timestamp);
-    Option.may r#set_super_column supercolumn;
+    Option.may r#set_super_column sc;
     Option.may r#set_predicate (Option.map slice_predicate predicate);
     r
 
@@ -264,11 +263,11 @@ let mutation (m : mutation) =
         | `Delete (timestamp, what) ->
             r#set_deletion begin match what with
                 `Key -> make_deletion timestamp
-              | `Super_column supercolumn ->
-                  make_deletion ~supercolumn timestamp
+              | `Super_column sc ->
+                  make_deletion ~sc timestamp
               | `Columns predicate -> make_deletion ~predicate timestamp
-              | `Sub_columns (supercolumn, predicate) ->
-                  make_deletion ~supercolumn ~predicate timestamp
+              | `Sub_columns (sc, predicate) ->
+                  make_deletion ~sc ~predicate timestamp
             end
     end;
     r
@@ -284,7 +283,7 @@ let batch_mutate t ?level l =
       l;
     t.ks_client#batch_mutate t.ks_name h (clevel t level)
 
-let insert_supercolumn t ~key ?level ~cf ~name ?timestamp l =
+let insert_supercolumn t ?level ~cf ~key ~name ?timestamp l =
   let timestamp = mk_timestamp timestamp in
   let columns =
     List.map
@@ -311,19 +310,19 @@ struct
 
   let subcolumn = column
 
-  let get t ?level ~key col =
+  let get t ?level col ~key =
     col.of_s (get_value t ?level:(clevel col level)
                 ~key ~cf:col.cf col.name)
 
-  let get' t ?level ~key ~supercolumn col =
+  let get' t ?level ~sc col ~key =
     col.of_s (get_value t ?level:(clevel col level)
-                ~key ~cf:col.cf ~supercolumn col.name)
+                ~key ~cf:col.cf ~sc col.name)
 
-  let set t ?level ~key col ?timestamp x =
+  let set t ?level col ~key ?timestamp x =
     insert t ?level:(clevel col level)
       ~key ~cf:col.cf ~name:col.name ?timestamp (col.to_s x)
 
-  let set' t ?level ~key ~supercolumn col ?timestamp x =
+  let set' t ?level ~sc col ~key ?timestamp x =
     insert t ?level:(clevel col level)
-      ~key ~cf:col.cf ~name:col.name ~supercolumn ?timestamp (col.to_s x)
+      ~key ~cf:col.cf ~name:col.name ~sc ?timestamp (col.to_s x)
 end
