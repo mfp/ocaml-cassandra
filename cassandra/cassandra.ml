@@ -7,8 +7,7 @@ type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = { sc_name : string; sc_columns : column list }
 
-type consistency_level =
-    [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
+type level = [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
 
 type slice_predicate =
     [ `Columns of string list | `Range of string * string * bool * int ]
@@ -36,6 +35,7 @@ type connection = {
 type keyspace = {
   ks_name : string;
   ks_client : Cassandra.client;
+  ks_level : level;
 }
 
 let make_timestamp () = Int64.of_float (1e6 *. Unix.gettimeofday ())
@@ -59,19 +59,22 @@ let valid_connection t =
   let tx = t.proto#getTransport in
     tx#isOpen
 
-let get_keyspace t name = { ks_name = name; ks_client = t.client; }
+let get_keyspace t ?(level = `ONE) name =
+  { ks_name = name; ks_client = t.client; ks_level = level; }
 
 open ConsistencyLevel
 
-let clevel = function
-    None -> ONE
-  | Some `ZERO -> ZERO
-  | Some `ONE -> ONE
-  | Some `QUORUM -> QUORUM
-  | Some `DCQUORUM -> DCQUORUM
-  | Some `DCQUORUMSYNC -> DCQUORUMSYNC
-  | Some `ALL -> ALL
-  | Some `ANY -> ANY
+let consistency_level = function
+  | `ZERO -> ZERO
+  | `ONE -> ONE
+  | `QUORUM -> QUORUM
+  | `DCQUORUM -> DCQUORUM
+  | `DCQUORUMSYNC -> DCQUORUMSYNC
+  | `ALL -> ALL
+  | `ANY -> ANY
+
+let clevel ks =
+  Option.map_default consistency_level (consistency_level ks.ks_level)
 
 let column c =
   let r = new column in
@@ -149,93 +152,93 @@ let key_range r =
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_super_slice r = (r#grab_key, get_supercolumns r#grab_columns)
 
-let get t ~key ?consistency_level ~cf ?supercolumn column =
+let get t ~key ?level ~cf ?supercolumn column =
   let r = t.ks_client#get t.ks_name
-            key (column_path ~cf ?supercolumn column) (clevel consistency_level)
+            key (column_path ~cf ?supercolumn column) (clevel t level)
   in of_column r#grab_column
 
-let get_value t ~key ?consistency_level ~cf ?supercolumn col =
-  (get t ~key ?consistency_level ~cf ?supercolumn col).c_value
+let get_value t ~key ?level ~cf ?supercolumn col =
+  (get t ~key ?level ~cf ?supercolumn col).c_value
 
-let get' t ~key ?consistency_level ~cf name =
+let get' t ~key ?level ~cf name =
   let r = t.ks_client#get t.ks_name key (supercolumn_path ~cf name)
-            (clevel consistency_level)
+            (clevel t level)
   in of_super_column r#grab_super_column
 
 let get_supercolumn = get'
 
-let get_slice t ~key ?consistency_level ~cf ?supercolumn pred =
+let get_slice t ~key ?level ~cf ?supercolumn pred =
   let cols =
     t.ks_client#get_slice t.ks_name key
       (column_parent cf ?supercolumn)
-      (slice_predicate pred) (clevel consistency_level)
+      (slice_predicate pred) (clevel t level)
   in get_columns cols
 
-let get_superslice t ~key ?consistency_level ~cf pred =
+let get_superslice t ~key ?level ~cf pred =
   let cols =
     t.ks_client#get_slice t.ks_name key
-      (column_parent cf) (slice_predicate pred) (clevel consistency_level)
+      (column_parent cf) (slice_predicate pred) (clevel t level)
   in get_supercolumns cols
 
-let multiget_slice t keys ?consistency_level ~cf ?supercolumn pred =
+let multiget_slice t keys ?level ~cf ?supercolumn pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
       (column_parent cf ?supercolumn)
-      (slice_predicate pred) (clevel consistency_level)
+      (slice_predicate pred) (clevel t level)
   in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
 
-let multiget_superslice t keys ?consistency_level ~cf pred =
+let multiget_superslice t keys ?level ~cf pred =
   let h =
     t.ks_client#multiget_slice t.ks_name keys
-      (column_parent cf) (slice_predicate pred) (clevel consistency_level)
+      (column_parent cf) (slice_predicate pred) (clevel t level)
   in Hashtbl.map (List.map (fun r -> of_super_column r#grab_super_column)) h
 
-let count t ~key ?consistency_level ~cf ?supercolumn () =
+let count t ~key ?level ~cf ?supercolumn () =
   t.ks_client#get_count t.ks_name
-    key (column_parent cf ?supercolumn) (clevel consistency_level)
+    key (column_parent cf ?supercolumn) (clevel t level)
 
 let get_range_slices
-      t ~cf ?supercolumn ?consistency_level pred range =
+      t ~cf ?supercolumn ?level pred range =
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf ?supercolumn)
-            (slice_predicate pred) (key_range range) (clevel consistency_level)
+            (slice_predicate pred) (key_range range) (clevel t level)
   in List.map of_key_slice r
 
-let get_range_superslices t ~cf ?consistency_level pred range =
+let get_range_superslices t ~cf ?level pred range =
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf)
-            (slice_predicate pred) (key_range range) (clevel consistency_level)
+            (slice_predicate pred) (key_range range) (clevel t level)
   in List.map of_key_super_slice r
 
 let mk_timestamp = function
     None -> make_timestamp ()
   | Some t -> t
 
-let insert t ~key ?consistency_level ~cf ?supercolumn ~name ?timestamp value =
+let insert t ~key ?level ~cf ?supercolumn ~name ?timestamp value =
   t.ks_client#insert t.ks_name key (column_path ~cf ?supercolumn name)
-    value (mk_timestamp timestamp) (clevel consistency_level)
+    value (mk_timestamp timestamp) (clevel t level)
 
-let insert_column t ~key ?consistency_level ~cf ?supercolumn ?timestamp column =
-  insert t ~key ?consistency_level ~cf ?supercolumn
+let insert_column t ~key ?level ~cf ?supercolumn ?timestamp column =
+  insert t ~key ?level ~cf ?supercolumn
     ~name:column.c_name
     ~timestamp:(Option.default column.c_timestamp timestamp)
     column.c_value
 
-let remove_key t ~key ?consistency_level ?timestamp cf =
+let remove_key t ~key ?level ?timestamp cf =
   let cpath = new columnPath in
     cpath#set_column_family cf;
     t.ks_client#remove t.ks_name key cpath
-      (mk_timestamp timestamp) (clevel consistency_level)
+      (mk_timestamp timestamp) (clevel t level)
 
-let remove_column t ~key ?consistency_level ~cf ?supercolumn ?timestamp name =
+let remove_column t ~key ?level ~cf ?supercolumn ?timestamp name =
   t.ks_client#remove t.ks_name key
     (column_path ~cf ?supercolumn name)
-    (mk_timestamp timestamp) (clevel consistency_level)
+    (mk_timestamp timestamp) (clevel t level)
 
-let remove_supercolumn t ~key ?consistency_level ~cf ?timestamp name =
+let remove_supercolumn t ~key ?level ~cf ?timestamp name =
   t.ks_client#remove t.ks_name key
     (supercolumn_path ~cf name)
-    (mk_timestamp timestamp) (clevel consistency_level)
+    (mk_timestamp timestamp) (clevel t level)
 
 let make_deletion ?supercolumn ?predicate timestamp =
   let r = new deletion in
@@ -270,7 +273,7 @@ let mutation (m : mutation) =
     end;
     r
 
-let batch_mutate t ?consistency_level l =
+let batch_mutate t ?level l =
   let h = Hashtbl.create (List.length l) in
     List.iter
       (fun (key, l1) ->
@@ -279,46 +282,48 @@ let batch_mutate t ?consistency_level l =
            List.iter
              (fun (cf, muts) -> Hashtbl.add h1 cf (List.map mutation muts)) l1)
       l;
-    t.ks_client#batch_mutate t.ks_name h (clevel consistency_level)
+    t.ks_client#batch_mutate t.ks_name h (clevel t level)
 
-let insert_supercolumn t ~key ?consistency_level ~cf ~name ?timestamp l =
+let insert_supercolumn t ~key ?level ~cf ~name ?timestamp l =
   let timestamp = mk_timestamp timestamp in
   let columns =
     List.map
       (fun (n, v) -> { c_name = n; c_timestamp = timestamp; c_value = v }) l in
   let mutation = `Insert_super { sc_name = name; sc_columns = columns } in
-    batch_mutate t ?consistency_level [key, [cf, [mutation]]]
+    batch_mutate t ?level [key, [cf, [mutation]]]
 
 module Typed =
 struct
   type 'a column =
       {
-        lev : consistency_level; cf : string; name : string;
+        lev : level option; cf : string; name : string;
         of_s : string -> 'a; to_s : 'a -> string
       }
 
   type 'a subcolumn = 'a column
 
-  let column ?(consistency_level = `ONE) ~cf ~of_s ~to_s name =
-    { lev = consistency_level; name = name; cf = cf; of_s = of_s; to_s = to_s }
+  let column ?level ~cf ~of_s ~to_s name =
+    { lev = level; name = name; cf = cf; of_s = of_s; to_s = to_s }
 
-  let level col consistency_level = Option.default col.lev consistency_level
+  let clevel col = function
+      None -> col.lev
+    | Some _ as x -> x
 
   let subcolumn = column
 
-  let get t ?consistency_level ~key col =
-    col.of_s (get_value t ~consistency_level:(level col consistency_level)
+  let get t ?level ~key col =
+    col.of_s (get_value t ?level:(clevel col level)
                 ~key ~cf:col.cf col.name)
 
-  let get' t ?consistency_level ~key ~supercolumn col =
-    col.of_s (get_value t ~consistency_level:(level col consistency_level)
+  let get' t ?level ~key ~supercolumn col =
+    col.of_s (get_value t ?level:(clevel col level)
                 ~key ~cf:col.cf ~supercolumn col.name)
 
-  let set t ?consistency_level ~key col ?timestamp x =
-    insert t ~consistency_level:(level col consistency_level)
+  let set t ?level ~key col ?timestamp x =
+    insert t ?level:(clevel col level)
       ~key ~cf:col.cf ~name:col.name ?timestamp (col.to_s x)
 
-  let set' t ?consistency_level ~key ~supercolumn col ?timestamp x =
-    insert t ~consistency_level:(level col consistency_level)
+  let set' t ?level ~key ~supercolumn col ?timestamp x =
+    insert t ?level:(clevel col level)
       ~key ~cf:col.cf ~name:col.name ~supercolumn ?timestamp (col.to_s x)
 end
