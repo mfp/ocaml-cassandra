@@ -1,7 +1,4 @@
 
-OCAMLPACKS[] = extlib unix threads
-OCAMLFLAGS = -thread
-
 SRCS[] =
     cassandra_consts.ml
     Cassandra.ml
@@ -20,6 +17,8 @@ $(addprefix gen-ocaml/, $(SRCS)): cassandra.thrift
 OCamlPackage(cassandra_thrift, $(addprefix gen-ocaml/, $(OBJS)))
 OCamlLibrary(cassandra, cassandra_thrift cassandra)
 
+.DEFAULT: cassandra.cma cassandra.cmxa
+
 OCAMLINCLUDES = $(THRIFT_INCLUDE)
 
 .SUBDIRS: gen-ocaml
@@ -28,12 +27,8 @@ OCAMLINCLUDES = $(THRIFT_INCLUDE)
     Cassandra.cmi: cassandra_types.cmi
     cassandra_consts.cmi: cassandra_types.cmi
 
-CASSANDRA_INCLUDE = $(file gen-ocaml)
-CASSANDRA_LIB = $(file gen-ocaml)/cassandra
-
-export CASSANDRA_INCLUDE CASSANDRA_LIB
+.PHONY: clean
 
 clean:
-	rm -f gen-ocaml/*
-	touch gen-ocaml/EMPTY
-	$(CamlCleanRecursive)
+    rm -f $(filter-proper-targets $(ls R, .)) *.annot *.s
+

@@ -1,0 +1,24 @@
+
+BYTE_ENABLED   = true
+NATIVE_ENABLED = true
+USE_OCAMLFIND  = true
+
+OCAMLPACKS[] = extlib unix threads
+OCAMLFLAGS = -thread
+
+if $(not $(defined THRIFT))
+    THRIFT = $(file $(getenv THRIFT, thrift))
+    export
+
+if $(not $(defined THRIFT_INCLUDE))
+    THRIFT_INCLUDE = $(file $(getenv THRIFT_INCLUDE, +thrift))
+    export
+
+.SUBDIRS: src
+
+CASSANDRA_INCLUDE = $(file src)
+CASSANDRA_LIB = $(file src)/cassandra
+
+export CASSANDRA_INCLUDE CASSANDRA_LIB
+
+
