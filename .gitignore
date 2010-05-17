@@ -1,0 +1,17 @@
+*~
+*.cma
+*.cmxa
+*.cmo
+*.cmi
+*.cmx
+*.cmxs
+*.o
+*.so
+*.a
+*.swp
+*.opt
+*.run
+.omakedb*
+OMake*.omc
+*.annot
+*.sig
