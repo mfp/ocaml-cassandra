@@ -1,3 +1,4 @@
+(* Copyright (c) 2009 Mauricio Fernández <mfp@acm.org> *)
 
 type timestamp = Int64.t
 type column = private { c_name : string; c_value : string; c_timestamp : timestamp; }

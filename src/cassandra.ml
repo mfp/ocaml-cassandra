@@ -1,3 +1,4 @@
+(* Copyright (c) 2009 Mauricio Fernández <mfp@acm.org> *)
 
 IFDEF EXTLIB THEN
   open ExtList
