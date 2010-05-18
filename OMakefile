@@ -3,8 +3,17 @@ BYTE_ENABLED   = true
 NATIVE_ENABLED = true
 USE_OCAMLFIND  = true
 
-OCAMLPACKS[] = extlib unix threads
+OCAMLPACKS[] = unix threads
 OCAMLFLAGS = -thread
+
+if $(eq 0, $(shell-code ocamlfind query extlib > /dev/null))
+    OCAMLPACKS[] += extlib
+    DEFINES = -DEXTLIB
+    export
+elseif $(eq 0, $(shell-code ocamlfind query batteries > /dev/null))
+    OCAMLPACKS[] += batteries
+    DEFINES =
+    export
 
 if $(not $(defined THRIFT))
     THRIFT = $(file $(getenv THRIFT, thrift))

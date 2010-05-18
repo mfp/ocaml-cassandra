@@ -1,5 +1,17 @@
-open ExtList
-open ExtHashtbl
+
+IFDEF EXTLIB THEN
+  open ExtList
+  open ExtHashtbl
+ELSE
+  module Option = BatOption
+  module Hashtbl =
+  struct
+    include BatHashtbl
+    let map f h = map (fun k v -> f v) h
+  end
+  module List = struct include List include BatList end
+ENDIF
+
 open Cassandra_thrift
 open Cassandra_types
 

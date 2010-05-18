@@ -19,6 +19,11 @@ OCamlPackage(cassandra_thrift, \
 
 OCamlLibrary(cassandra, cassandra_thrift cassandra)
 
+section
+    OCAMLPACKS[] += camlp4.macro
+    OCAMLFINDFLAGS += -syntax camlp4o -ppopt $(DEFINES)
+    cassandra.cmi cassandra.cmx cassandra.cmo cassandra.o:
+
 .DEFAULT: cassandra.cma cassandra.cmxa
 
 .SUBDIRS: gen-ocaml
