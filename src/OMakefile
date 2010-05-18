@@ -11,21 +11,27 @@ OBJS[] =
     cassandra_consts
     Cassandra
 
+OCAMLINCLUDES = $(file thrift)
+
 $(addprefix gen-ocaml/, $(SRCS)): cassandra.thrift
 	$(THRIFT) --gen ocaml $<
 
-OCamlPackage(cassandra_thrift, $(addprefix gen-ocaml/, $(OBJS)))
+OCamlPackage(cassandra_thrift, \
+	     $(removesuffix $(ls thrift/*.ml)) \
+	     $(addprefix gen-ocaml/, $(OBJS)))
+
 OCamlLibrary(cassandra, cassandra_thrift cassandra)
 
 .DEFAULT: cassandra.cma cassandra.cmxa
 
-OCAMLINCLUDES = $(THRIFT_INCLUDE)
-
 .SUBDIRS: gen-ocaml
     OCAMLFLAGS += -for-pack Cassandra_thrift
     # not detected for some reason, quick workaround
-    Cassandra.cmi: cassandra_types.cmi
+    Cassandra.cmi: cassandra_types.cmi cassandra_types.cmx
     cassandra_consts.cmi: cassandra_types.cmi
+
+.SUBDIRS: thrift
+    OCAMLFLAGS += -for-pack Cassandra_thrift
 
 .PHONY: clean
 
