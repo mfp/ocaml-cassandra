@@ -31,7 +31,7 @@ struct
     | 4 -> DCQUORUMSYNC
     | 5 -> ALL
     | 6 -> ANY
-    | _ -> raise Thrift_error
+    | n -> raise (Thrift_error (Printf.sprintf "Unknown ConsistencyLevel %d" n))
 end
 class column =
 object (self)

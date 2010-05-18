@@ -17,8 +17,10 @@
  under the License.
 *)
 
+open Printf
+
 exception Break;;
-exception Thrift_error;;
+exception Thrift_error of string;;
 exception Field_empty of string;;
 
 class t_exn =
@@ -135,7 +137,7 @@ struct
     | 15 -> T_LIST
     | 16 -> T_UTF8
     | 17 -> T_UTF16
-    | _ -> raise Thrift_error
+    | n -> raise (Thrift_error (sprintf "Unknown t_type: %d" n))
 
   type message_type =
     | CALL
@@ -154,7 +156,7 @@ struct
     | 2 -> REPLY
     | 3 -> EXCEPTION
     | 4 -> ONEWAY
-    | _ -> raise Thrift_error
+    | n -> raise (Thrift_error (sprintf "Unknown message_type: %d" n))
 
   class virtual t (trans: Transport.t) =
   object (self)
@@ -292,6 +294,8 @@ struct
       | WRONG_METHOD_NAME
       | BAD_SEQUENCE_ID
       | MISSING_RESULT
+      | INTERNAL_ERROR
+      | PROTOCOL_ERROR
 
   let typ_of_i = function
       0 -> UNKNOWN
@@ -300,7 +304,10 @@ struct
     | 3 -> WRONG_METHOD_NAME
     | 4 -> BAD_SEQUENCE_ID
     | 5 -> MISSING_RESULT
-    | _ -> raise Thrift_error;;
+    | 6 -> INTERNAL_ERROR
+    | 7 -> PROTOCOL_ERROR
+    | n -> raise (Thrift_error (sprintf "Unknown application_exn type: %d" n))
+
   let typ_to_i = function
     | UNKNOWN -> 0
     | UNKNOWN_METHOD -> 1
@@ -308,6 +315,8 @@ struct
     | WRONG_METHOD_NAME -> 3
     | BAD_SEQUENCE_ID -> 4
     | MISSING_RESULT -> 5
+    | INTERNAL_ERROR -> 6
+    | PROTOCOL_ERROR -> 7
 
   class t =
   object (self)
