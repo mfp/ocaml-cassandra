@@ -13,9 +13,6 @@ OBJS[] =
 
 OCAMLINCLUDES = $(file thrift)
 
-$(addprefix gen-ocaml/, $(SRCS)): cassandra.thrift
-	$(THRIFT) --gen ocaml $<
-
 OCamlPackage(cassandra_thrift, \
 	     $(removesuffix $(ls thrift/*.ml)) \
 	     $(addprefix gen-ocaml/, $(OBJS)))
