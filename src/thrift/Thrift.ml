@@ -316,7 +316,7 @@ struct
     method get_type = typ
     method set_type t = typ <- t
     method write (oprot : Protocol.t) =
-      oprot#writeStructBegin "TApplicationExeception";
+      oprot#writeStructBegin "TApplicationException";
       if self#get_message != "" then
         (oprot#writeFieldBegin ("message",Protocol.T_STRING, 1);
          oprot#writeString self#get_message;
