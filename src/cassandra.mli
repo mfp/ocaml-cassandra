@@ -8,7 +8,7 @@ type level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
 
 type slice_predicate =
-    [ `Columns of string list | `Range of string * string * bool * int ]
+    [ `Columns of string list | `Column_range of string * string * bool * int ]
 
 type key_range =
     [ `Key of string * string * int | `Token of string * string * int ]

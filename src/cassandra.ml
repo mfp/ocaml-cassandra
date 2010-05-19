@@ -23,7 +23,7 @@ type supercolumn = { sc_name : string; sc_columns : column list }
 type level = [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
 
 type slice_predicate =
-    [ `Columns of string list | `Range of string * string * bool * int ]
+    [ `Columns of string list | `Column_range of string * string * bool * int ]
 
 type key_range =
     [ `Key of string * string * int | `Token of string * string * int]
@@ -134,7 +134,7 @@ let slice_predicate p =
   let r = new slicePredicate in
     begin match p with
         `Columns cs -> r#set_column_names cs
-      | `Range (start, finish, reversed, count) ->
+      | `Column_range (start, finish, reversed, count) ->
           let range = new sliceRange in
             range#set_start start;
             range#set_finish finish;
