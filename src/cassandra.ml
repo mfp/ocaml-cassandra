@@ -167,14 +167,15 @@ let map_key ks ~cf key =
   with Not_found -> key
 
 let key_range t cf r =
+  let map = function "" -> "" | s -> map_key t cf s in
   let o = new keyRange in
     begin
       match r with
-          `Key (start, stop, count) -> o#set_start_key (map_key t cf start);
-                                       o#set_end_key (map_key t cf stop);
+          `Key (start, stop, count) -> o#set_start_key (map start);
+                                       o#set_end_key (map stop);
                                        o#set_count count
-        | `Token (start, stop, count) -> o#set_start_token (map_key t cf start);
-                                         o#set_end_token (map_key t cf stop);
+        | `Token (start, stop, count) -> o#set_start_token (map start);
+                                         o#set_end_token (map stop);
                                          o#set_count count
     end;
     o
