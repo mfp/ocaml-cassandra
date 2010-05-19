@@ -45,11 +45,18 @@ type connection = {
   client : Cassandra.client;
 }
 
+module M = Map.Make(String)
+
+type key_rewriter = { map : string -> string; unmap : string -> string }
+
 type keyspace = {
   ks_name : string;
   ks_client : Cassandra.client;
   ks_level : level;
+  ks_rewrite : key_rewriter M.t;
 }
+
+let key_rewriter ~map ~unmap = { map = map; unmap = unmap }
 
 let make_timestamp () = Int64.of_float (1e6 *. Unix.gettimeofday ())
 
@@ -72,8 +79,13 @@ let valid_connection t =
   let tx = t.proto#getTransport in
     tx#isOpen
 
-let get_keyspace t ?(level = `ONE) name =
-  { ks_name = name; ks_client = t.client; ks_level = level; }
+let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
+  let rewrite_map =
+    List.fold_left (fun m (cf, rw) -> M.add cf rw m) M.empty rewrite_keys
+  in
+    { ks_name = name; ks_client = t.client; ks_level = level;
+      ks_rewrite = rewrite_map;
+    }
 
 open ConsistencyLevel
 
@@ -165,50 +177,70 @@ let key_range r =
 let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
 let of_key_super_slice r = (r#grab_key, get_supercolumns r#grab_columns)
 
+let map_key ks ~cf key =
+  try
+    (M.find cf ks.ks_rewrite).map key
+  with Not_found -> key
+
 let get t ?level ~cf ~key ?sc column =
   let r = t.ks_client#get t.ks_name
-            key (column_path ~cf ?sc column) (clevel t level)
+            (map_key t ~cf key) (column_path ~cf ?sc column) (clevel t level)
   in of_column r#grab_column
 
 let get_value t ?level ~cf ~key ?sc col =
   (get t ~key ?level ~cf ?sc col).c_value
 
 let get' t ?level ~cf ~key name =
-  let r = t.ks_client#get t.ks_name key (supercolumn_path ~cf name)
-            (clevel t level)
+  let r = t.ks_client#get t.ks_name
+            (map_key t ~cf key) (supercolumn_path ~cf name) (clevel t level)
   in of_super_column r#grab_super_column
 
 let get_supercolumn = get'
 
 let get_slice t ?level ~cf ~key ?sc pred =
   let cols =
-    t.ks_client#get_slice t.ks_name key
+    t.ks_client#get_slice t.ks_name (map_key t ~cf key)
       (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level)
   in get_columns cols
 
 let get_superslice t ?level ~cf ~key pred =
   let cols =
-    t.ks_client#get_slice t.ks_name key
+    t.ks_client#get_slice t.ks_name (map_key t ~cf key)
       (column_parent cf) (slice_predicate pred) (clevel t level)
   in get_supercolumns cols
 
 let multiget_slice t ?level ~cf keys ?sc pred =
   let h =
-    t.ks_client#multiget_slice t.ks_name keys
+    t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
       (column_parent cf ?sc)
-      (slice_predicate pred) (clevel t level)
-  in Hashtbl.map (List.map (fun r -> of_column r#grab_column)) h
+      (slice_predicate pred) (clevel t level) in
+  let to_cols l = List.map (fun r -> of_column r#grab_column) l
+  in
+    try
+      let unmap = (M.find cf t.ks_rewrite).unmap in
+      let h' = Hashtbl.create (Hashtbl.length h) in
+        Hashtbl.iter (fun k v -> Hashtbl.add h' (unmap k) (to_cols v)) h;
+        h'
+    with Not_found -> Hashtbl.map to_cols h
 
 let multiget_superslice t ?level ~cf keys pred =
   let h =
-    t.ks_client#multiget_slice t.ks_name keys
-      (column_parent cf) (slice_predicate pred) (clevel t level)
-  in Hashtbl.map (List.map (fun r -> of_super_column r#grab_super_column)) h
+    t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
+      (column_parent cf) (slice_predicate pred) (clevel t level) in
+  let to_super_cols l =
+    List.map (fun r -> of_super_column r#grab_super_column) l
+  in
+    try
+      let unmap = (M.find cf t.ks_rewrite).unmap in
+      let h' = Hashtbl.create (Hashtbl.length h) in
+        Hashtbl.iter (fun k v -> Hashtbl.add h' (unmap k) (to_super_cols v)) h;
+        h'
+    with Not_found -> Hashtbl.map to_super_cols h
 
 let count t ?level ~cf ~key ?sc () =
   t.ks_client#get_count t.ks_name
-    key (column_parent cf ?sc) (clevel t level)
+    (map_key t ~cf key) (column_parent cf ?sc) (clevel t level)
 
 let get_range_slices t ?level ~cf ?sc pred range =
   let r = t.ks_client#get_range_slices t.ks_name
@@ -227,7 +259,7 @@ let mk_timestamp = function
   | Some t -> t
 
 let insert t ?level ~cf ~key ?sc ~name ?timestamp value =
-  t.ks_client#insert t.ks_name key (column_path ~cf ?sc name)
+  t.ks_client#insert t.ks_name (map_key t ~cf key) (column_path ~cf ?sc name)
     value (mk_timestamp timestamp) (clevel t level)
 
 let insert_column t ?level ~cf ~key ?sc ?timestamp column =
@@ -239,16 +271,16 @@ let insert_column t ?level ~cf ~key ?sc ?timestamp column =
 let remove_key t ?level ~cf ?timestamp key =
   let cpath = new columnPath in
     cpath#set_column_family cf;
-    t.ks_client#remove t.ks_name key cpath
+    t.ks_client#remove t.ks_name (map_key t ~cf key) cpath
       (mk_timestamp timestamp) (clevel t level)
 
 let remove_column t ?level ~cf ~key ?sc ?timestamp name =
-  t.ks_client#remove t.ks_name key
+  t.ks_client#remove t.ks_name (map_key t ~cf key)
     (column_path ~cf ?sc name)
     (mk_timestamp timestamp) (clevel t level)
 
 let remove_supercolumn t ?level ~cf ~key ?timestamp name =
-  t.ks_client#remove t.ks_name key
+  t.ks_client#remove t.ks_name (map_key t ~cf key)
     (supercolumn_path ~cf name)
     (mk_timestamp timestamp) (clevel t level)
 
@@ -302,7 +334,7 @@ let insert_supercolumn t ?level ~cf ~key ~name ?timestamp l =
     List.map
       (fun (n, v) -> { c_name = n; c_timestamp = timestamp; c_value = v }) l in
   let mutation = `Insert_super { sc_name = name; sc_columns = columns } in
-    batch_mutate t ?level [key, [cf, [mutation]]]
+    batch_mutate t ?level [(map_key t ~cf key), [cf, [mutation]]]
 
 module Typed =
 struct

@@ -27,6 +27,7 @@ type mutation =
 
 type connection
 type keyspace
+type key_rewriter
 
 val make_timestamp : unit -> timestamp
 
@@ -35,7 +36,21 @@ val disconnect : connection -> unit
 val reconnect : connection -> unit
 val valid_connection : connection -> bool
 
-val get_keyspace : connection -> ?level:level -> string -> keyspace
+val key_rewriter :
+  map:(string -> string) -> unmap:(string -> string) -> key_rewriter
+
+(** @param rewrite_keys allows to specify a key rewriting function per column
+  * family, which will be applied to the key in all operations but the
+  * following:
+  * * {get_range_slices} )
+  * * {get_range_superslices }
+  * * {batch_mutate}
+  *
+  * Key rewriting can be useful if you want to use an order-preserving
+  * partitioner but want the keys in some column families to be distributed
+  * randomly. *)
+val get_keyspace : connection -> ?level:level ->
+  ?rewrite_keys:(string * key_rewriter) list -> string -> keyspace
 
 val get : keyspace -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> string -> column
