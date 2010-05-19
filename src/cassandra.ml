@@ -161,26 +161,34 @@ let get_columns = List.filter_map (fun r -> Option.map of_column r#get_column)
 let get_supercolumns =
   List.filter_map (fun r -> Option.map of_super_column r#get_super_column)
 
-let key_range r =
-  let o = new keyRange in
-    begin
-      match r with
-          `Key (start, stop, count) -> o#set_start_key start;
-                                       o#set_end_key stop;
-                                       o#set_count count
-        | `Token (start, stop, count) -> o#set_start_token start;
-                                         o#set_end_token stop;
-                                         o#set_count count
-    end;
-    o
-
-let of_key_slice r = (r#grab_key, get_columns r#grab_columns)
-let of_key_super_slice r = (r#grab_key, get_supercolumns r#grab_columns)
-
 let map_key ks ~cf key =
   try
     (M.find cf ks.ks_rewrite).map key
   with Not_found -> key
+
+let key_range t cf r =
+  let o = new keyRange in
+    begin
+      match r with
+          `Key (start, stop, count) -> o#set_start_key (map_key t cf start);
+                                       o#set_end_key (map_key t cf stop);
+                                       o#set_count count
+        | `Token (start, stop, count) -> o#set_start_token (map_key t cf start);
+                                         o#set_end_token (map_key t cf stop);
+                                         o#set_count count
+    end;
+    o
+
+let unmap_key ks ~cf key' =
+  try
+    (M.find cf ks.ks_rewrite).unmap key'
+  with Not_found -> key'
+
+let of_key_slice t cf r =
+  (unmap_key t cf r#grab_key, get_columns r#grab_columns)
+
+let of_key_super_slice t cf r =
+  (unmap_key t cf r#grab_key, get_supercolumns r#grab_columns)
 
 let get t ?level ~cf ~key ?sc column =
   let r = t.ks_client#get t.ks_name
@@ -245,14 +253,14 @@ let count t ?level ~cf ~key ?sc () =
 let get_range_slices t ?level ~cf ?sc pred range =
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf ?sc)
-            (slice_predicate pred) (key_range range) (clevel t level)
-  in List.map of_key_slice r
+            (slice_predicate pred) (key_range t cf range) (clevel t level)
+  in List.map (of_key_slice t cf) r
 
 let get_range_superslices t ?level ~cf pred range =
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf)
-            (slice_predicate pred) (key_range range) (clevel t level)
-  in List.map of_key_super_slice r
+            (slice_predicate pred) (key_range t cf range) (clevel t level)
+  in List.map (of_key_super_slice t cf) r
 
 let mk_timestamp = function
     None -> make_timestamp ()

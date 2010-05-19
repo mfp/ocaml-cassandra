@@ -40,11 +40,8 @@ val key_rewriter :
   map:(string -> string) -> unmap:(string -> string) -> key_rewriter
 
 (** @param rewrite_keys allows to specify a key rewriting function per column
-  * family, which will be applied to the key in all operations but the
-  * following:
-  * * {get_range_slices} )
-  * * {get_range_superslices }
-  * * {batch_mutate}
+  * family, which will be applied to the key(s) in all operations but
+  * {batch_mutate}.
   *
   * Key rewriting can be useful if you want to use an order-preserving
   * partitioner but want the keys in some column families to be distributed
