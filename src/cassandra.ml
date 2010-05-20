@@ -87,6 +87,13 @@ let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
       ks_rewrite = rewrite_map;
     }
 
+let login ks credentials =
+  let auth = new authenticationRequest in
+  let h = Hashtbl.create 13 in
+    List.iter (fun (k, v) -> Hashtbl.add h k v) credentials;
+    auth#set_credentials h;
+    ks.ks_client#login ks.ks_name auth
+
 open ConsistencyLevel
 
 let consistency_level = function

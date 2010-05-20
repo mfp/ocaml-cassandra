@@ -49,6 +49,8 @@ val key_rewriter :
 val get_keyspace : connection -> ?level:level ->
   ?rewrite_keys:(string * key_rewriter) list -> string -> keyspace
 
+val login : keyspace -> (string * string) list -> unit
+
 val get : keyspace -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> string -> column
 
