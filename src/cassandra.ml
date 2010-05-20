@@ -333,14 +333,27 @@ let mutation (m : mutation) =
     end;
     r
 
+let find_insert_default f h k =
+  try
+    Hashtbl.find h k
+  with Not_found ->
+    let v = f () in
+      Hashtbl.add h k v;
+      v
+
 let batch_mutate t ?level l =
   let h = Hashtbl.create (List.length l) in
     List.iter
       (fun (key, l1) ->
-         let h1 = Hashtbl.create (List.length l1) in
-           Hashtbl.add h key h1;
-           List.iter
-             (fun (cf, muts) -> Hashtbl.add h1 cf (List.map mutation muts)) l1)
+         (* we rewrite the keys *)
+         (* Hashtbl.iter will return the elements in reverse order if we
+          * Hashtbl.add with the same key, so we reverse the lists first *)
+         List.iter
+           (fun (cf, muts) ->
+              let key = map_key t cf key in
+              let h1 = find_insert_default (fun () -> Hashtbl.create 13) h key in
+                Hashtbl.add h1 cf (List.map mutation muts))
+           (List.rev l1))
       l;
     t.ks_client#batch_mutate t.ks_name h (clevel t level)
 
@@ -350,7 +363,7 @@ let insert_supercolumn t ?level ~cf ~key ~name ?timestamp l =
     List.map
       (fun (n, v) -> { c_name = n; c_timestamp = timestamp; c_value = v }) l in
   let mutation = `Insert_super { sc_name = name; sc_columns = columns } in
-    batch_mutate t ?level [(map_key t ~cf key), [cf, [mutation]]]
+    batch_mutate t ?level [key, [cf, [mutation]]]
 
 module Typed =
 struct
