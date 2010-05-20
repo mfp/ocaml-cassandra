@@ -3,6 +3,7 @@
 IFDEF EXTLIB THEN
   open ExtList
   open ExtHashtbl
+  open ExtString
 ELSE
   module Option = BatOption
   module Hashtbl =
@@ -11,6 +12,7 @@ ELSE
     let map f h = map (fun k v -> f v) h
   end
   module List = struct include List include BatList end
+  module String = struct include String include BatString end
 ENDIF
 
 open Cassandra_thrift
@@ -57,6 +59,13 @@ type keyspace = {
 }
 
 let key_rewriter ~map ~unmap = { map = map; unmap = unmap }
+
+let digest_rewriter =
+  let map s =
+    let d = Digest.to_hex (Digest.string s) in
+      String.slice ~last:5 d ^ "-" ^ s in
+  let unmap s = String.slice ~first:6 s in
+    { map = map; unmap = unmap }
 
 let make_timestamp () = Int64.of_float (1e6 *. Unix.gettimeofday ())
 

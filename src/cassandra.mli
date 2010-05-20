@@ -39,6 +39,8 @@ val valid_connection : connection -> bool
 val key_rewriter :
   map:(string -> string) -> unmap:(string -> string) -> key_rewriter
 
+val digest_rewriter : key_rewriter
+
 (** @param rewrite_keys allows to specify a key rewriting function per column
   * family, which will be applied to the key(s) in all operations.
   *
