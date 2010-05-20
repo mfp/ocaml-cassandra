@@ -374,6 +374,45 @@ let insert_supercolumn t ?level ~cf ~key ~name ?timestamp l =
   let mutation = `Insert_super { sc_name = name; sc_columns = columns } in
     batch_mutate t ?level [key, [cf, [mutation]]]
 
+module Batch =
+struct
+  type batch = { mutable ops : (string * (string * mutation list) list) list }
+
+  let batch ks ?level f =
+    let b = { ops = [] } in
+      f b;
+      batch_mutate ks ?level (List.rev b.ops)
+
+  let add t op = t.ops <- op :: t.ops
+
+  let insert t ~cf ~key ?sc ~name ?timestamp value =
+    let column =
+      { c_name = name; c_value = value; c_timestamp = mk_timestamp timestamp }
+    in
+      add t (key, [cf, [`Insert column]])
+
+  let insert_supercolumn t ~cf ~key ~name ?timestamp l =
+    let timestamp = mk_timestamp timestamp in
+    let columns =
+      List.map
+        (fun (k, v) -> { c_name = k; c_value = v; c_timestamp = timestamp })
+        l in
+    let sc = { sc_name = name; sc_columns = columns } in
+      add t (key, [cf, [`Insert_super sc]])
+
+  let remove_key t ~cf ?timestamp key =
+    add t (key, [cf, [`Delete (timestamp, `Key)]])
+
+  let remove_column t ~cf ~key ?sc ?timestamp name =
+    let what = match sc with
+        None -> `Columns (`Columns [name])
+      | Some sc -> `Sub_columns (sc, `Columns [name])
+    in add t (key, [cf, [`Delete (timestamp, what)]])
+
+  let remove_supercolumn t ~cf ~key ?timestamp name =
+    add t (key, [cf, [`Delete (timestamp, `Super_column name)]])
+end
+
 module Typed =
 struct
   type 'a column =

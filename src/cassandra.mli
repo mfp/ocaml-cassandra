@@ -112,6 +112,33 @@ val remove_supercolumn : keyspace -> ?level:level ->
 val batch_mutate : keyspace -> ?level:level ->
   (string * (string * mutation list) list) list -> unit
 
+(** {2 Batch operations } *)
+
+module Batch :
+sig
+  type batch
+
+  val batch : keyspace -> ?level:level -> (batch -> unit) -> unit
+
+  val insert : batch ->
+    cf:string -> key:string -> ?sc:string -> name:string ->
+    ?timestamp:timestamp -> string -> unit
+
+  val insert_supercolumn : batch ->
+    cf:string -> key:string -> name:string -> ?timestamp:timestamp ->
+    (string * string) list -> unit
+
+  val remove_key : batch ->
+    cf:string -> ?timestamp:timestamp -> string -> unit
+
+  val remove_column : batch ->
+    cf:string -> key:string -> ?sc:string -> ?timestamp:timestamp -> string -> unit
+
+  val remove_supercolumn : batch ->
+    cf:string -> key:string -> ?timestamp:timestamp -> string -> unit
+end
+
+
 module Typed :
 sig
   type 'a column
