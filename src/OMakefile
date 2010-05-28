@@ -17,12 +17,17 @@ OCamlPackage(cassandra_thrift, \
 	     $(removesuffix $(ls thrift/*.ml)) \
 	     $(addprefix gen-ocaml/, $(OBJS)))
 
-OCamlLibrary(cassandra, cassandra_thrift cassandra)
+OCamlLibrary(cassandra, cassandra_thrift cassandra cassandra_lwt)
 
 section
     OCAMLPACKS[] += camlp4.macro
     OCAMLFINDFLAGS += -syntax camlp4o -ppopt $(DEFINES)
     cassandra.cmi cassandra.cmx cassandra.cmo cassandra.o:
+
+section
+    OCAMLPACKS[] += lwt.syntax
+    OCAMLFINDFLAGS += -syntax camlp4o
+    cassandra_lwt.cmi cassandra_lwt.cmx cassandra_lwt.cmo cassandra_lwt.o:
 
 .DEFAULT: cassandra.cma cassandra.cmxa
 

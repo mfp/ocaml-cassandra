@@ -3,7 +3,7 @@ BYTE_ENABLED   = true
 NATIVE_ENABLED = true
 USE_OCAMLFIND  = true
 
-OCAMLPACKS[] = unix threads
+OCAMLPACKS[] = unix threads lwt lwt.preemptive
 OCAMLFLAGS = -thread
 
 if $(eq 0, $(shell-code ocamlfind query extlib > /dev/null))
