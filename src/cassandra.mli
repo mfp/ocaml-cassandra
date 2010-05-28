@@ -118,7 +118,10 @@ module Batch :
 sig
   type batch
 
-  val batch : keyspace -> ?level:level -> (batch -> unit) -> unit
+  val batch : (batch -> unit) ->
+    (string * (string * mutation list) list) list
+
+  val batch_run : keyspace -> ?level:level -> (batch -> unit) -> unit
 
   val insert : batch ->
     cf:string -> key:string -> ?sc:string -> name:string ->

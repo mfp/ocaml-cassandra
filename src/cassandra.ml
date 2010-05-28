@@ -378,10 +378,12 @@ module Batch =
 struct
   type batch = { mutable ops : (string * (string * mutation list) list) list }
 
-  let batch ks ?level f =
+  let batch f =
     let b = { ops = [] } in
       f b;
-      batch_mutate ks ?level (List.rev b.ops)
+      List.rev b.ops
+
+  let batch_run ks ?level f = batch_mutate ks ?level (batch f)
 
   let add t op = t.ops <- op :: t.ops
 
