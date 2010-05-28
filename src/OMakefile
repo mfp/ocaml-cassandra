@@ -27,7 +27,7 @@ section
 section
     OCAMLPACKS[] += lwt.syntax
     OCAMLFINDFLAGS += -syntax camlp4o
-    cassandra_lwt.cmi cassandra_lwt.cmx cassandra_lwt.cmo cassandra_lwt.o:
+    cassandra_lwt.cmi cassandra_lwt.cmx cassandra_lwt.cmo cassandra_lwt.o: cassandra.cmi
 
 .DEFAULT: cassandra.cma cassandra.cmxa
 
