@@ -5,6 +5,7 @@ type cassandra_error =
   | Transport_error of string
   | Protocol_error of string
   | Application_error of string
+  | Unknown_error of exn * string
 
 exception Cassandra_error of cassandra_error
 

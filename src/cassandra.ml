@@ -24,6 +24,7 @@ type cassandra_error =
   | Transport_error of string
   | Protocol_error of string
   | Application_error of string
+  | Unknown_error of exn * string
 
 exception Cassandra_error of cassandra_error
 
@@ -129,6 +130,7 @@ DEFINE Wrap(x) =
           | TAE.INTERNAL_ERROR -> "INTERNAL_ERROR"
           | TAE.PROTOCOL_ERROR -> "PROTOCOL_ERROR"
         in cassandra_error (Application_error s)
+    | e -> cassandra_error (Unknown_error (e, Printexc.to_string e))
 
 let login ks credentials = Wrap
   let auth = new authenticationRequest in
