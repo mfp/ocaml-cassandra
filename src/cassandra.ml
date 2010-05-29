@@ -15,8 +15,17 @@ ELSE
   module String = struct include String include BatString end
 ENDIF
 
+open Printf
 open Cassandra_thrift
 open Cassandra_types
+
+type cassandra_error =
+    Field_empty of string
+  | Transport_error of string
+  | Protocol_error of string
+  | Application_error of string
+
+exception Cassandra_error of cassandra_error
 
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
@@ -96,7 +105,32 @@ let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
       ks_rewrite = rewrite_map;
     }
 
-let login ks credentials =
+let cassandra_error e = raise (Cassandra_error e)
+
+module TAE = Thrift.Application_Exn
+
+DEFINE Wrap(x) =
+  try
+    x
+  with
+    | Thrift.Thrift_error s -> cassandra_error (Protocol_error s)
+    | Thrift.Field_empty s ->
+        cassandra_error (Protocol_error (sprintf "Field empty: %s" s))
+    | Thrift.Transport.E (_, s) -> cassandra_error (Transport_error s)
+    | Thrift.Protocol.E (_, s) -> cassandra_error (Protocol_error s)
+    | TAE.E t ->
+        let s = match t#get_type with
+          | TAE.UNKNOWN -> "UNKNOWN"
+          | TAE.UNKNOWN_METHOD -> "UNKNOWN_METHOD"
+          | TAE.INVALID_MESSAGE_TYPE -> "INVALID_MESSAGE_TYPE"
+          | TAE.WRONG_METHOD_NAME -> "WRONG_METHOD_NAME"
+          | TAE.BAD_SEQUENCE_ID -> "BAD_SEQUENCE_ID"
+          | TAE.MISSING_RESULT -> "MISSING_RESULT"
+          | TAE.INTERNAL_ERROR -> "INTERNAL_ERROR"
+          | TAE.PROTOCOL_ERROR -> "PROTOCOL_ERROR"
+        in cassandra_error (Application_error s)
+
+let login ks credentials = Wrap
   let auth = new authenticationRequest in
   let h = Hashtbl.create 13 in
     List.iter (fun (k, v) -> Hashtbl.add h k v) credentials;
@@ -207,7 +241,7 @@ let of_key_slice t cf r =
 let of_key_super_slice t cf r =
   (unmap_key t cf r#grab_key, get_supercolumns r#grab_columns)
 
-let get t ?level ~cf ~key ?sc column =
+let get t ?level ~cf ~key ?sc column = Wrap
   let r = t.ks_client#get t.ks_name
             (map_key t ~cf key) (column_path ~cf ?sc column) (clevel t level)
   in of_column r#grab_column
@@ -215,27 +249,27 @@ let get t ?level ~cf ~key ?sc column =
 let get_value t ?level ~cf ~key ?sc col =
   (get t ~key ?level ~cf ?sc col).c_value
 
-let get' t ?level ~cf ~key name =
+let get' t ?level ~cf ~key name = Wrap
   let r = t.ks_client#get t.ks_name
             (map_key t ~cf key) (supercolumn_path ~cf name) (clevel t level)
   in of_super_column r#grab_super_column
 
 let get_supercolumn = get'
 
-let get_slice t ?level ~cf ~key ?sc pred =
+let get_slice t ?level ~cf ~key ?sc pred = Wrap
   let cols =
     t.ks_client#get_slice t.ks_name (map_key t ~cf key)
       (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level)
   in get_columns cols
 
-let get_superslice t ?level ~cf ~key pred =
+let get_superslice t ?level ~cf ~key pred = Wrap
   let cols =
     t.ks_client#get_slice t.ks_name (map_key t ~cf key)
       (column_parent cf) (slice_predicate pred) (clevel t level)
   in get_supercolumns cols
 
-let multiget_slice t ?level ~cf keys ?sc pred =
+let multiget_slice t ?level ~cf keys ?sc pred = Wrap
   let h =
     t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
       (column_parent cf ?sc)
@@ -249,7 +283,7 @@ let multiget_slice t ?level ~cf keys ?sc pred =
         h'
     with Not_found -> Hashtbl.map to_cols h
 
-let multiget_superslice t ?level ~cf keys pred =
+let multiget_superslice t ?level ~cf keys pred = Wrap
   let h =
     t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
       (column_parent cf) (slice_predicate pred) (clevel t level) in
@@ -263,17 +297,17 @@ let multiget_superslice t ?level ~cf keys pred =
         h'
     with Not_found -> Hashtbl.map to_super_cols h
 
-let count t ?level ~cf ~key ?sc () =
+let count t ?level ~cf ~key ?sc () = Wrap
   t.ks_client#get_count t.ks_name
     (map_key t ~cf key) (column_parent cf ?sc) (clevel t level)
 
-let get_range_slices t ?level ~cf ?sc pred range =
+let get_range_slices t ?level ~cf ?sc pred range = Wrap
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf ?sc)
             (slice_predicate pred) (key_range t cf range) (clevel t level)
   in List.map (of_key_slice t cf) r
 
-let get_range_superslices t ?level ~cf pred range =
+let get_range_superslices t ?level ~cf pred range = Wrap
   let r = t.ks_client#get_range_slices t.ks_name
             (column_parent cf)
             (slice_predicate pred) (key_range t cf range) (clevel t level)
@@ -283,7 +317,7 @@ let mk_timestamp = function
     None -> make_timestamp ()
   | Some t -> t
 
-let insert t ?level ~cf ~key ?sc ~name ?timestamp value =
+let insert t ?level ~cf ~key ?sc ~name ?timestamp value = Wrap
   t.ks_client#insert t.ks_name (map_key t ~cf key) (column_path ~cf ?sc name)
     value (mk_timestamp timestamp) (clevel t level)
 
@@ -293,18 +327,18 @@ let insert_column t ?level ~cf ~key ?sc ?timestamp column =
     ~timestamp:(Option.default column.c_timestamp timestamp)
     column.c_value
 
-let remove_key t ?level ~cf ?timestamp key =
+let remove_key t ?level ~cf ?timestamp key = Wrap
   let cpath = new columnPath in
     cpath#set_column_family cf;
     t.ks_client#remove t.ks_name (map_key t ~cf key) cpath
       (mk_timestamp timestamp) (clevel t level)
 
-let remove_column t ?level ~cf ~key ?sc ?timestamp name =
+let remove_column t ?level ~cf ~key ?sc ?timestamp name = Wrap
   t.ks_client#remove t.ks_name (map_key t ~cf key)
     (column_path ~cf ?sc name)
     (mk_timestamp timestamp) (clevel t level)
 
-let remove_supercolumn t ?level ~cf ~key ?timestamp name =
+let remove_supercolumn t ?level ~cf ~key ?timestamp name = Wrap
   t.ks_client#remove t.ks_name (map_key t ~cf key)
     (supercolumn_path ~cf name)
     (mk_timestamp timestamp) (clevel t level)
@@ -350,7 +384,7 @@ let find_insert_default f h k =
       Hashtbl.add h k v;
       v
 
-let batch_mutate t ?level l =
+let batch_mutate t ?level l = Wrap
   let h = Hashtbl.create (List.length l) in
     List.iter
       (fun (key, l1) ->

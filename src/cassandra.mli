@@ -1,5 +1,13 @@
 (* Copyright (c) 2009 Mauricio Fernández <mfp@acm.org> *)
 
+type cassandra_error =
+    Field_empty of string
+  | Transport_error of string
+  | Protocol_error of string
+  | Application_error of string
+
+exception Cassandra_error of cassandra_error
+
 type timestamp = Int64.t
 type column = private { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = private { sc_name : string; sc_columns : column list }
