@@ -26,7 +26,7 @@ type cassandra_error =
   | Application_error of string
   | Unknown_error of exn * string
 
-exception Cassandra_error of cassandra_error
+exception Cassandra_error of cassandra_error * string
 
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
@@ -106,7 +106,8 @@ let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
       ks_rewrite = rewrite_map;
     }
 
-let cassandra_error e = raise (Cassandra_error e)
+let cassandra_error e =
+  raise (Cassandra_error (e, Printexc.get_backtrace ()))
 
 module TAE = Thrift.Application_Exn
 
