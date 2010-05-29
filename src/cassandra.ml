@@ -90,7 +90,7 @@ let disconnect t =
   let tx = t.proto#getTransport in
     if tx#isOpen then tx#close
 
-let reconnect t =
+let reconnect ?(force=false) t =
   let tx = t.proto#getTransport in
     if not tx#isOpen then tx#opn
 

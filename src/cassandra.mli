@@ -42,7 +42,7 @@ val make_timestamp : unit -> timestamp
 
 val connect : host:string -> int -> connection
 val disconnect : connection -> unit
-val reconnect : connection -> unit
+val reconnect : ?force:bool -> connection -> unit
 val valid_connection : connection -> bool
 
 val key_rewriter :
