@@ -37,10 +37,21 @@ let make_pool servers ?credentials ?level ?rewrite_keys ~keyspace max_conns =
           cp.servers.(Random.int (Array.length cp.servers))
   in cp
 
-let rec with_ks t f =
+module C = Cassandra
+
+let rec with_ks t ?(attempts = 5) ?(wait_period = 0.1) f =
   try
     Lwt_pool.use (Lazy.force t).pool (detach (fun (_, ks) -> f ks))
-  with e -> fail e (* FIXME: retry with other connection *)
+  with
+    | C.Cassandra_error (ty, _) as e -> begin match ty with
+          C.Field_empty _ | C.Protocol_error _ | C.Application_error _ -> fail e
+        | C.Transport_error _ | C.Unknown_error _ ->
+            if attempts = 0 then fail e
+            else
+              Lwt_unix.sleep wait_period >>
+              with_ks t ~attempts:(attempts - 1) ~wait_period:(wait_period *. 2.) f
+      end
+    | e -> fail e
 
 let get t ?level ~cf ~key ?sc col =
   with_ks t (fun ks -> Cassandra.get ks ?level ~cf ~key ?sc col)
