@@ -1,0 +1,7 @@
+name="cassandra"
+version="git"
+description="cassandra"
+requires="extlib,lwt.preemptive"
+archive(mt,byte)="cassandra.cma"
+archive(mt,native)="cassandra.cmxa"
+
