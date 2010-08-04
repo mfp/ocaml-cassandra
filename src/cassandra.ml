@@ -18,6 +18,14 @@ ENDIF
 open Cassandra_thrift
 open Cassandra_types
 
+let exn_printer =
+  let describe s o = Some (Printf.sprintf "%s(%S)" s (Option.default "?" o#get_why)) in
+  function
+    | InvalidRequestException o -> describe "InvalidRequestException" o
+    | AuthenticationException o -> describe "AuthenticationException" o
+    | AuthorizationException o  -> describe "AuthorizationException" o
+    | _ -> None
+
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = { sc_name : string; sc_columns : column list }

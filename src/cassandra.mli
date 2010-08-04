@@ -1,5 +1,7 @@
 (* Copyright (c) 2009 Mauricio Fernández <mfp@acm.org> *)
 
+val exn_printer : exn -> string option
+
 type timestamp = Int64.t
 type column = private { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = private { sc_name : string; sc_columns : column list }
