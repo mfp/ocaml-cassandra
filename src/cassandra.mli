@@ -9,6 +9,9 @@ type supercolumn = private { sc_name : string; sc_columns : column list }
 type level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
 
+type access_level = 
+    [ `NONE | `READONLY | `READWRITE | `FULL ]
+
 type slice_predicate =
     [ `Columns of string list | `Column_range of string * string * bool * int ]
 
@@ -43,6 +46,8 @@ val key_rewriter :
 
 val digest_rewriter : key_rewriter
 
+val set_keyspace : connection -> string -> unit
+
 (** @param rewrite_keys allows to specify a key rewriting function per column
   * family, which will be applied to the key(s) in all operations.
   *
@@ -52,7 +57,7 @@ val digest_rewriter : key_rewriter
 val get_keyspace : connection -> ?level:level ->
   ?rewrite_keys:(string * key_rewriter) list -> string -> keyspace
 
-val login : keyspace -> (string * string) list -> unit
+val login : keyspace -> (string * string) list -> access_level
 
 val get : keyspace -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> string -> column
@@ -81,7 +86,7 @@ val multiget_superslice : keyspace -> ?level:level ->
   (string, supercolumn list) Hashtbl.t
 
 val count : keyspace -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> unit -> int
+  cf:string -> key:string -> ?sc:string -> slice_predicate -> int
 
 val get_range_slices : keyspace -> ?level:level ->
   cf:string -> ?sc:string -> slice_predicate -> key_range -> key_slice list

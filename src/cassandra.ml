@@ -32,6 +32,8 @@ type supercolumn = { sc_name : string; sc_columns : column list }
 
 type level = [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
 
+type access_level = [ `NONE | `READONLY | `READWRITE | `FULL ]
+
 type slice_predicate =
     [ `Columns of string list | `Column_range of string * string * bool * int ]
 
@@ -97,6 +99,9 @@ let valid_connection t =
   let tx = t.proto#getTransport in
     tx#isOpen
 
+let set_keyspace t ks =
+  t.client#set_keyspace ks
+
 let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
   let rewrite_map =
     List.fold_left (fun m (cf, rw) -> M.add cf rw m) M.empty rewrite_keys
@@ -105,12 +110,20 @@ let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
       ks_rewrite = rewrite_map;
     }
 
+open AccessLevel
+
+let of_access_level = function
+  | NONE -> `NONE
+  | READONLY -> `READONLY
+  | READWRITE -> `READWRITE
+  | FULL -> `FULL
+
 let login ks credentials =
   let auth = new authenticationRequest in
   let h = Hashtbl.create 13 in
     List.iter (fun (k, v) -> Hashtbl.add h k v) credentials;
     auth#set_credentials h;
-    ks.ks_client#login ks.ks_name auth
+    of_access_level (ks.ks_client#login auth)
 
 open ConsistencyLevel
 
@@ -126,17 +139,19 @@ let consistency_level = function
 let clevel ks =
   Option.map_default consistency_level (consistency_level ks.ks_level)
 
+let mk_clock t = let c = new clock in c#set_timestamp t; c
+
 let column c =
   let r = new column in
     r#set_name c.c_name;
     r#set_value c.c_value;
-    r#set_timestamp c.c_timestamp;
+    r#set_clock (mk_clock c.c_timestamp);
     r
 
 let of_column c =
   {
     c_name = c#grab_name; c_value = c#grab_value;
-    c_timestamp = c#grab_timestamp;
+    c_timestamp = c#grab_clock#grab_timestamp;
   }
 
 let supercolumn c =
@@ -217,7 +232,7 @@ let of_key_super_slice t cf r =
   (unmap_key t cf r#grab_key, get_supercolumns r#grab_columns)
 
 let get t ?level ~cf ~key ?sc column =
-  let r = t.ks_client#get t.ks_name
+  let r = t.ks_client#get
             (map_key t ~cf key) (column_path ~cf ?sc column) (clevel t level)
   in of_column r#grab_column
 
@@ -225,7 +240,7 @@ let get_value t ?level ~cf ~key ?sc col =
   (get t ~key ?level ~cf ?sc col).c_value
 
 let get' t ?level ~cf ~key name =
-  let r = t.ks_client#get t.ks_name
+  let r = t.ks_client#get
             (map_key t ~cf key) (supercolumn_path ~cf name) (clevel t level)
   in of_super_column r#grab_super_column
 
@@ -233,20 +248,20 @@ let get_supercolumn = get'
 
 let get_slice t ?level ~cf ~key ?sc pred =
   let cols =
-    t.ks_client#get_slice t.ks_name (map_key t ~cf key)
+    t.ks_client#get_slice (map_key t ~cf key)
       (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level)
   in get_columns cols
 
 let get_superslice t ?level ~cf ~key pred =
   let cols =
-    t.ks_client#get_slice t.ks_name (map_key t ~cf key)
+    t.ks_client#get_slice (map_key t ~cf key)
       (column_parent cf) (slice_predicate pred) (clevel t level)
   in get_supercolumns cols
 
 let multiget_slice t ?level ~cf keys ?sc pred =
   let h =
-    t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
+    t.ks_client#multiget_slice (List.map (map_key t ~cf) keys)
       (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level) in
   let to_cols l = List.map (fun r -> of_column r#grab_column) l
@@ -260,7 +275,7 @@ let multiget_slice t ?level ~cf keys ?sc pred =
 
 let multiget_superslice t ?level ~cf keys pred =
   let h =
-    t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
+    t.ks_client#multiget_slice (List.map (map_key t ~cf) keys)
       (column_parent cf) (slice_predicate pred) (clevel t level) in
   let to_super_cols l =
     List.map (fun r -> of_super_column r#grab_super_column) l
@@ -272,18 +287,18 @@ let multiget_superslice t ?level ~cf keys pred =
         h'
     with Not_found -> Hashtbl.map to_super_cols h
 
-let count t ?level ~cf ~key ?sc () =
-  t.ks_client#get_count t.ks_name
-    (map_key t ~cf key) (column_parent cf ?sc) (clevel t level)
+let count t ?level ~cf ~key ?sc pred =
+  t.ks_client#get_count
+    (map_key t ~cf key) (column_parent cf ?sc) (slice_predicate pred) (clevel t level)
 
 let get_range_slices t ?level ~cf ?sc pred range =
-  let r = t.ks_client#get_range_slices t.ks_name
+  let r = t.ks_client#get_range_slices
             (column_parent cf ?sc)
             (slice_predicate pred) (key_range t cf range) (clevel t level)
   in List.map (of_key_slice t cf) r
 
 let get_range_superslices t ?level ~cf pred range =
-  let r = t.ks_client#get_range_slices t.ks_name
+  let r = t.ks_client#get_range_slices
             (column_parent cf)
             (slice_predicate pred) (key_range t cf range) (clevel t level)
   in List.map (of_key_super_slice t cf) r
@@ -292,35 +307,38 @@ let mk_timestamp = function
     None -> make_timestamp ()
   | Some t -> t
 
-let insert t ?level ~cf ~key ?sc ~name ?timestamp value =
-  t.ks_client#insert t.ks_name (map_key t ~cf key) (column_path ~cf ?sc name)
-    value (mk_timestamp timestamp) (clevel t level)
+let mk_clock t = mk_clock (mk_timestamp t)
 
-let insert_column t ?level ~cf ~key ?sc ?timestamp column =
-  insert t ~key ?level ~cf ?sc
-    ~name:column.c_name
-    ~timestamp:(Option.default column.c_timestamp timestamp)
-    column.c_value
+let make_column name ?timestamp value =
+  { c_name=name; c_timestamp=mk_timestamp timestamp; c_value=value; }
+
+let insert_column t ?level ~cf ~key ?sc ?timestamp col =
+  t.ks_client#insert (map_key t ~cf key) (column_parent ?sc cf)
+    (column (match timestamp with None -> col | Some t -> { col with c_timestamp = t }))
+    (clevel t level)
+
+let insert t ?level ~cf ~key ?sc ~name ?timestamp value =
+  insert_column t ?level ~cf ~key ?sc (make_column name ?timestamp value)
 
 let remove_key t ?level ~cf ?timestamp key =
   let cpath = new columnPath in
     cpath#set_column_family cf;
-    t.ks_client#remove t.ks_name (map_key t ~cf key) cpath
-      (mk_timestamp timestamp) (clevel t level)
+    t.ks_client#remove (map_key t ~cf key) cpath
+      (mk_clock timestamp) (clevel t level)
 
 let remove_column t ?level ~cf ~key ?sc ?timestamp name =
-  t.ks_client#remove t.ks_name (map_key t ~cf key)
+  t.ks_client#remove (map_key t ~cf key)
     (column_path ~cf ?sc name)
-    (mk_timestamp timestamp) (clevel t level)
+    (mk_clock timestamp) (clevel t level)
 
 let remove_supercolumn t ?level ~cf ~key ?timestamp name =
-  t.ks_client#remove t.ks_name (map_key t ~cf key)
+  t.ks_client#remove (map_key t ~cf key)
     (supercolumn_path ~cf name)
-    (mk_timestamp timestamp) (clevel t level)
+    (mk_clock timestamp) (clevel t level)
 
 let make_deletion ?sc ?predicate timestamp =
   let r = new deletion in
-    r#set_timestamp (mk_timestamp timestamp);
+    r#set_clock (mk_clock timestamp);
     Option.may r#set_super_column sc;
     Option.may r#set_predicate (Option.map slice_predicate predicate);
     r
@@ -373,7 +391,7 @@ let batch_mutate t ?level l =
                 Hashtbl.add h1 cf (List.map mutation muts))
            (List.rev l1))
       l;
-    t.ks_client#batch_mutate t.ks_name h (clevel t level)
+    t.ks_client#batch_mutate h (clevel t level)
 
 let insert_supercolumn t ?level ~cf ~key ~name ?timestamp l =
   let timestamp = mk_timestamp timestamp in

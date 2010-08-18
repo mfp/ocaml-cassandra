@@ -31,7 +31,7 @@ let make_pool servers ?credentials ?level ?rewrite_keys ~keyspace max_conns =
              let ks = Cassandra.get_keyspace conn ?level ?rewrite_keys keyspace in
                begin match credentials with
                    Some [] | None -> ()
-                 | Some l -> Cassandra.login ks l
+                 | Some l -> let (_:Cassandra.access_level) = Cassandra.login ks l in ()
                end;
                (conn, ks))
           cp.servers.(Random.int (Array.length cp.servers))
@@ -66,8 +66,8 @@ let multiget_slice t ?level ~cf keys ?sc pred =
 let multiget_superslice t ?level ~cf keys pred =
   with_ks t (fun ks -> Cassandra.multiget_superslice ks ?level ~cf keys pred)
 
-let count t ?level ~cf ~key ?sc () =
-  with_ks t (fun ks -> Cassandra.count ks ?level ~cf ~key ?sc ())
+let count t ?level ~cf ~key ?sc pred =
+  with_ks t (fun ks -> Cassandra.count ks ?level ~cf ~key ?sc pred)
 
 let get_range_slices t ?level ~cf ?sc pred range =
   with_ks t (fun ks -> Cassandra.get_range_slices ks ?level ~cf ?sc pred range)
