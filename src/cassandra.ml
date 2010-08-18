@@ -62,7 +62,6 @@ module M = Map.Make(String)
 type key_rewriter = { map : string -> string; unmap : string -> string }
 
 type keyspace = {
-  ks_name : string;
   ks_client : Cassandra.client;
   ks_level : level;
   ks_rewrite : key_rewriter M.t;
@@ -99,14 +98,12 @@ let valid_connection t =
   let tx = t.proto#getTransport in
     tx#isOpen
 
-let set_keyspace t ks =
-  t.client#set_keyspace ks
-
-let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
+let set_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
   let rewrite_map =
     List.fold_left (fun m (cf, rw) -> M.add cf rw m) M.empty rewrite_keys
   in
-    { ks_name = name; ks_client = t.client; ks_level = level;
+    t.client#set_keyspace name;
+    { ks_client = t.client; ks_level = level;
       ks_rewrite = rewrite_map;
     }
 
@@ -335,6 +332,9 @@ let remove_supercolumn t ?level ~cf ~key ?timestamp name =
   t.ks_client#remove (map_key t ~cf key)
     (supercolumn_path ~cf name)
     (mk_clock timestamp) (clevel t level)
+
+let truncate t ~cf =
+  t.ks_client#truncate cf
 
 let make_deletion ?sc ?predicate timestamp =
   let r = new deletion in

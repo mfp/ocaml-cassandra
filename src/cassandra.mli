@@ -46,15 +46,14 @@ val key_rewriter :
 
 val digest_rewriter : key_rewriter
 
-val set_keyspace : connection -> string -> unit
-
-(** @param rewrite_keys allows to specify a key rewriting function per column
+(** One keyspace per connection.
+  * @param rewrite_keys allows to specify a key rewriting function per column
   * family, which will be applied to the key(s) in all operations.
   *
   * Key rewriting can be useful if you want to use an order-preserving
   * partitioner but want the keys in some column families to be distributed
   * randomly. *)
-val get_keyspace : connection -> ?level:level ->
+val set_keyspace : connection -> ?level:level ->
   ?rewrite_keys:(string * key_rewriter) list -> string -> keyspace
 
 val login : keyspace -> (string * string) list -> access_level
@@ -114,6 +113,8 @@ val remove_column : keyspace -> ?level:level ->
 
 val remove_supercolumn : keyspace -> ?level:level ->
   cf:string -> key:string -> ?timestamp:timestamp -> string -> unit
+
+val truncate : keyspace -> cf:string -> unit
 
 (** (key * (column_family * mutation list) list) list *)
 val batch_mutate : keyspace -> ?level:level ->
