@@ -77,8 +77,9 @@ let digest_rewriter =
 
 let make_timestamp () = Int64.of_float (1e6 *. Unix.gettimeofday ())
 
-let connect ~host port =
+let connect ?(framed=true) ~host port =
   let tx = new TSocket.t host port in
+  let tx = if framed then new TFramedTransport.t tx else tx in
   let proto = new TBinaryProtocol.t tx in
   let client = new Cassandra.client proto proto in
     tx#opn;

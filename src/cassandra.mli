@@ -33,7 +33,7 @@ type key_rewriter
 
 val make_timestamp : unit -> timestamp
 
-val connect : host:string -> int -> connection
+val connect : ?framed:bool -> host:string -> int -> connection
 val disconnect : connection -> unit
 val reconnect : connection -> unit
 val valid_connection : connection -> bool
