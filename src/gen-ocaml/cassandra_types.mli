@@ -18,6 +18,38 @@ sig
   val to_i : t -> int
   val of_i : int -> t
 end
+module IndexOperator : 
+sig
+  type t = 
+    | EQ
+  val to_i : t -> int
+  val of_i : int -> t
+end
+module AccessLevel : 
+sig
+  type t = 
+    | NONE
+    | READONLY
+    | READWRITE
+    | FULL
+  val to_i : t -> int
+  val of_i : int -> t
+end
+module IndexType : 
+sig
+  type t = 
+    | KEYS
+  val to_i : t -> int
+  val of_i : int -> t
+end
+class clock :
+object
+  method get_timestamp : Int64.t option
+  method grab_timestamp : Int64.t
+  method set_timestamp : Int64.t -> unit
+  method write : Protocol.t -> unit
+end
+val read_clock : Protocol.t -> clock
 class column :
 object
   method get_name : string option
@@ -26,9 +58,12 @@ object
   method get_value : string option
   method grab_value : string
   method set_value : string -> unit
-  method get_timestamp : Int64.t option
-  method grab_timestamp : Int64.t
-  method set_timestamp : Int64.t -> unit
+  method get_clock : clock option
+  method grab_clock : clock
+  method set_clock : clock -> unit
+  method get_ttl : int option
+  method grab_ttl : int
+  method set_ttl : int -> unit
   method write : Protocol.t -> unit
 end
 val read_column : Protocol.t -> column
@@ -107,6 +142,34 @@ object
   method write : Protocol.t -> unit
 end
 val read_slicePredicate : Protocol.t -> slicePredicate
+class indexExpression :
+object
+  method get_column_name : string option
+  method grab_column_name : string
+  method set_column_name : string -> unit
+  method get_op : IndexOperator.t option
+  method grab_op : IndexOperator.t
+  method set_op : IndexOperator.t -> unit
+  method get_value : string option
+  method grab_value : string
+  method set_value : string -> unit
+  method write : Protocol.t -> unit
+end
+val read_indexExpression : Protocol.t -> indexExpression
+class indexClause :
+object
+  method get_expressions : indexExpression list option
+  method grab_expressions : indexExpression list
+  method set_expressions : indexExpression list -> unit
+  method get_start_key : string option
+  method grab_start_key : string
+  method set_start_key : string -> unit
+  method get_count : int option
+  method grab_count : int
+  method set_count : int -> unit
+  method write : Protocol.t -> unit
+end
+val read_indexClause : Protocol.t -> indexClause
 class keyRange :
 object
   method get_start_key : string option
@@ -138,11 +201,22 @@ object
   method write : Protocol.t -> unit
 end
 val read_keySlice : Protocol.t -> keySlice
+class keyCount :
+object
+  method get_key : string option
+  method grab_key : string
+  method set_key : string -> unit
+  method get_count : int option
+  method grab_count : int
+  method set_count : int -> unit
+  method write : Protocol.t -> unit
+end
+val read_keyCount : Protocol.t -> keyCount
 class deletion :
 object
-  method get_timestamp : Int64.t option
-  method grab_timestamp : Int64.t
-  method set_timestamp : Int64.t -> unit
+  method get_clock : clock option
+  method grab_clock : clock
+  method set_clock : clock -> unit
   method get_super_column : string option
   method grab_super_column : string
   method set_super_column : string -> unit
@@ -185,6 +259,90 @@ object
   method write : Protocol.t -> unit
 end
 val read_authenticationRequest : Protocol.t -> authenticationRequest
+class columnDef :
+object
+  method get_name : string option
+  method grab_name : string
+  method set_name : string -> unit
+  method get_validation_class : string option
+  method grab_validation_class : string
+  method set_validation_class : string -> unit
+  method get_index_type : IndexType.t option
+  method grab_index_type : IndexType.t
+  method set_index_type : IndexType.t -> unit
+  method get_index_name : string option
+  method grab_index_name : string
+  method set_index_name : string -> unit
+  method write : Protocol.t -> unit
+end
+val read_columnDef : Protocol.t -> columnDef
+class cfDef :
+object
+  method get_keyspace : string option
+  method grab_keyspace : string
+  method set_keyspace : string -> unit
+  method get_name : string option
+  method grab_name : string
+  method set_name : string -> unit
+  method get_column_type : string option
+  method grab_column_type : string
+  method set_column_type : string -> unit
+  method get_clock_type : string option
+  method grab_clock_type : string
+  method set_clock_type : string -> unit
+  method get_comparator_type : string option
+  method grab_comparator_type : string
+  method set_comparator_type : string -> unit
+  method get_subcomparator_type : string option
+  method grab_subcomparator_type : string
+  method set_subcomparator_type : string -> unit
+  method get_reconciler : string option
+  method grab_reconciler : string
+  method set_reconciler : string -> unit
+  method get_comment : string option
+  method grab_comment : string
+  method set_comment : string -> unit
+  method get_row_cache_size : float option
+  method grab_row_cache_size : float
+  method set_row_cache_size : float -> unit
+  method get_preload_row_cache : bool option
+  method grab_preload_row_cache : bool
+  method set_preload_row_cache : bool -> unit
+  method get_key_cache_size : float option
+  method grab_key_cache_size : float
+  method set_key_cache_size : float -> unit
+  method get_read_repair_chance : float option
+  method grab_read_repair_chance : float
+  method set_read_repair_chance : float -> unit
+  method get_column_metadata : columnDef list option
+  method grab_column_metadata : columnDef list
+  method set_column_metadata : columnDef list -> unit
+  method get_gc_grace_seconds : int option
+  method grab_gc_grace_seconds : int
+  method set_gc_grace_seconds : int -> unit
+  method write : Protocol.t -> unit
+end
+val read_cfDef : Protocol.t -> cfDef
+class ksDef :
+object
+  method get_name : string option
+  method grab_name : string
+  method set_name : string -> unit
+  method get_strategy_class : string option
+  method grab_strategy_class : string
+  method set_strategy_class : string -> unit
+  method get_strategy_options : (string,string) Hashtbl.t option
+  method grab_strategy_options : (string,string) Hashtbl.t
+  method set_strategy_options : (string,string) Hashtbl.t -> unit
+  method get_replication_factor : int option
+  method grab_replication_factor : int
+  method set_replication_factor : int -> unit
+  method get_cf_defs : cfDef list option
+  method grab_cf_defs : cfDef list
+  method set_cf_defs : cfDef list -> unit
+  method write : Protocol.t -> unit
+end
+val read_ksDef : Protocol.t -> ksDef
 class notFoundException :
 object
   method write : Protocol.t -> unit

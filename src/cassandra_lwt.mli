@@ -36,7 +36,7 @@ val multiget_superslice : conn_pool -> ?level:level ->
   (string, supercolumn list) Hashtbl.t Lwt.t
 
 val count : conn_pool -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> unit -> int Lwt.t
+  cf:string -> key:string -> ?sc:string -> slice_predicate -> int Lwt.t
 
 val get_range_slices : conn_pool -> ?level:level ->
   cf:string -> ?sc:string -> slice_predicate -> key_range -> key_slice list Lwt.t

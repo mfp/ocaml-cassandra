@@ -6,5 +6,5 @@
 
 open Thrift
 open Cassandra_types
-let vERSION = "2.1.0"
+let vERSION = "11.0.0"
 

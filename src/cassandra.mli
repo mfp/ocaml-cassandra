@@ -9,12 +9,18 @@ type cassandra_error =
 
 exception Cassandra_error of cassandra_error * string
 
+val string_of_cassandra_error : cassandra_error -> string
+val exn_printer : exn -> string option
+
 type timestamp = Int64.t
 type column = private { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = private { sc_name : string; sc_columns : column list }
 
 type level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
+
+type access_level = 
+    [ `NONE | `READONLY | `READWRITE | `FULL ]
 
 type slice_predicate =
     [ `Columns of string list | `Column_range of string * string * bool * int ]
@@ -40,7 +46,7 @@ type key_rewriter
 
 val make_timestamp : unit -> timestamp
 
-val connect : host:string -> int -> connection
+val connect : ?framed:bool -> host:string -> int -> connection
 val disconnect : connection -> unit
 val reconnect : ?force:bool -> connection -> unit
 val valid_connection : connection -> bool
@@ -50,16 +56,17 @@ val key_rewriter :
 
 val digest_rewriter : key_rewriter
 
-(** @param rewrite_keys allows to specify a key rewriting function per column
+(** One keyspace per connection.
+  * @param rewrite_keys allows to specify a key rewriting function per column
   * family, which will be applied to the key(s) in all operations.
   *
   * Key rewriting can be useful if you want to use an order-preserving
   * partitioner but want the keys in some column families to be distributed
   * randomly. *)
-val get_keyspace : connection -> ?level:level ->
+val set_keyspace : connection -> ?level:level ->
   ?rewrite_keys:(string * key_rewriter) list -> string -> keyspace
 
-val login : keyspace -> (string * string) list -> unit
+val login : keyspace -> (string * string) list -> access_level
 
 val get : keyspace -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> string -> column
@@ -88,7 +95,7 @@ val multiget_superslice : keyspace -> ?level:level ->
   (string, supercolumn list) Hashtbl.t
 
 val count : keyspace -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> unit -> int
+  cf:string -> key:string -> ?sc:string -> slice_predicate -> int
 
 val get_range_slices : keyspace -> ?level:level ->
   cf:string -> ?sc:string -> slice_predicate -> key_range -> key_slice list
@@ -116,6 +123,8 @@ val remove_column : keyspace -> ?level:level ->
 
 val remove_supercolumn : keyspace -> ?level:level ->
   cf:string -> key:string -> ?timestamp:timestamp -> string -> unit
+
+val truncate : keyspace -> cf:string -> unit
 
 (** (key * (column_family * mutation list) list) list *)
 val batch_mutate : keyspace -> ?level:level ->

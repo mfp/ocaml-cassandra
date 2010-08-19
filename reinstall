@@ -1,0 +1,2 @@
+ocamlfind remove cassandra
+ocamlfind install cassandra src/META src/*.{mli,cmi,cmx,cmxa,cma,a,so}

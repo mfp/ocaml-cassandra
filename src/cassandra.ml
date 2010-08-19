@@ -28,11 +28,33 @@ type cassandra_error =
 
 exception Cassandra_error of cassandra_error * string
 
+let exn_printer =
+  let describe s o = Some (sprintf "%s(%S)" s (Option.default "?" o#get_why)) in
+  function
+    | InvalidRequestException o -> describe "InvalidRequestException" o
+    | AuthenticationException o -> describe "AuthenticationException" o
+    | AuthorizationException o  -> describe "AuthorizationException" o
+    | _ -> None
+
+let string_of_cassandra_error = function
+    Field_empty s -> sprintf "Field_empty %S" s
+  | Transport_error s -> sprintf "Transport_error %S" s
+  | Protocol_error s -> sprintf "Protocol_error %S" s
+  | Application_error s -> sprintf "Application_error %S" s
+  | Unknown_error (exn, s) -> sprintf "Unknown_error (%s)" (Printexc.to_string exn)
+
+let exn_printer = function
+    Cassandra_error (err, s) ->
+      Some (sprintf "Cassandra_error (%s)" (string_of_cassandra_error err))
+  | _ -> None
+
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = { sc_name : string; sc_columns : column list }
 
 type level = [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
+
+type access_level = [ `NONE | `READONLY | `READWRITE | `FULL ]
 
 type slice_predicate =
     [ `Columns of string list | `Column_range of string * string * bool * int ]
@@ -62,7 +84,6 @@ module M = Map.Make(String)
 type key_rewriter = { map : string -> string; unmap : string -> string }
 
 type keyspace = {
-  ks_name : string;
   ks_client : Cassandra.client;
   ks_level : level;
   ks_rewrite : key_rewriter M.t;
@@ -79,8 +100,9 @@ let digest_rewriter =
 
 let make_timestamp () = Int64.of_float (1e6 *. Unix.gettimeofday ())
 
-let connect ~host port =
+let connect ?(framed=true) ~host port =
   let tx = new TSocket.t host port in
+  let tx = if framed then new TFramedTransport.t tx else tx in
   let proto = new TBinaryProtocol.t tx in
   let client = new Cassandra.client proto proto in
     tx#opn;
@@ -97,14 +119,6 @@ let reconnect ?(force=false) t =
 let valid_connection t =
   let tx = t.proto#getTransport in
     tx#isOpen
-
-let get_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
-  let rewrite_map =
-    List.fold_left (fun m (cf, rw) -> M.add cf rw m) M.empty rewrite_keys
-  in
-    { ks_name = name; ks_client = t.client; ks_level = level;
-      ks_rewrite = rewrite_map;
-    }
 
 let cassandra_error e =
   raise (Cassandra_error (e, Printexc.get_backtrace ()))
@@ -133,12 +147,29 @@ DEFINE Wrap(x) =
         in cassandra_error (Application_error s)
     | e -> cassandra_error (Unknown_error (e, Printexc.to_string e))
 
+open AccessLevel
+
+let of_access_level = function
+  | NONE -> `NONE
+  | READONLY -> `READONLY
+  | READWRITE -> `READWRITE
+  | FULL -> `FULL
+
 let login ks credentials = Wrap
   let auth = new authenticationRequest in
   let h = Hashtbl.create 13 in
     List.iter (fun (k, v) -> Hashtbl.add h k v) credentials;
     auth#set_credentials h;
-    ks.ks_client#login ks.ks_name auth
+    of_access_level (ks.ks_client#login auth)
+
+let set_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
+  let rewrite_map =
+    List.fold_left (fun m (cf, rw) -> M.add cf rw m) M.empty rewrite_keys
+  in
+    t.client#set_keyspace name;
+    { ks_client = t.client; ks_level = level;
+      ks_rewrite = rewrite_map;
+    }
 
 open ConsistencyLevel
 
@@ -154,17 +185,19 @@ let consistency_level = function
 let clevel ks =
   Option.map_default consistency_level (consistency_level ks.ks_level)
 
+let mk_clock t = let c = new clock in c#set_timestamp t; c
+
 let column c =
   let r = new column in
     r#set_name c.c_name;
     r#set_value c.c_value;
-    r#set_timestamp c.c_timestamp;
+    r#set_clock (mk_clock c.c_timestamp);
     r
 
 let of_column c =
   {
     c_name = c#grab_name; c_value = c#grab_value;
-    c_timestamp = c#grab_timestamp;
+    c_timestamp = c#grab_clock#grab_timestamp;
   }
 
 let supercolumn c =
@@ -245,7 +278,7 @@ let of_key_super_slice t cf r =
   (unmap_key t cf r#grab_key, get_supercolumns r#grab_columns)
 
 let get t ?level ~cf ~key ?sc column = Wrap
-  let r = t.ks_client#get t.ks_name
+  let r = t.ks_client#get
             (map_key t ~cf key) (column_path ~cf ?sc column) (clevel t level)
   in of_column r#grab_column
 
@@ -253,7 +286,7 @@ let get_value t ?level ~cf ~key ?sc col =
   (get t ~key ?level ~cf ?sc col).c_value
 
 let get' t ?level ~cf ~key name = Wrap
-  let r = t.ks_client#get t.ks_name
+  let r = t.ks_client#get
             (map_key t ~cf key) (supercolumn_path ~cf name) (clevel t level)
   in of_super_column r#grab_super_column
 
@@ -261,20 +294,20 @@ let get_supercolumn = get'
 
 let get_slice t ?level ~cf ~key ?sc pred = Wrap
   let cols =
-    t.ks_client#get_slice t.ks_name (map_key t ~cf key)
+    t.ks_client#get_slice (map_key t ~cf key)
       (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level)
   in get_columns cols
 
 let get_superslice t ?level ~cf ~key pred = Wrap
   let cols =
-    t.ks_client#get_slice t.ks_name (map_key t ~cf key)
+    t.ks_client#get_slice (map_key t ~cf key)
       (column_parent cf) (slice_predicate pred) (clevel t level)
   in get_supercolumns cols
 
 let multiget_slice t ?level ~cf keys ?sc pred = Wrap
   let h =
-    t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
+    t.ks_client#multiget_slice (List.map (map_key t ~cf) keys)
       (column_parent cf ?sc)
       (slice_predicate pred) (clevel t level) in
   let to_cols l = List.map (fun r -> of_column r#grab_column) l
@@ -288,7 +321,7 @@ let multiget_slice t ?level ~cf keys ?sc pred = Wrap
 
 let multiget_superslice t ?level ~cf keys pred = Wrap
   let h =
-    t.ks_client#multiget_slice t.ks_name (List.map (map_key t ~cf) keys)
+    t.ks_client#multiget_slice (List.map (map_key t ~cf) keys)
       (column_parent cf) (slice_predicate pred) (clevel t level) in
   let to_super_cols l =
     List.map (fun r -> of_super_column r#grab_super_column) l
@@ -300,18 +333,18 @@ let multiget_superslice t ?level ~cf keys pred = Wrap
         h'
     with Not_found -> Hashtbl.map to_super_cols h
 
-let count t ?level ~cf ~key ?sc () = Wrap
-  t.ks_client#get_count t.ks_name
-    (map_key t ~cf key) (column_parent cf ?sc) (clevel t level)
+let count t ?level ~cf ~key ?sc pred = Wrap
+  t.ks_client#get_count
+    (map_key t ~cf key) (column_parent cf ?sc) (slice_predicate pred) (clevel t level)
 
 let get_range_slices t ?level ~cf ?sc pred range = Wrap
-  let r = t.ks_client#get_range_slices t.ks_name
+  let r = t.ks_client#get_range_slices
             (column_parent cf ?sc)
             (slice_predicate pred) (key_range t cf range) (clevel t level)
   in List.map (of_key_slice t cf) r
 
 let get_range_superslices t ?level ~cf pred range = Wrap
-  let r = t.ks_client#get_range_slices t.ks_name
+  let r = t.ks_client#get_range_slices
             (column_parent cf)
             (slice_predicate pred) (key_range t cf range) (clevel t level)
   in List.map (of_key_super_slice t cf) r
@@ -320,35 +353,41 @@ let mk_timestamp = function
     None -> make_timestamp ()
   | Some t -> t
 
-let insert t ?level ~cf ~key ?sc ~name ?timestamp value = Wrap
-  t.ks_client#insert t.ks_name (map_key t ~cf key) (column_path ~cf ?sc name)
-    value (mk_timestamp timestamp) (clevel t level)
+let mk_clock t = mk_clock (mk_timestamp t)
 
-let insert_column t ?level ~cf ~key ?sc ?timestamp column =
-  insert t ~key ?level ~cf ?sc
-    ~name:column.c_name
-    ~timestamp:(Option.default column.c_timestamp timestamp)
-    column.c_value
+let make_column name ?timestamp value =
+  { c_name=name; c_timestamp=mk_timestamp timestamp; c_value=value; }
+
+let insert_column t ?level ~cf ~key ?sc ?timestamp col = Wrap
+  t.ks_client#insert (map_key t ~cf key) (column_parent ?sc cf)
+    (column (match timestamp with None -> col | Some t -> { col with c_timestamp = t }))
+    (clevel t level)
+
+let insert t ?level ~cf ~key ?sc ~name ?timestamp value = Wrap
+  insert_column t ?level ~cf ~key ?sc (make_column name ?timestamp value)
 
 let remove_key t ?level ~cf ?timestamp key = Wrap
   let cpath = new columnPath in
     cpath#set_column_family cf;
-    t.ks_client#remove t.ks_name (map_key t ~cf key) cpath
-      (mk_timestamp timestamp) (clevel t level)
+    t.ks_client#remove (map_key t ~cf key) cpath
+      (mk_clock timestamp) (clevel t level)
 
 let remove_column t ?level ~cf ~key ?sc ?timestamp name = Wrap
-  t.ks_client#remove t.ks_name (map_key t ~cf key)
+  t.ks_client#remove (map_key t ~cf key)
     (column_path ~cf ?sc name)
-    (mk_timestamp timestamp) (clevel t level)
+    (mk_clock timestamp) (clevel t level)
 
 let remove_supercolumn t ?level ~cf ~key ?timestamp name = Wrap
-  t.ks_client#remove t.ks_name (map_key t ~cf key)
+  t.ks_client#remove (map_key t ~cf key)
     (supercolumn_path ~cf name)
-    (mk_timestamp timestamp) (clevel t level)
+    (mk_clock timestamp) (clevel t level)
+
+let truncate t ~cf =
+  t.ks_client#truncate cf
 
 let make_deletion ?sc ?predicate timestamp =
   let r = new deletion in
-    r#set_timestamp (mk_timestamp timestamp);
+    r#set_clock (mk_clock timestamp);
     Option.may r#set_super_column sc;
     Option.may r#set_predicate (Option.map slice_predicate predicate);
     r
@@ -401,7 +440,7 @@ let batch_mutate t ?level l = Wrap
                 Hashtbl.add h1 cf (List.map mutation muts))
            (List.rev l1))
       l;
-    t.ks_client#batch_mutate t.ks_name h (clevel t level)
+    t.ks_client#batch_mutate h (clevel t level)
 
 let insert_supercolumn t ?level ~cf ~key ~name ?timestamp l =
   let timestamp = mk_timestamp timestamp in
