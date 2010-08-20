@@ -45,7 +45,9 @@ let rec with_ks t ?(attempts = 5) ?(wait_period = 0.1) f =
   with
     | C.Cassandra_error (ty, _) as e -> begin match ty with
           C.Low_level
-            (C.Field_empty _ | C.Protocol_error _ | C.Application_error _) -> fail e
+            (C.Field_empty _ | C.Protocol_error _ | C.Application_error _)
+        | C.Invalid_request _ | C.Timeout
+        | C.Authentication _ | C.Authorization _-> fail e
         | C.Low_level (C.Transport_error _) | C.Unknown_error _ ->
             if attempts = 0 then fail e
             else

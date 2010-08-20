@@ -2,6 +2,10 @@
 
 type cassandra_error =
     Low_level of cassandra_error_low_level
+  | Invalid_request of string
+  | Timeout
+  | Authentication of string
+  | Authorization of string
   | Unknown_error of exn * string
 
 and cassandra_error_low_level =

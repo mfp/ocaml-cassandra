@@ -19,15 +19,19 @@ open Printf
 open Cassandra_thrift
 open Cassandra_types
 
-type cassandra_error_low_level =
+type cassandra_error =
+    Low_level of cassandra_error_low_level
+  | Invalid_request of string
+  | Timeout
+  | Authentication of string
+  | Authorization of string
+  | Unknown_error of exn * string
+
+and cassandra_error_low_level =
     Field_empty of string
   | Transport_error of string
   | Protocol_error of string
   | Application_error of string
-
-type cassandra_error =
-    Low_level of cassandra_error_low_level
-  | Unknown_error of exn * string
 
 exception Cassandra_error of cassandra_error * string
 
@@ -47,6 +51,10 @@ let string_of_cassandra_error_low_level = function
 
 let string_of_cassandra_error = function
     Low_level e -> sprintf "Low_level (%s)" (string_of_cassandra_error_low_level e)
+  | Invalid_request s -> sprintf "Invalid_request %S" s
+  | Timeout -> "Timeout"
+  | Authentication s -> sprintf "Authentication %S" s
+  | Authorization s -> sprintf "Authorization %S" s
   | Unknown_error (exn, s) -> sprintf "Unknown_error (%s)" (Printexc.to_string exn)
 
 let exn_printer = function
@@ -153,6 +161,13 @@ DEFINE Wrap(x) =
           | TAE.INTERNAL_ERROR -> "INTERNAL_ERROR"
           | TAE.PROTOCOL_ERROR -> "PROTOCOL_ERROR"
         in cassandra_error_low_level (Application_error s)
+    | InvalidRequestException e ->
+        cassandra_error (Invalid_request (Option.default "" e#get_why))
+    | TimedOutException _ -> cassandra_error Timeout
+    | AuthenticationException e ->
+        cassandra_error (Authentication (Option.default "" e#get_why))
+    | AuthorizationException e ->
+        cassandra_error (Authorization (Option.default "" e#get_why))
     | e -> cassandra_error (Unknown_error (e, Printexc.to_string e))
 
 open AccessLevel
