@@ -22,6 +22,7 @@ open Thrift
 module P = Protocol
 
 let get_byte i b = 255 land (i lsr (8*b))
+let get_byte32 i b = 255 land (Int32.to_int (Int32.shift_right i (8*b)))
 let get_byte64 i b = 255 land (Int64.to_int (Int64.shift_right i (8*b)))
 
 
@@ -29,13 +30,15 @@ let tv = P.t_type_to_i
 let vt = P.t_type_of_i
 
 
-let comp_int b n =
+let comp_int32 b n =
   let s = ref 0l in
   let sb = 32 - 8*n in
     for i=0 to (n-1) do
       s:= Int32.logor !s (Int32.shift_left (Int32.of_int (int_of_char b.[i])) (8*(n-1-i)))
     done;
-    Int32.to_int (Int32.shift_right (Int32.shift_left !s sb) sb)
+    Int32.shift_right (Int32.shift_left !s sb) sb
+
+let comp_int b n = Int32.to_int (comp_int32 b n)
 
 let comp_int64 b n =
   let s = ref 0L in
@@ -44,8 +47,8 @@ let comp_int64 b n =
     done;
     !s
 
-let version_mask = 0xffff0000
-let version_1 = 0x80010000
+let version_mask = 0xffff0000l
+let version_1 = 0x80010000l
 
 class t trans =
 object (self)
@@ -68,6 +71,12 @@ object (self)
         ibyte.[3-i] <- char_of_int (gb i)
       done;
       trans#write ibyte 0 4
+  method private writeI32' i =
+    let gb = get_byte32 i in
+      for i=0 to 3 do
+        ibyte.[3-i] <- char_of_int (gb i)
+      done;
+      trans#write ibyte 0 4
   method writeI64 i=
     let gb = get_byte64 i in
       for i=0 to 7 do
@@ -82,7 +91,7 @@ object (self)
       trans#write s 0 n
   method writeBinary a = self#writeString a
   method writeMessageBegin (n,t,s) =
-    self#writeI32 (version_1 lor (P.message_type_to_i t));
+    self#writeI32' (Int32.logor version_1 (Int32.of_int (P.message_type_to_i t)));
     self#writeString n;
     self#writeI32 s
   method writeMessageEnd = ()
@@ -116,6 +125,9 @@ object (self)
   method readI32 =
     ignore (trans#readAll ibyte 0 4);
     comp_int ibyte 4
+  method private readI32' =
+    ignore (trans#readAll ibyte 0 4);
+    comp_int32 ibyte 4
   method readI64 =
     ignore (trans#readAll ibyte 0 8);
     comp_int64 ibyte 8
@@ -130,13 +142,13 @@ object (self)
       buf
   method readBinary = self#readString
   method readMessageBegin =
-    let ver = self#readI32 in
-      if (ver land version_mask != version_1) then
-        (print_int ver;
-        raise (P.E (P.BAD_VERSION, "Missing version identifier")))
+    let ver = self#readI32' in
+      if (Int32.logand ver version_mask <> version_1) then
+        raise (P.E (P.BAD_VERSION,
+                    Printf.sprintf "Bad version identifier: %ld" ver))
       else
         let s = self#readString in
-        let mt = P.message_type_of_i (ver land 0xFF) in
+        let mt = P.message_type_of_i (Int32.to_int (Int32.logand ver 0xFFl)) in
           (s,mt, self#readI32)
   method readMessageEnd = ()
   method readStructBegin =
