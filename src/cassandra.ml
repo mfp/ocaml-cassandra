@@ -19,11 +19,14 @@ open Printf
 open Cassandra_thrift
 open Cassandra_types
 
-type cassandra_error =
+type cassandra_error_low_level =
     Field_empty of string
   | Transport_error of string
   | Protocol_error of string
   | Application_error of string
+
+type cassandra_error =
+    Low_level of cassandra_error_low_level
   | Unknown_error of exn * string
 
 exception Cassandra_error of cassandra_error * string
@@ -36,11 +39,14 @@ let exn_printer =
     | AuthorizationException o  -> describe "AuthorizationException" o
     | _ -> None
 
-let string_of_cassandra_error = function
+let string_of_cassandra_error_low_level = function
     Field_empty s -> sprintf "Field_empty %S" s
   | Transport_error s -> sprintf "Transport_error %S" s
   | Protocol_error s -> sprintf "Protocol_error %S" s
   | Application_error s -> sprintf "Application_error %S" s
+
+let string_of_cassandra_error = function
+    Low_level e -> sprintf "Low_level (%s)" (string_of_cassandra_error_low_level e)
   | Unknown_error (exn, s) -> sprintf "Unknown_error (%s)" (Printexc.to_string exn)
 
 let exn_printer = function
@@ -123,17 +129,19 @@ let valid_connection t =
 let cassandra_error e =
   raise (Cassandra_error (e, Printexc.get_backtrace ()))
 
+let cassandra_error_low_level e = cassandra_error (Low_level e)
+
 module TAE = Thrift.Application_Exn
 
 DEFINE Wrap(x) =
   try
     x
   with
-    | Thrift.Thrift_error s -> cassandra_error (Protocol_error s)
+    | Thrift.Thrift_error s -> cassandra_error_low_level (Protocol_error s)
     | Thrift.Field_empty s ->
-        cassandra_error (Protocol_error (sprintf "Field empty: %s" s))
-    | Thrift.Transport.E (_, s) -> cassandra_error (Transport_error s)
-    | Thrift.Protocol.E (_, s) -> cassandra_error (Protocol_error s)
+        cassandra_error_low_level (Protocol_error (sprintf "Field empty: %s" s))
+    | Thrift.Transport.E (_, s) -> cassandra_error_low_level (Transport_error s)
+    | Thrift.Protocol.E (_, s) -> cassandra_error_low_level (Protocol_error s)
     | TAE.E t ->
         let s = match t#get_type with
           | TAE.UNKNOWN -> "UNKNOWN"
@@ -144,7 +152,7 @@ DEFINE Wrap(x) =
           | TAE.MISSING_RESULT -> "MISSING_RESULT"
           | TAE.INTERNAL_ERROR -> "INTERNAL_ERROR"
           | TAE.PROTOCOL_ERROR -> "PROTOCOL_ERROR"
-        in cassandra_error (Application_error s)
+        in cassandra_error_low_level (Application_error s)
     | e -> cassandra_error (Unknown_error (e, Printexc.to_string e))
 
 open AccessLevel

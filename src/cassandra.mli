@@ -1,11 +1,14 @@
 (* Copyright (c) 2009 Mauricio Fernández <mfp@acm.org> *)
 
 type cassandra_error =
+    Low_level of cassandra_error_low_level
+  | Unknown_error of exn * string
+
+and cassandra_error_low_level =
     Field_empty of string
   | Transport_error of string
   | Protocol_error of string
   | Application_error of string
-  | Unknown_error of exn * string
 
 exception Cassandra_error of cassandra_error * string
 
