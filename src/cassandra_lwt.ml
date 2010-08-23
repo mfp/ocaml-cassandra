@@ -62,7 +62,7 @@ let get t ?level ~cf ~key ?sc col =
 
 let get_value t ?level ~cf ~key ?sc col =
   lwt col = get t ?level ~cf ~key ?sc col in
-    return col.Cassandra.c_value
+    return (Option.map (fun c -> c.Cassandra.c_value) col)
 
 let get' t ?level ~cf ~key col =
   with_ks t (fun ks -> Cassandra.get' ks ?level ~cf ~key col)

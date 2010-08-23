@@ -78,16 +78,16 @@ val set_keyspace : connection -> ?level:level ->
 val login : keyspace -> (string * string) list -> access_level
 
 val get : keyspace -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> string -> column
+  cf:string -> key:string -> ?sc:string -> string -> column option
 
 val get_value : keyspace -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> string -> string
+  cf:string -> key:string -> ?sc:string -> string -> string option
 
 val get' : keyspace -> ?level:level ->
-  cf:string -> key:string -> string -> supercolumn
+  cf:string -> key:string -> string -> supercolumn option
 
 val get_supercolumn : keyspace -> ?level:level ->
-  cf:string -> key:string -> string -> supercolumn
+  cf:string -> key:string -> string -> supercolumn option
 
 val get_slice : keyspace -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> slice_predicate -> column list
@@ -182,13 +182,13 @@ sig
     ?level:level -> cf:string ->
     of_s:(string -> 'a) -> to_s:('a -> string) -> string -> 'a subcolumn
 
-  val get : keyspace -> ?level:level -> 'a column -> key:string -> 'a
+  val get : keyspace -> ?level:level -> 'a column -> key:string -> 'a option
 
   val set : keyspace -> ?level:level ->
     'a column -> key:string -> ?timestamp:timestamp -> 'a -> unit
 
   val get' : keyspace -> ?level:level ->
-    sc:string -> 'a subcolumn -> key:string -> 'a
+    sc:string -> 'a subcolumn -> key:string -> 'a option
 
   val set' : keyspace -> ?level:level ->
     sc:string -> 'a subcolumn -> key:string -> ?timestamp:timestamp -> 'a -> unit

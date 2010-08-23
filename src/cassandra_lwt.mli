@@ -10,16 +10,16 @@ val make_pool : (string * int) list ->
   keyspace:string -> int -> conn_pool
 
 val get : conn_pool -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> string -> column Lwt.t
+  cf:string -> key:string -> ?sc:string -> string -> column option Lwt.t
 
 val get_value : conn_pool -> ?level:level ->
-  cf:string -> key:string -> ?sc:string -> string -> string Lwt.t
+  cf:string -> key:string -> ?sc:string -> string -> string option Lwt.t
 
 val get' : conn_pool -> ?level:level ->
-  cf:string -> key:string -> string -> supercolumn Lwt.t
+  cf:string -> key:string -> string -> supercolumn option Lwt.t
 
 val get_supercolumn : conn_pool -> ?level:level ->
-  cf:string -> key:string -> string -> supercolumn Lwt.t
+  cf:string -> key:string -> string -> supercolumn option Lwt.t
 
 val get_slice : conn_pool -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> slice_predicate -> column list Lwt.t
@@ -82,13 +82,13 @@ sig
     ?level:level -> cf:string ->
     of_s:(string -> 'a) -> to_s:('a -> string) -> string -> 'a subcolumn
 
-  val get : conn_pool -> ?level:level -> 'a column -> key:string -> 'a Lwt.t
+  val get : conn_pool -> ?level:level -> 'a column -> key:string -> 'a option Lwt.t
 
   val set : conn_pool -> ?level:level ->
     'a column -> key:string -> ?timestamp:timestamp -> 'a -> unit Lwt.t
 
   val get' : conn_pool -> ?level:level ->
-    sc:string -> 'a subcolumn -> key:string -> 'a Lwt.t
+    sc:string -> 'a subcolumn -> key:string -> 'a option Lwt.t
 
   val set' : conn_pool -> ?level:level ->
     sc:string -> 'a subcolumn -> key:string -> ?timestamp:timestamp -> 'a ->

@@ -170,6 +170,11 @@ DEFINE Wrap(x) =
         cassandra_error (Authorization (Option.default "" e#get_why))
     | e -> cassandra_error (Unknown_error (e, Printexc.to_string e))
 
+DEFINE Wrap_opt(x) =
+  try
+    Some (x)
+  with Cassandra_error(Not_found, _) -> None
+
 open AccessLevel
 
 let of_access_level = function
@@ -300,15 +305,15 @@ let of_key_slice t cf r =
 let of_key_super_slice t cf r =
   (unmap_key t cf r#grab_key, get_supercolumns r#grab_columns)
 
-let get t ?level ~cf ~key ?sc column = Wrap
+let get t ?level ~cf ~key ?sc column = Wrap_opt
   let r = t.ks_client#get
             (map_key t ~cf key) (column_path ~cf ?sc column) (clevel t level)
   in of_column r#grab_column
 
 let get_value t ?level ~cf ~key ?sc col =
-  (get t ~key ?level ~cf ?sc col).c_value
+  Option.map (fun c -> c.c_value) (get t ~key ?level ~cf ?sc col)
 
-let get' t ?level ~cf ~key name = Wrap
+let get' t ?level ~cf ~key name = Wrap_opt
   let r = t.ks_client#get
             (map_key t ~cf key) (supercolumn_path ~cf name) (clevel t level)
   in of_super_column r#grab_super_column
@@ -534,12 +539,12 @@ struct
   let subcolumn = column
 
   let get t ?level col ~key =
-    col.of_s (get_value t ?level:(clevel col level)
-                ~key ~cf:col.cf col.name)
+    Option.map col.of_s (get_value t ?level:(clevel col level)
+                           ~key ~cf:col.cf col.name)
 
   let get' t ?level ~sc col ~key =
-    col.of_s (get_value t ?level:(clevel col level)
-                ~key ~cf:col.cf ~sc col.name)
+    Option.map col.of_s (get_value t ?level:(clevel col level)
+                           ~key ~cf:col.cf ~sc col.name)
 
   let set t ?level col ~key ?timestamp x =
     insert t ?level:(clevel col level)
