@@ -410,7 +410,7 @@ let remove_supercolumn t ?level ~cf ~key ?timestamp name = Wrap
     (supercolumn_path ~cf name)
     (mk_clock timestamp) (clevel t level)
 
-let truncate t ~cf =
+let truncate t ~cf = Wrap
   t.ks_client#truncate cf
 
 let make_deletion ?sc ?predicate timestamp =
