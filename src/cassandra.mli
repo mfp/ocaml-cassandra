@@ -193,3 +193,35 @@ sig
   val set' : keyspace -> ?level:level ->
     sc:string -> 'a subcolumn -> key:string -> ?timestamp:timestamp -> 'a -> unit
 end
+
+(** Meta-API *)
+
+type cfdef = < cmp_type : string; col_type : string; keyspace : string; name : string >
+type ksdef = < name : string; rf : int; strategy_class : string; strategy_options : (string,string) Hashtbl.t; cf_defs : cfdef list; >
+type tokenRange = < start_token : string; end_token : string; endpoints : string list >
+
+(** list the defined keyspaces in this cluster *)
+val describe_keyspaces : keyspace -> ksdef list
+
+(** get the cluster name *)
+val describe_cluster_name : keyspace -> string
+
+(** get the thrift api version *)
+val describe_version : keyspace -> string
+
+(** get the token ring: a map of ranges to host addresses,
+    represented as a set of TokenRange instead of a map from range
+    to list of endpoints, because you can't use Thrift structs as
+    map keys:
+    https://issues.apache.org/jira/browse/THRIFT-162
+
+    for the same reason, we can't return a set here, even though
+    order is neither important nor predictable. *)
+val describe_ring : keyspace -> tokenRange list
+
+(** returns the partitioner used by this cluster *)
+val describe_partitioner : keyspace -> string
+
+(** describe specified keyspace *)
+val describe_keyspace : keyspace -> ksdef
+

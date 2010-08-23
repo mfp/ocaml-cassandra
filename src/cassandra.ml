@@ -96,6 +96,7 @@ module M = Map.Make(String)
 type key_rewriter = { map : string -> string; unmap : string -> string }
 
 type keyspace = {
+  ks_name : string;
   ks_client : Cassandra.client;
   ks_level : level;
   ks_rewrite : key_rewriter M.t;
@@ -195,7 +196,7 @@ let set_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name =
     List.fold_left (fun m (cf, rw) -> M.add cf rw m) M.empty rewrite_keys
   in
     t.client#set_keyspace name;
-    { ks_client = t.client; ks_level = level;
+    { ks_name = name; ks_client = t.client; ks_level = level;
       ks_rewrite = rewrite_map;
     }
 
@@ -554,3 +555,52 @@ struct
     insert t ?level:(clevel col level)
       ~key ~cf:col.cf ~name:col.name ~sc ?timestamp (col.to_s x)
 end
+
+(** Meta-API *)
+
+type cfdef = < cmp_type : string; col_type : string; keyspace : string; name : string >
+type ksdef = < name : string; rf : int; strategy_class : string; strategy_options : (string,string) Hashtbl.t; cf_defs : cfdef list; >
+type tokenRange = < start_token : string; end_token : string; endpoints : string list >
+
+let cfdef (cf : cfDef) =
+  object
+    method keyspace = cf#grab_keyspace
+    method name = cf#grab_name
+    method col_type = cf#grab_column_type
+    method cmp_type = cf#grab_comparator_type
+  end
+
+let ksdef (ks : ksDef) =
+  object
+    method name = ks#grab_name
+    method rf = ks#grab_replication_factor
+    method strategy_class = ks#grab_strategy_class
+    method strategy_options = ks#grab_strategy_options
+    method cf_defs = List.map cfdef ks#grab_cf_defs
+  end
+
+let tokenRange tr =
+  object
+    method start_token = tr#grab_start_token
+    method end_token = tr#grab_end_token
+    method endpoints = tr#grab_endpoints
+  end
+
+let describe_keyspaces t = Wrap
+  List.map ksdef t.ks_client#describe_keyspaces
+
+let describe_cluster_name t = Wrap
+  t.ks_client#describe_cluster_name
+
+let describe_version t = Wrap
+  t.ks_client#describe_version
+
+let describe_ring t = Wrap
+  List.map tokenRange (t.ks_client#describe_ring t.ks_name)
+
+let describe_partitioner t = Wrap
+  t.ks_client#describe_partitioner
+
+let describe_keyspace t = Wrap
+  ksdef (t.ks_client#describe_keyspace t.ks_name)
+
