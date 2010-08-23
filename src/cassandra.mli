@@ -2,7 +2,9 @@
 
 type cassandra_error =
     Low_level of cassandra_error_low_level
+  | Not_found
   | Invalid_request of string
+  | Unavailable
   | Timeout
   | Authentication of string
   | Authorization of string

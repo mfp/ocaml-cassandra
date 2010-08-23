@@ -47,7 +47,8 @@ let rec with_ks t ?(attempts = 5) ?(wait_period = 0.1) f =
           C.Low_level
             (C.Field_empty _ | C.Protocol_error _ | C.Application_error _)
         | C.Invalid_request _ | C.Timeout
-        | C.Authentication _ | C.Authorization _-> fail e
+        | C.Authentication _ | C.Authorization _
+        | C.Not_found | C.Unavailable -> fail e
         | C.Low_level (C.Transport_error _) | C.Unknown_error _ ->
             if attempts = 0 then fail e
             else

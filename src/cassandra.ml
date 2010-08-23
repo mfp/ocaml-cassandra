@@ -19,9 +19,13 @@ open Printf
 open Cassandra_thrift
 open Cassandra_types
 
+exception NF = Not_found
+
 type cassandra_error =
     Low_level of cassandra_error_low_level
+  | Not_found
   | Invalid_request of string
+  | Unavailable
   | Timeout
   | Authentication of string
   | Authorization of string
@@ -51,7 +55,9 @@ let string_of_cassandra_error_low_level = function
 
 let string_of_cassandra_error = function
     Low_level e -> sprintf "Low_level (%s)" (string_of_cassandra_error_low_level e)
+  | Not_found -> "Not_found"
   | Invalid_request s -> sprintf "Invalid_request %S" s
+  | Unavailable -> "Unavailable"
   | Timeout -> "Timeout"
   | Authentication s -> sprintf "Authentication %S" s
   | Authorization s -> sprintf "Authorization %S" s
@@ -161,8 +167,10 @@ DEFINE Wrap(x) =
           | TAE.INTERNAL_ERROR -> "INTERNAL_ERROR"
           | TAE.PROTOCOL_ERROR -> "PROTOCOL_ERROR"
         in cassandra_error_low_level (Application_error s)
+    | NotFoundException _ -> cassandra_error Not_found
     | InvalidRequestException e ->
         cassandra_error (Invalid_request (Option.default "" e#get_why))
+    | UnavailableException _ -> cassandra_error Unavailable
     | TimedOutException _ -> cassandra_error Timeout
     | AuthenticationException e ->
         cassandra_error (Authentication (Option.default "" e#get_why))
@@ -273,7 +281,7 @@ let get_supercolumns =
 let map_key ks ~cf key =
   try
     (M.find cf ks.ks_rewrite).map key
-  with Not_found -> key
+  with NF -> key
 
 let key_range t cf r =
   let map = function "" -> "" | s -> map_key t cf s in
@@ -292,7 +300,7 @@ let key_range t cf r =
 let unmap_key ks ~cf key' =
   try
     (M.find cf ks.ks_rewrite).unmap key'
-  with Not_found -> key'
+  with NF -> key'
 
 let of_key_slice t cf r =
   (unmap_key t cf r#grab_key, get_columns r#grab_columns)
@@ -340,7 +348,7 @@ let multiget_slice t ?level ~cf keys ?sc pred = Wrap
       let h' = Hashtbl.create (Hashtbl.length h) in
         Hashtbl.iter (fun k v -> Hashtbl.add h' (unmap k) (to_cols v)) h;
         h'
-    with Not_found -> Hashtbl.map to_cols h
+    with NF -> Hashtbl.map to_cols h
 
 let multiget_superslice t ?level ~cf keys pred = Wrap
   let h =
@@ -354,7 +362,7 @@ let multiget_superslice t ?level ~cf keys pred = Wrap
       let h' = Hashtbl.create (Hashtbl.length h) in
         Hashtbl.iter (fun k v -> Hashtbl.add h' (unmap k) (to_super_cols v)) h;
         h'
-    with Not_found -> Hashtbl.map to_super_cols h
+    with NF -> Hashtbl.map to_super_cols h
 
 let count t ?level ~cf ~key ?sc pred = Wrap
   t.ks_client#get_count
@@ -444,7 +452,7 @@ let mutation (m : mutation) =
 let find_insert_default f h k =
   try
     Hashtbl.find h k
-  with Not_found ->
+  with NF ->
     let v = f () in
       Hashtbl.add h k v;
       v
