@@ -39,14 +39,6 @@ and cassandra_error_low_level =
 
 exception Cassandra_error of cassandra_error * string
 
-let exn_printer =
-  let describe s o = Some (sprintf "%s(%S)" s (Option.default "?" o#get_why)) in
-  function
-    | InvalidRequestException o -> describe "InvalidRequestException" o
-    | AuthenticationException o -> describe "AuthenticationException" o
-    | AuthorizationException o  -> describe "AuthorizationException" o
-    | _ -> None
-
 let string_of_cassandra_error_low_level = function
     Field_empty s -> sprintf "Field_empty %S" s
   | Transport_error s -> sprintf "Transport_error %S" s
