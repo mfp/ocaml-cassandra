@@ -55,7 +55,12 @@ type key_rewriter
 
 val make_timestamp : unit -> timestamp
 
-val connect : ?framed:bool -> host:string -> int -> connection
+(** [connect ?framed ?timeout host port] opens connection to cassandra node.
+  @param framed enables usage of framed Thrift transport, required by default since 0.7 (default [true])
+  @param timeout read and write timeout in seconds, [0.] is infinite timeout (default [(0., 0.)])
+  @host cassandra host
+  @port RPC port, usually 9160 *)
+val connect : ?framed:bool -> ?timeout:(float * float) -> host:string -> int -> connection
 val disconnect : connection -> unit
 val reconnect : ?force:bool -> connection -> unit
 val valid_connection : connection -> bool

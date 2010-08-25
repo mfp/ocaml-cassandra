@@ -21,7 +21,7 @@ open Thrift
 
 module T = Transport
 
-class t host port=
+class t ?timeout host port=
 object (self)
   inherit T.t
   val mutable chans = None
@@ -29,7 +29,13 @@ object (self)
   method opn =
     try
       let addr = (let {Unix.h_addr_list=x} = Unix.gethostbyname host in x.(0)) in
-        chans <- Some(Unix.open_connection (Unix.ADDR_INET (addr,port)))
+      let (i,o) = Unix.open_connection (Unix.ADDR_INET (addr,port)) in
+      begin match timeout with
+      | Some (read,write) -> 
+          Unix.setsockopt_float (Unix.descr_of_in_channel i) Unix.SO_RCVTIMEO read;
+          Unix.setsockopt_float (Unix.descr_of_out_channel o) Unix.SO_SNDTIMEO write
+      | None -> () end;
+      chans <- Some (i,o)
     with
         Unix.Unix_error (e,fn,_) -> raise (T.E (T.NOT_OPEN, ("TSocket: Could not connect to "^host^":"^(string_of_int port)^" because: "^fn^":"^(Unix.error_message e))))
       | _ -> raise (T.E (T.NOT_OPEN, ("TSocket: Could not connect to "^host^":"^(string_of_int port))))
