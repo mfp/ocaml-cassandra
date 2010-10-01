@@ -20,6 +20,8 @@ exception Cassandra_error of cassandra_error * string
 
 val string_of_cassandra_error : cassandra_error -> string
 val exn_printer : exn -> string option
+(** Client thrift API version *)
+val client_version : string
 
 type timestamp = Int64.t
 type column = private { c_name : string; c_value : string; c_timestamp : timestamp; }
@@ -27,9 +29,6 @@ type supercolumn = private { sc_name : string; sc_columns : column list }
 
 type level =
     [ `ZERO | `ONE | `QUORUM | `DCQUORUM | `DCQUORUMSYNC | `ALL | `ANY ]
-
-type access_level = 
-    [ `NONE | `READONLY | `READWRITE | `FULL ]
 
 type slice_predicate =
     [ `Columns of string list | `Column_range of string * string * bool * int ]
@@ -80,7 +79,7 @@ val digest_rewriter : key_rewriter
 val set_keyspace : connection -> ?level:level ->
   ?rewrite_keys:(string * key_rewriter) list -> string -> keyspace
 
-val login : keyspace -> (string * string) list -> access_level
+val login : keyspace -> (string * string) list -> unit
 
 val get : keyspace -> ?level:level ->
   cf:string -> key:string -> ?sc:string -> string -> column option

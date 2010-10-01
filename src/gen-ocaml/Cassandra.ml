@@ -13,8 +13,8 @@ class login_args =
 object (self)
   val mutable _auth_request : authenticationRequest option = None
   method get_auth_request = _auth_request
-  method grab_auth_request = match _auth_request with None->raise (Field_empty "login_args.auth_request") | Some _x238 -> _x238
-  method set_auth_request _x238 = _auth_request <- Some _x238
+  method grab_auth_request = match _auth_request with None->raise (Field_empty "login_args.auth_request") | Some _x231 -> _x231
+  method set_auth_request _x231 = _auth_request <- Some _x231
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "login_args";
     (match _auth_request with None -> () | Some _v -> 
@@ -26,46 +26,37 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_login_args (iprot : Protocol.t) =
-  let _str241 = new login_args in
+  let _str234 = new login_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t242,_id243) = iprot#readFieldBegin in
-        if _t242 = Protocol.T_STOP then
+        let (_,_t235,_id236) = iprot#readFieldBegin in
+        if _t235 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id243 with 
-          | 1 -> (if _t242 = Protocol.T_STRUCT then
-              _str241#set_auth_request (read_authenticationRequest iprot)
+        (match _id236 with 
+          | 1 -> (if _t235 = Protocol.T_STRUCT then
+              _str234#set_auth_request (read_authenticationRequest iprot)
             else
-              iprot#skip _t242)
-          | _ -> iprot#skip _t242);
+              iprot#skip _t235)
+          | _ -> iprot#skip _t235);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str241
+    _str234
 
 class login_result =
 object (self)
-  val mutable _success : AccessLevel.t option = None
-  method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "login_result.success") | Some _x244 -> _x244
-  method set_success _x244 = _success <- Some _x244
   val mutable _authnx : authenticationException option = None
   method get_authnx = _authnx
-  method grab_authnx = match _authnx with None->raise (Field_empty "login_result.authnx") | Some _x244 -> _x244
-  method set_authnx _x244 = _authnx <- Some _x244
+  method grab_authnx = match _authnx with None->raise (Field_empty "login_result.authnx") | Some _x237 -> _x237
+  method set_authnx _x237 = _authnx <- Some _x237
   val mutable _authzx : authorizationException option = None
   method get_authzx = _authzx
-  method grab_authzx = match _authzx with None->raise (Field_empty "login_result.authzx") | Some _x244 -> _x244
-  method set_authzx _x244 = _authzx <- Some _x244
+  method grab_authzx = match _authzx with None->raise (Field_empty "login_result.authzx") | Some _x237 -> _x237
+  method set_authzx _x237 = _authzx <- Some _x237
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "login_result";
-    (match _success with None -> () | Some _v -> 
-      oprot#writeFieldBegin("success",Protocol.T_I32,0);
-      oprot#writeI32(AccessLevel.to_i _v);
-      oprot#writeFieldEnd
-    );
     (match _authnx with None -> () | Some _v -> 
       oprot#writeFieldBegin("authnx",Protocol.T_STRUCT,1);
       _v#write(oprot);
@@ -80,39 +71,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_login_result (iprot : Protocol.t) =
-  let _str247 = new login_result in
+  let _str240 = new login_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t248,_id249) = iprot#readFieldBegin in
-        if _t248 = Protocol.T_STOP then
+        let (_,_t241,_id242) = iprot#readFieldBegin in
+        if _t241 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id249 with 
-          | 0 -> (if _t248 = Protocol.T_I32 then
-              _str247#set_success (AccessLevel.of_i iprot#readI32)
+        (match _id242 with 
+          | 1 -> (if _t241 = Protocol.T_STRUCT then
+              _str240#set_authnx (read_authenticationException iprot)
             else
-              iprot#skip _t248)
-          | 1 -> (if _t248 = Protocol.T_STRUCT then
-              _str247#set_authnx (read_authenticationException iprot)
+              iprot#skip _t241)
+          | 2 -> (if _t241 = Protocol.T_STRUCT then
+              _str240#set_authzx (read_authorizationException iprot)
             else
-              iprot#skip _t248)
-          | 2 -> (if _t248 = Protocol.T_STRUCT then
-              _str247#set_authzx (read_authorizationException iprot)
-            else
-              iprot#skip _t248)
-          | _ -> iprot#skip _t248);
+              iprot#skip _t241)
+          | _ -> iprot#skip _t241);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str247
+    _str240
 
 class set_keyspace_args =
 object (self)
   val mutable _keyspace : string option = None
   method get_keyspace = _keyspace
-  method grab_keyspace = match _keyspace with None->raise (Field_empty "set_keyspace_args.keyspace") | Some _x250 -> _x250
-  method set_keyspace _x250 = _keyspace <- Some _x250
+  method grab_keyspace = match _keyspace with None->raise (Field_empty "set_keyspace_args.keyspace") | Some _x243 -> _x243
+  method set_keyspace _x243 = _keyspace <- Some _x243
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "set_keyspace_args";
     (match _keyspace with None -> () | Some _v -> 
@@ -124,31 +111,31 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_set_keyspace_args (iprot : Protocol.t) =
-  let _str253 = new set_keyspace_args in
+  let _str246 = new set_keyspace_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t254,_id255) = iprot#readFieldBegin in
-        if _t254 = Protocol.T_STOP then
+        let (_,_t247,_id248) = iprot#readFieldBegin in
+        if _t247 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id255 with 
-          | 1 -> (if _t254 = Protocol.T_STRING then
-              _str253#set_keyspace iprot#readString
+        (match _id248 with 
+          | 1 -> (if _t247 = Protocol.T_STRING then
+              _str246#set_keyspace iprot#readString
             else
-              iprot#skip _t254)
-          | _ -> iprot#skip _t254);
+              iprot#skip _t247)
+          | _ -> iprot#skip _t247);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str253
+    _str246
 
 class set_keyspace_result =
 object (self)
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "set_keyspace_result.ire") | Some _x256 -> _x256
-  method set_ire _x256 = _ire <- Some _x256
+  method grab_ire = match _ire with None->raise (Field_empty "set_keyspace_result.ire") | Some _x249 -> _x249
+  method set_ire _x249 = _ire <- Some _x249
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "set_keyspace_result";
     (match _ire with None -> () | Some _v -> 
@@ -160,39 +147,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_set_keyspace_result (iprot : Protocol.t) =
-  let _str259 = new set_keyspace_result in
+  let _str252 = new set_keyspace_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t260,_id261) = iprot#readFieldBegin in
-        if _t260 = Protocol.T_STOP then
+        let (_,_t253,_id254) = iprot#readFieldBegin in
+        if _t253 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id261 with 
-          | 1 -> (if _t260 = Protocol.T_STRUCT then
-              _str259#set_ire (read_invalidRequestException iprot)
+        (match _id254 with 
+          | 1 -> (if _t253 = Protocol.T_STRUCT then
+              _str252#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t260)
-          | _ -> iprot#skip _t260);
+              iprot#skip _t253)
+          | _ -> iprot#skip _t253);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str259
+    _str252
 
 class get_args =
 object (self)
   val mutable _key : string option = None
   method get_key = _key
-  method grab_key = match _key with None->raise (Field_empty "get_args.key") | Some _x262 -> _x262
-  method set_key _x262 = _key <- Some _x262
+  method grab_key = match _key with None->raise (Field_empty "get_args.key") | Some _x255 -> _x255
+  method set_key _x255 = _key <- Some _x255
   val mutable _column_path : columnPath option = None
   method get_column_path = _column_path
-  method grab_column_path = match _column_path with None->raise (Field_empty "get_args.column_path") | Some _x262 -> _x262
-  method set_column_path _x262 = _column_path <- Some _x262
+  method grab_column_path = match _column_path with None->raise (Field_empty "get_args.column_path") | Some _x255 -> _x255
+  method set_column_path _x255 = _column_path <- Some _x255
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_args.consistency_level") | Some _x262 -> _x262
-  method set_consistency_level _x262 = _consistency_level <- Some _x262
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_args.consistency_level") | Some _x255 -> _x255
+  method set_consistency_level _x255 = _consistency_level <- Some _x255
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_args";
     (match _key with None -> () | Some _v -> 
@@ -214,55 +201,55 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_args (iprot : Protocol.t) =
-  let _str265 = new get_args in
+  let _str258 = new get_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t266,_id267) = iprot#readFieldBegin in
-        if _t266 = Protocol.T_STOP then
+        let (_,_t259,_id260) = iprot#readFieldBegin in
+        if _t259 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id267 with 
-          | 1 -> (if _t266 = Protocol.T_STRING then
-              _str265#set_key iprot#readString
+        (match _id260 with 
+          | 1 -> (if _t259 = Protocol.T_STRING then
+              _str258#set_key iprot#readString
             else
-              iprot#skip _t266)
-          | 2 -> (if _t266 = Protocol.T_STRUCT then
-              _str265#set_column_path (read_columnPath iprot)
+              iprot#skip _t259)
+          | 2 -> (if _t259 = Protocol.T_STRUCT then
+              _str258#set_column_path (read_columnPath iprot)
             else
-              iprot#skip _t266)
-          | 3 -> (if _t266 = Protocol.T_I32 then
-              _str265#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t259)
+          | 3 -> (if _t259 = Protocol.T_I32 then
+              _str258#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t266)
-          | _ -> iprot#skip _t266);
+              iprot#skip _t259)
+          | _ -> iprot#skip _t259);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str265
+    _str258
 
 class get_result =
 object (self)
   val mutable _success : columnOrSuperColumn option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "get_result.success") | Some _x268 -> _x268
-  method set_success _x268 = _success <- Some _x268
+  method grab_success = match _success with None->raise (Field_empty "get_result.success") | Some _x261 -> _x261
+  method set_success _x261 = _success <- Some _x261
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "get_result.ire") | Some _x268 -> _x268
-  method set_ire _x268 = _ire <- Some _x268
+  method grab_ire = match _ire with None->raise (Field_empty "get_result.ire") | Some _x261 -> _x261
+  method set_ire _x261 = _ire <- Some _x261
   val mutable _nfe : notFoundException option = None
   method get_nfe = _nfe
-  method grab_nfe = match _nfe with None->raise (Field_empty "get_result.nfe") | Some _x268 -> _x268
-  method set_nfe _x268 = _nfe <- Some _x268
+  method grab_nfe = match _nfe with None->raise (Field_empty "get_result.nfe") | Some _x261 -> _x261
+  method set_nfe _x261 = _nfe <- Some _x261
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "get_result.ue") | Some _x268 -> _x268
-  method set_ue _x268 = _ue <- Some _x268
+  method grab_ue = match _ue with None->raise (Field_empty "get_result.ue") | Some _x261 -> _x261
+  method set_ue _x261 = _ue <- Some _x261
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "get_result.te") | Some _x268 -> _x268
-  method set_te _x268 = _te <- Some _x268
+  method grab_te = match _te with None->raise (Field_empty "get_result.te") | Some _x261 -> _x261
+  method set_te _x261 = _te <- Some _x261
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_result";
     (match _success with None -> () | Some _v -> 
@@ -294,59 +281,59 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_result (iprot : Protocol.t) =
-  let _str271 = new get_result in
+  let _str264 = new get_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t272,_id273) = iprot#readFieldBegin in
-        if _t272 = Protocol.T_STOP then
+        let (_,_t265,_id266) = iprot#readFieldBegin in
+        if _t265 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id273 with 
-          | 0 -> (if _t272 = Protocol.T_STRUCT then
-              _str271#set_success (read_columnOrSuperColumn iprot)
+        (match _id266 with 
+          | 0 -> (if _t265 = Protocol.T_STRUCT then
+              _str264#set_success (read_columnOrSuperColumn iprot)
             else
-              iprot#skip _t272)
-          | 1 -> (if _t272 = Protocol.T_STRUCT then
-              _str271#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t265)
+          | 1 -> (if _t265 = Protocol.T_STRUCT then
+              _str264#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t272)
-          | 2 -> (if _t272 = Protocol.T_STRUCT then
-              _str271#set_nfe (read_notFoundException iprot)
+              iprot#skip _t265)
+          | 2 -> (if _t265 = Protocol.T_STRUCT then
+              _str264#set_nfe (read_notFoundException iprot)
             else
-              iprot#skip _t272)
-          | 3 -> (if _t272 = Protocol.T_STRUCT then
-              _str271#set_ue (read_unavailableException iprot)
+              iprot#skip _t265)
+          | 3 -> (if _t265 = Protocol.T_STRUCT then
+              _str264#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t272)
-          | 4 -> (if _t272 = Protocol.T_STRUCT then
-              _str271#set_te (read_timedOutException iprot)
+              iprot#skip _t265)
+          | 4 -> (if _t265 = Protocol.T_STRUCT then
+              _str264#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t272)
-          | _ -> iprot#skip _t272);
+              iprot#skip _t265)
+          | _ -> iprot#skip _t265);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str271
+    _str264
 
 class get_slice_args =
 object (self)
   val mutable _key : string option = None
   method get_key = _key
-  method grab_key = match _key with None->raise (Field_empty "get_slice_args.key") | Some _x274 -> _x274
-  method set_key _x274 = _key <- Some _x274
+  method grab_key = match _key with None->raise (Field_empty "get_slice_args.key") | Some _x267 -> _x267
+  method set_key _x267 = _key <- Some _x267
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_slice_args.column_parent") | Some _x274 -> _x274
-  method set_column_parent _x274 = _column_parent <- Some _x274
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_slice_args.column_parent") | Some _x267 -> _x267
+  method set_column_parent _x267 = _column_parent <- Some _x267
   val mutable _predicate : slicePredicate option = None
   method get_predicate = _predicate
-  method grab_predicate = match _predicate with None->raise (Field_empty "get_slice_args.predicate") | Some _x274 -> _x274
-  method set_predicate _x274 = _predicate <- Some _x274
+  method grab_predicate = match _predicate with None->raise (Field_empty "get_slice_args.predicate") | Some _x267 -> _x267
+  method set_predicate _x267 = _predicate <- Some _x267
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_slice_args.consistency_level") | Some _x274 -> _x274
-  method set_consistency_level _x274 = _consistency_level <- Some _x274
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_slice_args.consistency_level") | Some _x267 -> _x267
+  method set_consistency_level _x267 = _consistency_level <- Some _x267
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_slice_args";
     (match _key with None -> () | Some _v -> 
@@ -373,61 +360,61 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_slice_args (iprot : Protocol.t) =
-  let _str277 = new get_slice_args in
+  let _str270 = new get_slice_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t278,_id279) = iprot#readFieldBegin in
-        if _t278 = Protocol.T_STOP then
+        let (_,_t271,_id272) = iprot#readFieldBegin in
+        if _t271 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id279 with 
-          | 1 -> (if _t278 = Protocol.T_STRING then
-              _str277#set_key iprot#readString
+        (match _id272 with 
+          | 1 -> (if _t271 = Protocol.T_STRING then
+              _str270#set_key iprot#readString
             else
-              iprot#skip _t278)
-          | 2 -> (if _t278 = Protocol.T_STRUCT then
-              _str277#set_column_parent (read_columnParent iprot)
+              iprot#skip _t271)
+          | 2 -> (if _t271 = Protocol.T_STRUCT then
+              _str270#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t278)
-          | 3 -> (if _t278 = Protocol.T_STRUCT then
-              _str277#set_predicate (read_slicePredicate iprot)
+              iprot#skip _t271)
+          | 3 -> (if _t271 = Protocol.T_STRUCT then
+              _str270#set_predicate (read_slicePredicate iprot)
             else
-              iprot#skip _t278)
-          | 4 -> (if _t278 = Protocol.T_I32 then
-              _str277#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t271)
+          | 4 -> (if _t271 = Protocol.T_I32 then
+              _str270#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t278)
-          | _ -> iprot#skip _t278);
+              iprot#skip _t271)
+          | _ -> iprot#skip _t271);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str277
+    _str270
 
 class get_slice_result =
 object (self)
   val mutable _success : columnOrSuperColumn list option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "get_slice_result.success") | Some _x280 -> _x280
-  method set_success _x280 = _success <- Some _x280
+  method grab_success = match _success with None->raise (Field_empty "get_slice_result.success") | Some _x273 -> _x273
+  method set_success _x273 = _success <- Some _x273
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "get_slice_result.ire") | Some _x280 -> _x280
-  method set_ire _x280 = _ire <- Some _x280
+  method grab_ire = match _ire with None->raise (Field_empty "get_slice_result.ire") | Some _x273 -> _x273
+  method set_ire _x273 = _ire <- Some _x273
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "get_slice_result.ue") | Some _x280 -> _x280
-  method set_ue _x280 = _ue <- Some _x280
+  method grab_ue = match _ue with None->raise (Field_empty "get_slice_result.ue") | Some _x273 -> _x273
+  method set_ue _x273 = _ue <- Some _x273
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "get_slice_result.te") | Some _x280 -> _x280
-  method set_te _x280 = _te <- Some _x280
+  method grab_te = match _te with None->raise (Field_empty "get_slice_result.te") | Some _x273 -> _x273
+  method set_te _x273 = _te <- Some _x273
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_slice_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_LIST,0);
       oprot#writeListBegin(Protocol.T_STRUCT,List.length _v);
-      List.iter (fun _iter283 ->         _iter283#write(oprot);
+      List.iter (fun _iter276 ->         _iter276#write(oprot);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
@@ -451,58 +438,58 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_slice_result (iprot : Protocol.t) =
-  let _str284 = new get_slice_result in
+  let _str277 = new get_slice_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t285,_id286) = iprot#readFieldBegin in
-        if _t285 = Protocol.T_STOP then
+        let (_,_t278,_id279) = iprot#readFieldBegin in
+        if _t278 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id286 with 
-          | 0 -> (if _t285 = Protocol.T_LIST then
-              _str284#set_success 
-                (let (_etype290,_size287) = iprot#readListBegin in
-                  let _con291 = (Array.to_list (Array.init _size287 (fun _ -> (read_columnOrSuperColumn iprot)))) in
-                    iprot#readListEnd; _con291)
+        (match _id279 with 
+          | 0 -> (if _t278 = Protocol.T_LIST then
+              _str277#set_success 
+                (let (_etype283,_size280) = iprot#readListBegin in
+                  let _con284 = (Array.to_list (Array.init _size280 (fun _ -> (read_columnOrSuperColumn iprot)))) in
+                    iprot#readListEnd; _con284)
             else
-              iprot#skip _t285)
-          | 1 -> (if _t285 = Protocol.T_STRUCT then
-              _str284#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t278)
+          | 1 -> (if _t278 = Protocol.T_STRUCT then
+              _str277#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t285)
-          | 2 -> (if _t285 = Protocol.T_STRUCT then
-              _str284#set_ue (read_unavailableException iprot)
+              iprot#skip _t278)
+          | 2 -> (if _t278 = Protocol.T_STRUCT then
+              _str277#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t285)
-          | 3 -> (if _t285 = Protocol.T_STRUCT then
-              _str284#set_te (read_timedOutException iprot)
+              iprot#skip _t278)
+          | 3 -> (if _t278 = Protocol.T_STRUCT then
+              _str277#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t285)
-          | _ -> iprot#skip _t285);
+              iprot#skip _t278)
+          | _ -> iprot#skip _t278);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str284
+    _str277
 
 class get_count_args =
 object (self)
   val mutable _key : string option = None
   method get_key = _key
-  method grab_key = match _key with None->raise (Field_empty "get_count_args.key") | Some _x292 -> _x292
-  method set_key _x292 = _key <- Some _x292
+  method grab_key = match _key with None->raise (Field_empty "get_count_args.key") | Some _x285 -> _x285
+  method set_key _x285 = _key <- Some _x285
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_count_args.column_parent") | Some _x292 -> _x292
-  method set_column_parent _x292 = _column_parent <- Some _x292
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_count_args.column_parent") | Some _x285 -> _x285
+  method set_column_parent _x285 = _column_parent <- Some _x285
   val mutable _predicate : slicePredicate option = None
   method get_predicate = _predicate
-  method grab_predicate = match _predicate with None->raise (Field_empty "get_count_args.predicate") | Some _x292 -> _x292
-  method set_predicate _x292 = _predicate <- Some _x292
+  method grab_predicate = match _predicate with None->raise (Field_empty "get_count_args.predicate") | Some _x285 -> _x285
+  method set_predicate _x285 = _predicate <- Some _x285
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_count_args.consistency_level") | Some _x292 -> _x292
-  method set_consistency_level _x292 = _consistency_level <- Some _x292
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_count_args.consistency_level") | Some _x285 -> _x285
+  method set_consistency_level _x285 = _consistency_level <- Some _x285
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_count_args";
     (match _key with None -> () | Some _v -> 
@@ -529,55 +516,55 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_count_args (iprot : Protocol.t) =
-  let _str295 = new get_count_args in
+  let _str288 = new get_count_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t296,_id297) = iprot#readFieldBegin in
-        if _t296 = Protocol.T_STOP then
+        let (_,_t289,_id290) = iprot#readFieldBegin in
+        if _t289 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id297 with 
-          | 1 -> (if _t296 = Protocol.T_STRING then
-              _str295#set_key iprot#readString
+        (match _id290 with 
+          | 1 -> (if _t289 = Protocol.T_STRING then
+              _str288#set_key iprot#readString
             else
-              iprot#skip _t296)
-          | 2 -> (if _t296 = Protocol.T_STRUCT then
-              _str295#set_column_parent (read_columnParent iprot)
+              iprot#skip _t289)
+          | 2 -> (if _t289 = Protocol.T_STRUCT then
+              _str288#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t296)
-          | 3 -> (if _t296 = Protocol.T_STRUCT then
-              _str295#set_predicate (read_slicePredicate iprot)
+              iprot#skip _t289)
+          | 3 -> (if _t289 = Protocol.T_STRUCT then
+              _str288#set_predicate (read_slicePredicate iprot)
             else
-              iprot#skip _t296)
-          | 4 -> (if _t296 = Protocol.T_I32 then
-              _str295#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t289)
+          | 4 -> (if _t289 = Protocol.T_I32 then
+              _str288#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t296)
-          | _ -> iprot#skip _t296);
+              iprot#skip _t289)
+          | _ -> iprot#skip _t289);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str295
+    _str288
 
 class get_count_result =
 object (self)
   val mutable _success : int option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "get_count_result.success") | Some _x298 -> _x298
-  method set_success _x298 = _success <- Some _x298
+  method grab_success = match _success with None->raise (Field_empty "get_count_result.success") | Some _x291 -> _x291
+  method set_success _x291 = _success <- Some _x291
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "get_count_result.ire") | Some _x298 -> _x298
-  method set_ire _x298 = _ire <- Some _x298
+  method grab_ire = match _ire with None->raise (Field_empty "get_count_result.ire") | Some _x291 -> _x291
+  method set_ire _x291 = _ire <- Some _x291
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "get_count_result.ue") | Some _x298 -> _x298
-  method set_ue _x298 = _ue <- Some _x298
+  method grab_ue = match _ue with None->raise (Field_empty "get_count_result.ue") | Some _x291 -> _x291
+  method set_ue _x291 = _ue <- Some _x291
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "get_count_result.te") | Some _x298 -> _x298
-  method set_te _x298 = _te <- Some _x298
+  method grab_te = match _te with None->raise (Field_empty "get_count_result.te") | Some _x291 -> _x291
+  method set_te _x291 = _te <- Some _x291
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_count_result";
     (match _success with None -> () | Some _v -> 
@@ -604,61 +591,61 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_count_result (iprot : Protocol.t) =
-  let _str301 = new get_count_result in
+  let _str294 = new get_count_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t302,_id303) = iprot#readFieldBegin in
-        if _t302 = Protocol.T_STOP then
+        let (_,_t295,_id296) = iprot#readFieldBegin in
+        if _t295 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id303 with 
-          | 0 -> (if _t302 = Protocol.T_I32 then
-              _str301#set_success iprot#readI32
+        (match _id296 with 
+          | 0 -> (if _t295 = Protocol.T_I32 then
+              _str294#set_success iprot#readI32
             else
-              iprot#skip _t302)
-          | 1 -> (if _t302 = Protocol.T_STRUCT then
-              _str301#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t295)
+          | 1 -> (if _t295 = Protocol.T_STRUCT then
+              _str294#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t302)
-          | 2 -> (if _t302 = Protocol.T_STRUCT then
-              _str301#set_ue (read_unavailableException iprot)
+              iprot#skip _t295)
+          | 2 -> (if _t295 = Protocol.T_STRUCT then
+              _str294#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t302)
-          | 3 -> (if _t302 = Protocol.T_STRUCT then
-              _str301#set_te (read_timedOutException iprot)
+              iprot#skip _t295)
+          | 3 -> (if _t295 = Protocol.T_STRUCT then
+              _str294#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t302)
-          | _ -> iprot#skip _t302);
+              iprot#skip _t295)
+          | _ -> iprot#skip _t295);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str301
+    _str294
 
 class multiget_slice_args =
 object (self)
   val mutable _keys : string list option = None
   method get_keys = _keys
-  method grab_keys = match _keys with None->raise (Field_empty "multiget_slice_args.keys") | Some _x304 -> _x304
-  method set_keys _x304 = _keys <- Some _x304
+  method grab_keys = match _keys with None->raise (Field_empty "multiget_slice_args.keys") | Some _x297 -> _x297
+  method set_keys _x297 = _keys <- Some _x297
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "multiget_slice_args.column_parent") | Some _x304 -> _x304
-  method set_column_parent _x304 = _column_parent <- Some _x304
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "multiget_slice_args.column_parent") | Some _x297 -> _x297
+  method set_column_parent _x297 = _column_parent <- Some _x297
   val mutable _predicate : slicePredicate option = None
   method get_predicate = _predicate
-  method grab_predicate = match _predicate with None->raise (Field_empty "multiget_slice_args.predicate") | Some _x304 -> _x304
-  method set_predicate _x304 = _predicate <- Some _x304
+  method grab_predicate = match _predicate with None->raise (Field_empty "multiget_slice_args.predicate") | Some _x297 -> _x297
+  method set_predicate _x297 = _predicate <- Some _x297
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "multiget_slice_args.consistency_level") | Some _x304 -> _x304
-  method set_consistency_level _x304 = _consistency_level <- Some _x304
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "multiget_slice_args.consistency_level") | Some _x297 -> _x297
+  method set_consistency_level _x297 = _consistency_level <- Some _x297
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "multiget_slice_args";
     (match _keys with None -> () | Some _v -> 
       oprot#writeFieldBegin("keys",Protocol.T_LIST,1);
       oprot#writeListBegin(Protocol.T_STRING,List.length _v);
-      List.iter (fun _iter307 ->         oprot#writeString(_iter307);
+      List.iter (fun _iter300 ->         oprot#writeString(_iter300);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
@@ -682,68 +669,68 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_multiget_slice_args (iprot : Protocol.t) =
-  let _str308 = new multiget_slice_args in
+  let _str301 = new multiget_slice_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t309,_id310) = iprot#readFieldBegin in
-        if _t309 = Protocol.T_STOP then
+        let (_,_t302,_id303) = iprot#readFieldBegin in
+        if _t302 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id310 with 
-          | 1 -> (if _t309 = Protocol.T_LIST then
-              _str308#set_keys 
-                (let (_etype314,_size311) = iprot#readListBegin in
-                  let _con315 = (Array.to_list (Array.init _size311 (fun _ -> iprot#readString))) in
-                    iprot#readListEnd; _con315)
+        (match _id303 with 
+          | 1 -> (if _t302 = Protocol.T_LIST then
+              _str301#set_keys 
+                (let (_etype307,_size304) = iprot#readListBegin in
+                  let _con308 = (Array.to_list (Array.init _size304 (fun _ -> iprot#readString))) in
+                    iprot#readListEnd; _con308)
             else
-              iprot#skip _t309)
-          | 2 -> (if _t309 = Protocol.T_STRUCT then
-              _str308#set_column_parent (read_columnParent iprot)
+              iprot#skip _t302)
+          | 2 -> (if _t302 = Protocol.T_STRUCT then
+              _str301#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t309)
-          | 3 -> (if _t309 = Protocol.T_STRUCT then
-              _str308#set_predicate (read_slicePredicate iprot)
+              iprot#skip _t302)
+          | 3 -> (if _t302 = Protocol.T_STRUCT then
+              _str301#set_predicate (read_slicePredicate iprot)
             else
-              iprot#skip _t309)
-          | 4 -> (if _t309 = Protocol.T_I32 then
-              _str308#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t302)
+          | 4 -> (if _t302 = Protocol.T_I32 then
+              _str301#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t309)
-          | _ -> iprot#skip _t309);
+              iprot#skip _t302)
+          | _ -> iprot#skip _t302);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str308
+    _str301
 
 class multiget_slice_result =
 object (self)
   val mutable _success : (string,columnOrSuperColumn list) Hashtbl.t option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "multiget_slice_result.success") | Some _x316 -> _x316
-  method set_success _x316 = _success <- Some _x316
+  method grab_success = match _success with None->raise (Field_empty "multiget_slice_result.success") | Some _x309 -> _x309
+  method set_success _x309 = _success <- Some _x309
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "multiget_slice_result.ire") | Some _x316 -> _x316
-  method set_ire _x316 = _ire <- Some _x316
+  method grab_ire = match _ire with None->raise (Field_empty "multiget_slice_result.ire") | Some _x309 -> _x309
+  method set_ire _x309 = _ire <- Some _x309
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "multiget_slice_result.ue") | Some _x316 -> _x316
-  method set_ue _x316 = _ue <- Some _x316
+  method grab_ue = match _ue with None->raise (Field_empty "multiget_slice_result.ue") | Some _x309 -> _x309
+  method set_ue _x309 = _ue <- Some _x309
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "multiget_slice_result.te") | Some _x316 -> _x316
-  method set_te _x316 = _te <- Some _x316
+  method grab_te = match _te with None->raise (Field_empty "multiget_slice_result.te") | Some _x309 -> _x309
+  method set_te _x309 = _te <- Some _x309
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "multiget_slice_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_MAP,0);
       oprot#writeMapBegin(Protocol.T_STRING,Protocol.T_LIST,Hashtbl.length _v);
-      Hashtbl.iter (fun _kiter319 -> fun _viter320 -> 
-        oprot#writeString(_kiter319);
-        oprot#writeListBegin(Protocol.T_STRUCT,List.length _viter320);
-        List.iter (fun _iter321 ->           _iter321#write(oprot);
-        ) _viter320;
+      Hashtbl.iter (fun _kiter312 -> fun _viter313 -> 
+        oprot#writeString(_kiter312);
+        oprot#writeListBegin(Protocol.T_STRUCT,List.length _viter313);
+        List.iter (fun _iter314 ->           _iter314#write(oprot);
+        ) _viter313;
         oprot#writeListEnd;
       ) _v;
       oprot#writeMapEnd;
@@ -768,96 +755,87 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_multiget_slice_result (iprot : Protocol.t) =
-  let _str322 = new multiget_slice_result in
+  let _str315 = new multiget_slice_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t323,_id324) = iprot#readFieldBegin in
-        if _t323 = Protocol.T_STOP then
+        let (_,_t316,_id317) = iprot#readFieldBegin in
+        if _t316 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id324 with 
-          | 0 -> (if _t323 = Protocol.T_MAP then
-              _str322#set_success 
-                (let (_ktype326,_vtype327,_size325) = iprot#readMapBegin in
-                let _con329 = Hashtbl.create _size325 in
-                  for i = 1 to _size325 do
+        (match _id317 with 
+          | 0 -> (if _t316 = Protocol.T_MAP then
+              _str315#set_success 
+                (let (_ktype319,_vtype320,_size318) = iprot#readMapBegin in
+                let _con322 = Hashtbl.create _size318 in
+                  for i = 1 to _size318 do
                     let _k = iprot#readString in
                     let _v = 
-                      (let (_etype333,_size330) = iprot#readListBegin in
-                        let _con334 = (Array.to_list (Array.init _size330 (fun _ -> (read_columnOrSuperColumn iprot)))) in
-                          iprot#readListEnd; _con334) in
-                      Hashtbl.add _con329 _k _v
-                  done; iprot#readMapEnd; _con329)
+                      (let (_etype326,_size323) = iprot#readListBegin in
+                        let _con327 = (Array.to_list (Array.init _size323 (fun _ -> (read_columnOrSuperColumn iprot)))) in
+                          iprot#readListEnd; _con327) in
+                      Hashtbl.add _con322 _k _v
+                  done; iprot#readMapEnd; _con322)
             else
-              iprot#skip _t323)
-          | 1 -> (if _t323 = Protocol.T_STRUCT then
-              _str322#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t316)
+          | 1 -> (if _t316 = Protocol.T_STRUCT then
+              _str315#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t323)
-          | 2 -> (if _t323 = Protocol.T_STRUCT then
-              _str322#set_ue (read_unavailableException iprot)
+              iprot#skip _t316)
+          | 2 -> (if _t316 = Protocol.T_STRUCT then
+              _str315#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t323)
-          | 3 -> (if _t323 = Protocol.T_STRUCT then
-              _str322#set_te (read_timedOutException iprot)
+              iprot#skip _t316)
+          | 3 -> (if _t316 = Protocol.T_STRUCT then
+              _str315#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t323)
-          | _ -> iprot#skip _t323);
+              iprot#skip _t316)
+          | _ -> iprot#skip _t316);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str322
+    _str315
 
 class multiget_count_args =
 object (self)
-  val mutable _keyspace : string option = None
-  method get_keyspace = _keyspace
-  method grab_keyspace = match _keyspace with None->raise (Field_empty "multiget_count_args.keyspace") | Some _x335 -> _x335
-  method set_keyspace _x335 = _keyspace <- Some _x335
   val mutable _keys : string list option = None
   method get_keys = _keys
-  method grab_keys = match _keys with None->raise (Field_empty "multiget_count_args.keys") | Some _x335 -> _x335
-  method set_keys _x335 = _keys <- Some _x335
+  method grab_keys = match _keys with None->raise (Field_empty "multiget_count_args.keys") | Some _x328 -> _x328
+  method set_keys _x328 = _keys <- Some _x328
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "multiget_count_args.column_parent") | Some _x335 -> _x335
-  method set_column_parent _x335 = _column_parent <- Some _x335
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "multiget_count_args.column_parent") | Some _x328 -> _x328
+  method set_column_parent _x328 = _column_parent <- Some _x328
   val mutable _predicate : slicePredicate option = None
   method get_predicate = _predicate
-  method grab_predicate = match _predicate with None->raise (Field_empty "multiget_count_args.predicate") | Some _x335 -> _x335
-  method set_predicate _x335 = _predicate <- Some _x335
+  method grab_predicate = match _predicate with None->raise (Field_empty "multiget_count_args.predicate") | Some _x328 -> _x328
+  method set_predicate _x328 = _predicate <- Some _x328
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "multiget_count_args.consistency_level") | Some _x335 -> _x335
-  method set_consistency_level _x335 = _consistency_level <- Some _x335
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "multiget_count_args.consistency_level") | Some _x328 -> _x328
+  method set_consistency_level _x328 = _consistency_level <- Some _x328
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "multiget_count_args";
-    (match _keyspace with None -> () | Some _v -> 
-      oprot#writeFieldBegin("keyspace",Protocol.T_STRING,1);
-      oprot#writeString(_v);
-      oprot#writeFieldEnd
-    );
     (match _keys with None -> () | Some _v -> 
-      oprot#writeFieldBegin("keys",Protocol.T_LIST,2);
+      oprot#writeFieldBegin("keys",Protocol.T_LIST,1);
       oprot#writeListBegin(Protocol.T_STRING,List.length _v);
-      List.iter (fun _iter338 ->         oprot#writeString(_iter338);
+      List.iter (fun _iter331 ->         oprot#writeString(_iter331);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
     );
     (match _column_parent with None -> () | Some _v -> 
-      oprot#writeFieldBegin("column_parent",Protocol.T_STRUCT,3);
+      oprot#writeFieldBegin("column_parent",Protocol.T_STRUCT,2);
       _v#write(oprot);
       oprot#writeFieldEnd
     );
     (match _predicate with None -> () | Some _v -> 
-      oprot#writeFieldBegin("predicate",Protocol.T_STRUCT,4);
+      oprot#writeFieldBegin("predicate",Protocol.T_STRUCT,3);
       _v#write(oprot);
       oprot#writeFieldEnd
     );
     (match _consistency_level with None -> () | Some _v -> 
-      oprot#writeFieldBegin("consistency_level",Protocol.T_I32,5);
+      oprot#writeFieldBegin("consistency_level",Protocol.T_I32,4);
       oprot#writeI32(ConsistencyLevel.to_i _v);
       oprot#writeFieldEnd
     );
@@ -865,70 +843,66 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_multiget_count_args (iprot : Protocol.t) =
-  let _str339 = new multiget_count_args in
+  let _str332 = new multiget_count_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t340,_id341) = iprot#readFieldBegin in
-        if _t340 = Protocol.T_STOP then
+        let (_,_t333,_id334) = iprot#readFieldBegin in
+        if _t333 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id341 with 
-          | 1 -> (if _t340 = Protocol.T_STRING then
-              _str339#set_keyspace iprot#readString
+        (match _id334 with 
+          | 1 -> (if _t333 = Protocol.T_LIST then
+              _str332#set_keys 
+                (let (_etype338,_size335) = iprot#readListBegin in
+                  let _con339 = (Array.to_list (Array.init _size335 (fun _ -> iprot#readString))) in
+                    iprot#readListEnd; _con339)
             else
-              iprot#skip _t340)
-          | 2 -> (if _t340 = Protocol.T_LIST then
-              _str339#set_keys 
-                (let (_etype345,_size342) = iprot#readListBegin in
-                  let _con346 = (Array.to_list (Array.init _size342 (fun _ -> iprot#readString))) in
-                    iprot#readListEnd; _con346)
+              iprot#skip _t333)
+          | 2 -> (if _t333 = Protocol.T_STRUCT then
+              _str332#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t340)
-          | 3 -> (if _t340 = Protocol.T_STRUCT then
-              _str339#set_column_parent (read_columnParent iprot)
+              iprot#skip _t333)
+          | 3 -> (if _t333 = Protocol.T_STRUCT then
+              _str332#set_predicate (read_slicePredicate iprot)
             else
-              iprot#skip _t340)
-          | 4 -> (if _t340 = Protocol.T_STRUCT then
-              _str339#set_predicate (read_slicePredicate iprot)
+              iprot#skip _t333)
+          | 4 -> (if _t333 = Protocol.T_I32 then
+              _str332#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t340)
-          | 5 -> (if _t340 = Protocol.T_I32 then
-              _str339#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
-            else
-              iprot#skip _t340)
-          | _ -> iprot#skip _t340);
+              iprot#skip _t333)
+          | _ -> iprot#skip _t333);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str339
+    _str332
 
 class multiget_count_result =
 object (self)
   val mutable _success : (string,int) Hashtbl.t option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "multiget_count_result.success") | Some _x347 -> _x347
-  method set_success _x347 = _success <- Some _x347
+  method grab_success = match _success with None->raise (Field_empty "multiget_count_result.success") | Some _x340 -> _x340
+  method set_success _x340 = _success <- Some _x340
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "multiget_count_result.ire") | Some _x347 -> _x347
-  method set_ire _x347 = _ire <- Some _x347
+  method grab_ire = match _ire with None->raise (Field_empty "multiget_count_result.ire") | Some _x340 -> _x340
+  method set_ire _x340 = _ire <- Some _x340
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "multiget_count_result.ue") | Some _x347 -> _x347
-  method set_ue _x347 = _ue <- Some _x347
+  method grab_ue = match _ue with None->raise (Field_empty "multiget_count_result.ue") | Some _x340 -> _x340
+  method set_ue _x340 = _ue <- Some _x340
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "multiget_count_result.te") | Some _x347 -> _x347
-  method set_te _x347 = _te <- Some _x347
+  method grab_te = match _te with None->raise (Field_empty "multiget_count_result.te") | Some _x340 -> _x340
+  method set_te _x340 = _te <- Some _x340
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "multiget_count_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_MAP,0);
       oprot#writeMapBegin(Protocol.T_STRING,Protocol.T_I32,Hashtbl.length _v);
-      Hashtbl.iter (fun _kiter350 -> fun _viter351 -> 
-        oprot#writeString(_kiter350);
-        oprot#writeI32(_viter351);
+      Hashtbl.iter (fun _kiter343 -> fun _viter344 -> 
+        oprot#writeString(_kiter343);
+        oprot#writeI32(_viter344);
       ) _v;
       oprot#writeMapEnd;
       oprot#writeFieldEnd
@@ -952,62 +926,62 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_multiget_count_result (iprot : Protocol.t) =
-  let _str352 = new multiget_count_result in
+  let _str345 = new multiget_count_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t353,_id354) = iprot#readFieldBegin in
-        if _t353 = Protocol.T_STOP then
+        let (_,_t346,_id347) = iprot#readFieldBegin in
+        if _t346 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id354 with 
-          | 0 -> (if _t353 = Protocol.T_MAP then
-              _str352#set_success 
-                (let (_ktype356,_vtype357,_size355) = iprot#readMapBegin in
-                let _con359 = Hashtbl.create _size355 in
-                  for i = 1 to _size355 do
+        (match _id347 with 
+          | 0 -> (if _t346 = Protocol.T_MAP then
+              _str345#set_success 
+                (let (_ktype349,_vtype350,_size348) = iprot#readMapBegin in
+                let _con352 = Hashtbl.create _size348 in
+                  for i = 1 to _size348 do
                     let _k = iprot#readString in
                     let _v = iprot#readI32 in
-                      Hashtbl.add _con359 _k _v
-                  done; iprot#readMapEnd; _con359)
+                      Hashtbl.add _con352 _k _v
+                  done; iprot#readMapEnd; _con352)
             else
-              iprot#skip _t353)
-          | 1 -> (if _t353 = Protocol.T_STRUCT then
-              _str352#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t346)
+          | 1 -> (if _t346 = Protocol.T_STRUCT then
+              _str345#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t353)
-          | 2 -> (if _t353 = Protocol.T_STRUCT then
-              _str352#set_ue (read_unavailableException iprot)
+              iprot#skip _t346)
+          | 2 -> (if _t346 = Protocol.T_STRUCT then
+              _str345#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t353)
-          | 3 -> (if _t353 = Protocol.T_STRUCT then
-              _str352#set_te (read_timedOutException iprot)
+              iprot#skip _t346)
+          | 3 -> (if _t346 = Protocol.T_STRUCT then
+              _str345#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t353)
-          | _ -> iprot#skip _t353);
+              iprot#skip _t346)
+          | _ -> iprot#skip _t346);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str352
+    _str345
 
 class get_range_slices_args =
 object (self)
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_range_slices_args.column_parent") | Some _x360 -> _x360
-  method set_column_parent _x360 = _column_parent <- Some _x360
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_range_slices_args.column_parent") | Some _x353 -> _x353
+  method set_column_parent _x353 = _column_parent <- Some _x353
   val mutable _predicate : slicePredicate option = None
   method get_predicate = _predicate
-  method grab_predicate = match _predicate with None->raise (Field_empty "get_range_slices_args.predicate") | Some _x360 -> _x360
-  method set_predicate _x360 = _predicate <- Some _x360
+  method grab_predicate = match _predicate with None->raise (Field_empty "get_range_slices_args.predicate") | Some _x353 -> _x353
+  method set_predicate _x353 = _predicate <- Some _x353
   val mutable _range : keyRange option = None
   method get_range = _range
-  method grab_range = match _range with None->raise (Field_empty "get_range_slices_args.range") | Some _x360 -> _x360
-  method set_range _x360 = _range <- Some _x360
+  method grab_range = match _range with None->raise (Field_empty "get_range_slices_args.range") | Some _x353 -> _x353
+  method set_range _x353 = _range <- Some _x353
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_range_slices_args.consistency_level") | Some _x360 -> _x360
-  method set_consistency_level _x360 = _consistency_level <- Some _x360
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_range_slices_args.consistency_level") | Some _x353 -> _x353
+  method set_consistency_level _x353 = _consistency_level <- Some _x353
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_range_slices_args";
     (match _column_parent with None -> () | Some _v -> 
@@ -1034,61 +1008,61 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_range_slices_args (iprot : Protocol.t) =
-  let _str363 = new get_range_slices_args in
+  let _str356 = new get_range_slices_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t364,_id365) = iprot#readFieldBegin in
-        if _t364 = Protocol.T_STOP then
+        let (_,_t357,_id358) = iprot#readFieldBegin in
+        if _t357 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id365 with 
-          | 1 -> (if _t364 = Protocol.T_STRUCT then
-              _str363#set_column_parent (read_columnParent iprot)
+        (match _id358 with 
+          | 1 -> (if _t357 = Protocol.T_STRUCT then
+              _str356#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t364)
-          | 2 -> (if _t364 = Protocol.T_STRUCT then
-              _str363#set_predicate (read_slicePredicate iprot)
+              iprot#skip _t357)
+          | 2 -> (if _t357 = Protocol.T_STRUCT then
+              _str356#set_predicate (read_slicePredicate iprot)
             else
-              iprot#skip _t364)
-          | 3 -> (if _t364 = Protocol.T_STRUCT then
-              _str363#set_range (read_keyRange iprot)
+              iprot#skip _t357)
+          | 3 -> (if _t357 = Protocol.T_STRUCT then
+              _str356#set_range (read_keyRange iprot)
             else
-              iprot#skip _t364)
-          | 4 -> (if _t364 = Protocol.T_I32 then
-              _str363#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t357)
+          | 4 -> (if _t357 = Protocol.T_I32 then
+              _str356#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t364)
-          | _ -> iprot#skip _t364);
+              iprot#skip _t357)
+          | _ -> iprot#skip _t357);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str363
+    _str356
 
 class get_range_slices_result =
 object (self)
   val mutable _success : keySlice list option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "get_range_slices_result.success") | Some _x366 -> _x366
-  method set_success _x366 = _success <- Some _x366
+  method grab_success = match _success with None->raise (Field_empty "get_range_slices_result.success") | Some _x359 -> _x359
+  method set_success _x359 = _success <- Some _x359
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "get_range_slices_result.ire") | Some _x366 -> _x366
-  method set_ire _x366 = _ire <- Some _x366
+  method grab_ire = match _ire with None->raise (Field_empty "get_range_slices_result.ire") | Some _x359 -> _x359
+  method set_ire _x359 = _ire <- Some _x359
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "get_range_slices_result.ue") | Some _x366 -> _x366
-  method set_ue _x366 = _ue <- Some _x366
+  method grab_ue = match _ue with None->raise (Field_empty "get_range_slices_result.ue") | Some _x359 -> _x359
+  method set_ue _x359 = _ue <- Some _x359
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "get_range_slices_result.te") | Some _x366 -> _x366
-  method set_te _x366 = _te <- Some _x366
+  method grab_te = match _te with None->raise (Field_empty "get_range_slices_result.te") | Some _x359 -> _x359
+  method set_te _x359 = _te <- Some _x359
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_range_slices_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_LIST,0);
       oprot#writeListBegin(Protocol.T_STRUCT,List.length _v);
-      List.iter (fun _iter369 ->         _iter369#write(oprot);
+      List.iter (fun _iter362 ->         _iter362#write(oprot);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
@@ -1112,58 +1086,58 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_range_slices_result (iprot : Protocol.t) =
-  let _str370 = new get_range_slices_result in
+  let _str363 = new get_range_slices_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t371,_id372) = iprot#readFieldBegin in
-        if _t371 = Protocol.T_STOP then
+        let (_,_t364,_id365) = iprot#readFieldBegin in
+        if _t364 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id372 with 
-          | 0 -> (if _t371 = Protocol.T_LIST then
-              _str370#set_success 
-                (let (_etype376,_size373) = iprot#readListBegin in
-                  let _con377 = (Array.to_list (Array.init _size373 (fun _ -> (read_keySlice iprot)))) in
-                    iprot#readListEnd; _con377)
+        (match _id365 with 
+          | 0 -> (if _t364 = Protocol.T_LIST then
+              _str363#set_success 
+                (let (_etype369,_size366) = iprot#readListBegin in
+                  let _con370 = (Array.to_list (Array.init _size366 (fun _ -> (read_keySlice iprot)))) in
+                    iprot#readListEnd; _con370)
             else
-              iprot#skip _t371)
-          | 1 -> (if _t371 = Protocol.T_STRUCT then
-              _str370#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t364)
+          | 1 -> (if _t364 = Protocol.T_STRUCT then
+              _str363#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t371)
-          | 2 -> (if _t371 = Protocol.T_STRUCT then
-              _str370#set_ue (read_unavailableException iprot)
+              iprot#skip _t364)
+          | 2 -> (if _t364 = Protocol.T_STRUCT then
+              _str363#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t371)
-          | 3 -> (if _t371 = Protocol.T_STRUCT then
-              _str370#set_te (read_timedOutException iprot)
+              iprot#skip _t364)
+          | 3 -> (if _t364 = Protocol.T_STRUCT then
+              _str363#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t371)
-          | _ -> iprot#skip _t371);
+              iprot#skip _t364)
+          | _ -> iprot#skip _t364);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str370
+    _str363
 
 class get_indexed_slices_args =
 object (self)
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_indexed_slices_args.column_parent") | Some _x378 -> _x378
-  method set_column_parent _x378 = _column_parent <- Some _x378
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "get_indexed_slices_args.column_parent") | Some _x371 -> _x371
+  method set_column_parent _x371 = _column_parent <- Some _x371
   val mutable _index_clause : indexClause option = None
   method get_index_clause = _index_clause
-  method grab_index_clause = match _index_clause with None->raise (Field_empty "get_indexed_slices_args.index_clause") | Some _x378 -> _x378
-  method set_index_clause _x378 = _index_clause <- Some _x378
+  method grab_index_clause = match _index_clause with None->raise (Field_empty "get_indexed_slices_args.index_clause") | Some _x371 -> _x371
+  method set_index_clause _x371 = _index_clause <- Some _x371
   val mutable _column_predicate : slicePredicate option = None
   method get_column_predicate = _column_predicate
-  method grab_column_predicate = match _column_predicate with None->raise (Field_empty "get_indexed_slices_args.column_predicate") | Some _x378 -> _x378
-  method set_column_predicate _x378 = _column_predicate <- Some _x378
+  method grab_column_predicate = match _column_predicate with None->raise (Field_empty "get_indexed_slices_args.column_predicate") | Some _x371 -> _x371
+  method set_column_predicate _x371 = _column_predicate <- Some _x371
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_indexed_slices_args.consistency_level") | Some _x378 -> _x378
-  method set_consistency_level _x378 = _consistency_level <- Some _x378
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "get_indexed_slices_args.consistency_level") | Some _x371 -> _x371
+  method set_consistency_level _x371 = _consistency_level <- Some _x371
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_indexed_slices_args";
     (match _column_parent with None -> () | Some _v -> 
@@ -1190,61 +1164,61 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_indexed_slices_args (iprot : Protocol.t) =
-  let _str381 = new get_indexed_slices_args in
+  let _str374 = new get_indexed_slices_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t382,_id383) = iprot#readFieldBegin in
-        if _t382 = Protocol.T_STOP then
+        let (_,_t375,_id376) = iprot#readFieldBegin in
+        if _t375 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id383 with 
-          | 1 -> (if _t382 = Protocol.T_STRUCT then
-              _str381#set_column_parent (read_columnParent iprot)
+        (match _id376 with 
+          | 1 -> (if _t375 = Protocol.T_STRUCT then
+              _str374#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t382)
-          | 2 -> (if _t382 = Protocol.T_STRUCT then
-              _str381#set_index_clause (read_indexClause iprot)
+              iprot#skip _t375)
+          | 2 -> (if _t375 = Protocol.T_STRUCT then
+              _str374#set_index_clause (read_indexClause iprot)
             else
-              iprot#skip _t382)
-          | 3 -> (if _t382 = Protocol.T_STRUCT then
-              _str381#set_column_predicate (read_slicePredicate iprot)
+              iprot#skip _t375)
+          | 3 -> (if _t375 = Protocol.T_STRUCT then
+              _str374#set_column_predicate (read_slicePredicate iprot)
             else
-              iprot#skip _t382)
-          | 4 -> (if _t382 = Protocol.T_I32 then
-              _str381#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t375)
+          | 4 -> (if _t375 = Protocol.T_I32 then
+              _str374#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t382)
-          | _ -> iprot#skip _t382);
+              iprot#skip _t375)
+          | _ -> iprot#skip _t375);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str381
+    _str374
 
 class get_indexed_slices_result =
 object (self)
   val mutable _success : keySlice list option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "get_indexed_slices_result.success") | Some _x384 -> _x384
-  method set_success _x384 = _success <- Some _x384
+  method grab_success = match _success with None->raise (Field_empty "get_indexed_slices_result.success") | Some _x377 -> _x377
+  method set_success _x377 = _success <- Some _x377
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "get_indexed_slices_result.ire") | Some _x384 -> _x384
-  method set_ire _x384 = _ire <- Some _x384
+  method grab_ire = match _ire with None->raise (Field_empty "get_indexed_slices_result.ire") | Some _x377 -> _x377
+  method set_ire _x377 = _ire <- Some _x377
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "get_indexed_slices_result.ue") | Some _x384 -> _x384
-  method set_ue _x384 = _ue <- Some _x384
+  method grab_ue = match _ue with None->raise (Field_empty "get_indexed_slices_result.ue") | Some _x377 -> _x377
+  method set_ue _x377 = _ue <- Some _x377
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "get_indexed_slices_result.te") | Some _x384 -> _x384
-  method set_te _x384 = _te <- Some _x384
+  method grab_te = match _te with None->raise (Field_empty "get_indexed_slices_result.te") | Some _x377 -> _x377
+  method set_te _x377 = _te <- Some _x377
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "get_indexed_slices_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_LIST,0);
       oprot#writeListBegin(Protocol.T_STRUCT,List.length _v);
-      List.iter (fun _iter387 ->         _iter387#write(oprot);
+      List.iter (fun _iter380 ->         _iter380#write(oprot);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
@@ -1268,58 +1242,58 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_get_indexed_slices_result (iprot : Protocol.t) =
-  let _str388 = new get_indexed_slices_result in
+  let _str381 = new get_indexed_slices_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t389,_id390) = iprot#readFieldBegin in
-        if _t389 = Protocol.T_STOP then
+        let (_,_t382,_id383) = iprot#readFieldBegin in
+        if _t382 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id390 with 
-          | 0 -> (if _t389 = Protocol.T_LIST then
-              _str388#set_success 
-                (let (_etype394,_size391) = iprot#readListBegin in
-                  let _con395 = (Array.to_list (Array.init _size391 (fun _ -> (read_keySlice iprot)))) in
-                    iprot#readListEnd; _con395)
+        (match _id383 with 
+          | 0 -> (if _t382 = Protocol.T_LIST then
+              _str381#set_success 
+                (let (_etype387,_size384) = iprot#readListBegin in
+                  let _con388 = (Array.to_list (Array.init _size384 (fun _ -> (read_keySlice iprot)))) in
+                    iprot#readListEnd; _con388)
             else
-              iprot#skip _t389)
-          | 1 -> (if _t389 = Protocol.T_STRUCT then
-              _str388#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t382)
+          | 1 -> (if _t382 = Protocol.T_STRUCT then
+              _str381#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t389)
-          | 2 -> (if _t389 = Protocol.T_STRUCT then
-              _str388#set_ue (read_unavailableException iprot)
+              iprot#skip _t382)
+          | 2 -> (if _t382 = Protocol.T_STRUCT then
+              _str381#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t389)
-          | 3 -> (if _t389 = Protocol.T_STRUCT then
-              _str388#set_te (read_timedOutException iprot)
+              iprot#skip _t382)
+          | 3 -> (if _t382 = Protocol.T_STRUCT then
+              _str381#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t389)
-          | _ -> iprot#skip _t389);
+              iprot#skip _t382)
+          | _ -> iprot#skip _t382);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str388
+    _str381
 
 class insert_args =
 object (self)
   val mutable _key : string option = None
   method get_key = _key
-  method grab_key = match _key with None->raise (Field_empty "insert_args.key") | Some _x396 -> _x396
-  method set_key _x396 = _key <- Some _x396
+  method grab_key = match _key with None->raise (Field_empty "insert_args.key") | Some _x389 -> _x389
+  method set_key _x389 = _key <- Some _x389
   val mutable _column_parent : columnParent option = None
   method get_column_parent = _column_parent
-  method grab_column_parent = match _column_parent with None->raise (Field_empty "insert_args.column_parent") | Some _x396 -> _x396
-  method set_column_parent _x396 = _column_parent <- Some _x396
+  method grab_column_parent = match _column_parent with None->raise (Field_empty "insert_args.column_parent") | Some _x389 -> _x389
+  method set_column_parent _x389 = _column_parent <- Some _x389
   val mutable _column : column option = None
   method get_column = _column
-  method grab_column = match _column with None->raise (Field_empty "insert_args.column") | Some _x396 -> _x396
-  method set_column _x396 = _column <- Some _x396
+  method grab_column = match _column with None->raise (Field_empty "insert_args.column") | Some _x389 -> _x389
+  method set_column _x389 = _column <- Some _x389
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "insert_args.consistency_level") | Some _x396 -> _x396
-  method set_consistency_level _x396 = _consistency_level <- Some _x396
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "insert_args.consistency_level") | Some _x389 -> _x389
+  method set_consistency_level _x389 = _consistency_level <- Some _x389
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "insert_args";
     (match _key with None -> () | Some _v -> 
@@ -1346,51 +1320,51 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_insert_args (iprot : Protocol.t) =
-  let _str399 = new insert_args in
+  let _str392 = new insert_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t400,_id401) = iprot#readFieldBegin in
-        if _t400 = Protocol.T_STOP then
+        let (_,_t393,_id394) = iprot#readFieldBegin in
+        if _t393 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id401 with 
-          | 1 -> (if _t400 = Protocol.T_STRING then
-              _str399#set_key iprot#readString
+        (match _id394 with 
+          | 1 -> (if _t393 = Protocol.T_STRING then
+              _str392#set_key iprot#readString
             else
-              iprot#skip _t400)
-          | 2 -> (if _t400 = Protocol.T_STRUCT then
-              _str399#set_column_parent (read_columnParent iprot)
+              iprot#skip _t393)
+          | 2 -> (if _t393 = Protocol.T_STRUCT then
+              _str392#set_column_parent (read_columnParent iprot)
             else
-              iprot#skip _t400)
-          | 3 -> (if _t400 = Protocol.T_STRUCT then
-              _str399#set_column (read_column iprot)
+              iprot#skip _t393)
+          | 3 -> (if _t393 = Protocol.T_STRUCT then
+              _str392#set_column (read_column iprot)
             else
-              iprot#skip _t400)
-          | 4 -> (if _t400 = Protocol.T_I32 then
-              _str399#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t393)
+          | 4 -> (if _t393 = Protocol.T_I32 then
+              _str392#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t400)
-          | _ -> iprot#skip _t400);
+              iprot#skip _t393)
+          | _ -> iprot#skip _t393);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str399
+    _str392
 
 class insert_result =
 object (self)
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "insert_result.ire") | Some _x402 -> _x402
-  method set_ire _x402 = _ire <- Some _x402
+  method grab_ire = match _ire with None->raise (Field_empty "insert_result.ire") | Some _x395 -> _x395
+  method set_ire _x395 = _ire <- Some _x395
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "insert_result.ue") | Some _x402 -> _x402
-  method set_ue _x402 = _ue <- Some _x402
+  method grab_ue = match _ue with None->raise (Field_empty "insert_result.ue") | Some _x395 -> _x395
+  method set_ue _x395 = _ue <- Some _x395
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "insert_result.te") | Some _x402 -> _x402
-  method set_te _x402 = _te <- Some _x402
+  method grab_te = match _te with None->raise (Field_empty "insert_result.te") | Some _x395 -> _x395
+  method set_te _x395 = _te <- Some _x395
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "insert_result";
     (match _ire with None -> () | Some _v -> 
@@ -1412,51 +1386,51 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_insert_result (iprot : Protocol.t) =
-  let _str405 = new insert_result in
+  let _str398 = new insert_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t406,_id407) = iprot#readFieldBegin in
-        if _t406 = Protocol.T_STOP then
+        let (_,_t399,_id400) = iprot#readFieldBegin in
+        if _t399 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id407 with 
-          | 1 -> (if _t406 = Protocol.T_STRUCT then
-              _str405#set_ire (read_invalidRequestException iprot)
+        (match _id400 with 
+          | 1 -> (if _t399 = Protocol.T_STRUCT then
+              _str398#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t406)
-          | 2 -> (if _t406 = Protocol.T_STRUCT then
-              _str405#set_ue (read_unavailableException iprot)
+              iprot#skip _t399)
+          | 2 -> (if _t399 = Protocol.T_STRUCT then
+              _str398#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t406)
-          | 3 -> (if _t406 = Protocol.T_STRUCT then
-              _str405#set_te (read_timedOutException iprot)
+              iprot#skip _t399)
+          | 3 -> (if _t399 = Protocol.T_STRUCT then
+              _str398#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t406)
-          | _ -> iprot#skip _t406);
+              iprot#skip _t399)
+          | _ -> iprot#skip _t399);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str405
+    _str398
 
 class remove_args =
 object (self)
   val mutable _key : string option = None
   method get_key = _key
-  method grab_key = match _key with None->raise (Field_empty "remove_args.key") | Some _x408 -> _x408
-  method set_key _x408 = _key <- Some _x408
+  method grab_key = match _key with None->raise (Field_empty "remove_args.key") | Some _x401 -> _x401
+  method set_key _x401 = _key <- Some _x401
   val mutable _column_path : columnPath option = None
   method get_column_path = _column_path
-  method grab_column_path = match _column_path with None->raise (Field_empty "remove_args.column_path") | Some _x408 -> _x408
-  method set_column_path _x408 = _column_path <- Some _x408
-  val mutable _clock : clock option = None
-  method get_clock = _clock
-  method grab_clock = match _clock with None->raise (Field_empty "remove_args.clock") | Some _x408 -> _x408
-  method set_clock _x408 = _clock <- Some _x408
+  method grab_column_path = match _column_path with None->raise (Field_empty "remove_args.column_path") | Some _x401 -> _x401
+  method set_column_path _x401 = _column_path <- Some _x401
+  val mutable _timestamp : Int64.t option = None
+  method get_timestamp = _timestamp
+  method grab_timestamp = match _timestamp with None->raise (Field_empty "remove_args.timestamp") | Some _x401 -> _x401
+  method set_timestamp _x401 = _timestamp <- Some _x401
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "remove_args.consistency_level") | Some _x408 -> _x408
-  method set_consistency_level _x408 = _consistency_level <- Some _x408
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "remove_args.consistency_level") | Some _x401 -> _x401
+  method set_consistency_level _x401 = _consistency_level <- Some _x401
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "remove_args";
     (match _key with None -> () | Some _v -> 
@@ -1469,9 +1443,9 @@ object (self)
       _v#write(oprot);
       oprot#writeFieldEnd
     );
-    (match _clock with None -> () | Some _v -> 
-      oprot#writeFieldBegin("clock",Protocol.T_STRUCT,3);
-      _v#write(oprot);
+    (match _timestamp with None -> () | Some _v -> 
+      oprot#writeFieldBegin("timestamp",Protocol.T_I64,3);
+      oprot#writeI64(_v);
       oprot#writeFieldEnd
     );
     (match _consistency_level with None -> () | Some _v -> 
@@ -1483,51 +1457,51 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_remove_args (iprot : Protocol.t) =
-  let _str411 = new remove_args in
+  let _str404 = new remove_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t412,_id413) = iprot#readFieldBegin in
-        if _t412 = Protocol.T_STOP then
+        let (_,_t405,_id406) = iprot#readFieldBegin in
+        if _t405 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id413 with 
-          | 1 -> (if _t412 = Protocol.T_STRING then
-              _str411#set_key iprot#readString
+        (match _id406 with 
+          | 1 -> (if _t405 = Protocol.T_STRING then
+              _str404#set_key iprot#readString
             else
-              iprot#skip _t412)
-          | 2 -> (if _t412 = Protocol.T_STRUCT then
-              _str411#set_column_path (read_columnPath iprot)
+              iprot#skip _t405)
+          | 2 -> (if _t405 = Protocol.T_STRUCT then
+              _str404#set_column_path (read_columnPath iprot)
             else
-              iprot#skip _t412)
-          | 3 -> (if _t412 = Protocol.T_STRUCT then
-              _str411#set_clock (read_clock iprot)
+              iprot#skip _t405)
+          | 3 -> (if _t405 = Protocol.T_I64 then
+              _str404#set_timestamp iprot#readI64
             else
-              iprot#skip _t412)
-          | 4 -> (if _t412 = Protocol.T_I32 then
-              _str411#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t405)
+          | 4 -> (if _t405 = Protocol.T_I32 then
+              _str404#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t412)
-          | _ -> iprot#skip _t412);
+              iprot#skip _t405)
+          | _ -> iprot#skip _t405);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str411
+    _str404
 
 class remove_result =
 object (self)
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "remove_result.ire") | Some _x414 -> _x414
-  method set_ire _x414 = _ire <- Some _x414
+  method grab_ire = match _ire with None->raise (Field_empty "remove_result.ire") | Some _x407 -> _x407
+  method set_ire _x407 = _ire <- Some _x407
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "remove_result.ue") | Some _x414 -> _x414
-  method set_ue _x414 = _ue <- Some _x414
+  method grab_ue = match _ue with None->raise (Field_empty "remove_result.ue") | Some _x407 -> _x407
+  method set_ue _x407 = _ue <- Some _x407
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "remove_result.te") | Some _x414 -> _x414
-  method set_te _x414 = _te <- Some _x414
+  method grab_te = match _te with None->raise (Field_empty "remove_result.te") | Some _x407 -> _x407
+  method set_te _x407 = _te <- Some _x407
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "remove_result";
     (match _ire with None -> () | Some _v -> 
@@ -1549,58 +1523,58 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_remove_result (iprot : Protocol.t) =
-  let _str417 = new remove_result in
+  let _str410 = new remove_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t418,_id419) = iprot#readFieldBegin in
-        if _t418 = Protocol.T_STOP then
+        let (_,_t411,_id412) = iprot#readFieldBegin in
+        if _t411 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id419 with 
-          | 1 -> (if _t418 = Protocol.T_STRUCT then
-              _str417#set_ire (read_invalidRequestException iprot)
+        (match _id412 with 
+          | 1 -> (if _t411 = Protocol.T_STRUCT then
+              _str410#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t418)
-          | 2 -> (if _t418 = Protocol.T_STRUCT then
-              _str417#set_ue (read_unavailableException iprot)
+              iprot#skip _t411)
+          | 2 -> (if _t411 = Protocol.T_STRUCT then
+              _str410#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t418)
-          | 3 -> (if _t418 = Protocol.T_STRUCT then
-              _str417#set_te (read_timedOutException iprot)
+              iprot#skip _t411)
+          | 3 -> (if _t411 = Protocol.T_STRUCT then
+              _str410#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t418)
-          | _ -> iprot#skip _t418);
+              iprot#skip _t411)
+          | _ -> iprot#skip _t411);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str417
+    _str410
 
 class batch_mutate_args =
 object (self)
   val mutable _mutation_map : (string,(string,mutation list) Hashtbl.t) Hashtbl.t option = None
   method get_mutation_map = _mutation_map
-  method grab_mutation_map = match _mutation_map with None->raise (Field_empty "batch_mutate_args.mutation_map") | Some _x420 -> _x420
-  method set_mutation_map _x420 = _mutation_map <- Some _x420
+  method grab_mutation_map = match _mutation_map with None->raise (Field_empty "batch_mutate_args.mutation_map") | Some _x413 -> _x413
+  method set_mutation_map _x413 = _mutation_map <- Some _x413
   val mutable _consistency_level : ConsistencyLevel.t option = None
   method get_consistency_level = _consistency_level
-  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "batch_mutate_args.consistency_level") | Some _x420 -> _x420
-  method set_consistency_level _x420 = _consistency_level <- Some _x420
+  method grab_consistency_level = match _consistency_level with None->raise (Field_empty "batch_mutate_args.consistency_level") | Some _x413 -> _x413
+  method set_consistency_level _x413 = _consistency_level <- Some _x413
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "batch_mutate_args";
     (match _mutation_map with None -> () | Some _v -> 
       oprot#writeFieldBegin("mutation_map",Protocol.T_MAP,1);
       oprot#writeMapBegin(Protocol.T_STRING,Protocol.T_MAP,Hashtbl.length _v);
-      Hashtbl.iter (fun _kiter423 -> fun _viter424 -> 
-        oprot#writeString(_kiter423);
-        oprot#writeMapBegin(Protocol.T_STRING,Protocol.T_LIST,Hashtbl.length _viter424);
-        Hashtbl.iter (fun _kiter425 -> fun _viter426 -> 
-          oprot#writeString(_kiter425);
-          oprot#writeListBegin(Protocol.T_STRUCT,List.length _viter426);
-          List.iter (fun _iter427 ->             _iter427#write(oprot);
-          ) _viter426;
+      Hashtbl.iter (fun _kiter416 -> fun _viter417 -> 
+        oprot#writeString(_kiter416);
+        oprot#writeMapBegin(Protocol.T_STRING,Protocol.T_LIST,Hashtbl.length _viter417);
+        Hashtbl.iter (fun _kiter418 -> fun _viter419 -> 
+          oprot#writeString(_kiter418);
+          oprot#writeListBegin(Protocol.T_STRUCT,List.length _viter419);
+          List.iter (fun _iter420 ->             _iter420#write(oprot);
+          ) _viter419;
           oprot#writeListEnd;
-        ) _viter424;
+        ) _viter417;
         oprot#writeMapEnd;
       ) _v;
       oprot#writeMapEnd;
@@ -1615,60 +1589,60 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_batch_mutate_args (iprot : Protocol.t) =
-  let _str428 = new batch_mutate_args in
+  let _str421 = new batch_mutate_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t429,_id430) = iprot#readFieldBegin in
-        if _t429 = Protocol.T_STOP then
+        let (_,_t422,_id423) = iprot#readFieldBegin in
+        if _t422 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id430 with 
-          | 1 -> (if _t429 = Protocol.T_MAP then
-              _str428#set_mutation_map 
-                (let (_ktype432,_vtype433,_size431) = iprot#readMapBegin in
-                let _con435 = Hashtbl.create _size431 in
-                  for i = 1 to _size431 do
+        (match _id423 with 
+          | 1 -> (if _t422 = Protocol.T_MAP then
+              _str421#set_mutation_map 
+                (let (_ktype425,_vtype426,_size424) = iprot#readMapBegin in
+                let _con428 = Hashtbl.create _size424 in
+                  for i = 1 to _size424 do
                     let _k = iprot#readString in
                     let _v = 
-                      (let (_ktype437,_vtype438,_size436) = iprot#readMapBegin in
-                      let _con440 = Hashtbl.create _size436 in
-                        for i = 1 to _size436 do
+                      (let (_ktype430,_vtype431,_size429) = iprot#readMapBegin in
+                      let _con433 = Hashtbl.create _size429 in
+                        for i = 1 to _size429 do
                           let _k = iprot#readString in
                           let _v = 
-                            (let (_etype444,_size441) = iprot#readListBegin in
-                              let _con445 = (Array.to_list (Array.init _size441 (fun _ -> (read_mutation iprot)))) in
-                                iprot#readListEnd; _con445) in
-                            Hashtbl.add _con440 _k _v
-                        done; iprot#readMapEnd; _con440) in
-                      Hashtbl.add _con435 _k _v
-                  done; iprot#readMapEnd; _con435)
+                            (let (_etype437,_size434) = iprot#readListBegin in
+                              let _con438 = (Array.to_list (Array.init _size434 (fun _ -> (read_mutation iprot)))) in
+                                iprot#readListEnd; _con438) in
+                            Hashtbl.add _con433 _k _v
+                        done; iprot#readMapEnd; _con433) in
+                      Hashtbl.add _con428 _k _v
+                  done; iprot#readMapEnd; _con428)
             else
-              iprot#skip _t429)
-          | 2 -> (if _t429 = Protocol.T_I32 then
-              _str428#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
+              iprot#skip _t422)
+          | 2 -> (if _t422 = Protocol.T_I32 then
+              _str421#set_consistency_level (ConsistencyLevel.of_i iprot#readI32)
             else
-              iprot#skip _t429)
-          | _ -> iprot#skip _t429);
+              iprot#skip _t422)
+          | _ -> iprot#skip _t422);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str428
+    _str421
 
 class batch_mutate_result =
 object (self)
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "batch_mutate_result.ire") | Some _x446 -> _x446
-  method set_ire _x446 = _ire <- Some _x446
+  method grab_ire = match _ire with None->raise (Field_empty "batch_mutate_result.ire") | Some _x439 -> _x439
+  method set_ire _x439 = _ire <- Some _x439
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "batch_mutate_result.ue") | Some _x446 -> _x446
-  method set_ue _x446 = _ue <- Some _x446
+  method grab_ue = match _ue with None->raise (Field_empty "batch_mutate_result.ue") | Some _x439 -> _x439
+  method set_ue _x439 = _ue <- Some _x439
   val mutable _te : timedOutException option = None
   method get_te = _te
-  method grab_te = match _te with None->raise (Field_empty "batch_mutate_result.te") | Some _x446 -> _x446
-  method set_te _x446 = _te <- Some _x446
+  method grab_te = match _te with None->raise (Field_empty "batch_mutate_result.te") | Some _x439 -> _x439
+  method set_te _x439 = _te <- Some _x439
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "batch_mutate_result";
     (match _ire with None -> () | Some _v -> 
@@ -1690,39 +1664,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_batch_mutate_result (iprot : Protocol.t) =
-  let _str449 = new batch_mutate_result in
+  let _str442 = new batch_mutate_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t450,_id451) = iprot#readFieldBegin in
-        if _t450 = Protocol.T_STOP then
+        let (_,_t443,_id444) = iprot#readFieldBegin in
+        if _t443 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id451 with 
-          | 1 -> (if _t450 = Protocol.T_STRUCT then
-              _str449#set_ire (read_invalidRequestException iprot)
+        (match _id444 with 
+          | 1 -> (if _t443 = Protocol.T_STRUCT then
+              _str442#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t450)
-          | 2 -> (if _t450 = Protocol.T_STRUCT then
-              _str449#set_ue (read_unavailableException iprot)
+              iprot#skip _t443)
+          | 2 -> (if _t443 = Protocol.T_STRUCT then
+              _str442#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t450)
-          | 3 -> (if _t450 = Protocol.T_STRUCT then
-              _str449#set_te (read_timedOutException iprot)
+              iprot#skip _t443)
+          | 3 -> (if _t443 = Protocol.T_STRUCT then
+              _str442#set_te (read_timedOutException iprot)
             else
-              iprot#skip _t450)
-          | _ -> iprot#skip _t450);
+              iprot#skip _t443)
+          | _ -> iprot#skip _t443);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str449
+    _str442
 
 class truncate_args =
 object (self)
   val mutable _cfname : string option = None
   method get_cfname = _cfname
-  method grab_cfname = match _cfname with None->raise (Field_empty "truncate_args.cfname") | Some _x452 -> _x452
-  method set_cfname _x452 = _cfname <- Some _x452
+  method grab_cfname = match _cfname with None->raise (Field_empty "truncate_args.cfname") | Some _x445 -> _x445
+  method set_cfname _x445 = _cfname <- Some _x445
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "truncate_args";
     (match _cfname with None -> () | Some _v -> 
@@ -1734,35 +1708,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_truncate_args (iprot : Protocol.t) =
-  let _str455 = new truncate_args in
+  let _str448 = new truncate_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t456,_id457) = iprot#readFieldBegin in
-        if _t456 = Protocol.T_STOP then
+        let (_,_t449,_id450) = iprot#readFieldBegin in
+        if _t449 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id457 with 
-          | 1 -> (if _t456 = Protocol.T_STRING then
-              _str455#set_cfname iprot#readString
+        (match _id450 with 
+          | 1 -> (if _t449 = Protocol.T_STRING then
+              _str448#set_cfname iprot#readString
             else
-              iprot#skip _t456)
-          | _ -> iprot#skip _t456);
+              iprot#skip _t449)
+          | _ -> iprot#skip _t449);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str455
+    _str448
 
 class truncate_result =
 object (self)
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "truncate_result.ire") | Some _x458 -> _x458
-  method set_ire _x458 = _ire <- Some _x458
+  method grab_ire = match _ire with None->raise (Field_empty "truncate_result.ire") | Some _x451 -> _x451
+  method set_ire _x451 = _ire <- Some _x451
   val mutable _ue : unavailableException option = None
   method get_ue = _ue
-  method grab_ue = match _ue with None->raise (Field_empty "truncate_result.ue") | Some _x458 -> _x458
-  method set_ue _x458 = _ue <- Some _x458
+  method grab_ue = match _ue with None->raise (Field_empty "truncate_result.ue") | Some _x451 -> _x451
+  method set_ue _x451 = _ue <- Some _x451
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "truncate_result";
     (match _ire with None -> () | Some _v -> 
@@ -1779,72 +1753,72 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_truncate_result (iprot : Protocol.t) =
-  let _str461 = new truncate_result in
+  let _str454 = new truncate_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t462,_id463) = iprot#readFieldBegin in
-        if _t462 = Protocol.T_STOP then
+        let (_,_t455,_id456) = iprot#readFieldBegin in
+        if _t455 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id463 with 
-          | 1 -> (if _t462 = Protocol.T_STRUCT then
-              _str461#set_ire (read_invalidRequestException iprot)
+        (match _id456 with 
+          | 1 -> (if _t455 = Protocol.T_STRUCT then
+              _str454#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t462)
-          | 2 -> (if _t462 = Protocol.T_STRUCT then
-              _str461#set_ue (read_unavailableException iprot)
+              iprot#skip _t455)
+          | 2 -> (if _t455 = Protocol.T_STRUCT then
+              _str454#set_ue (read_unavailableException iprot)
             else
-              iprot#skip _t462)
-          | _ -> iprot#skip _t462);
+              iprot#skip _t455)
+          | _ -> iprot#skip _t455);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str461
+    _str454
 
-class check_schema_agreement_args =
+class describe_schema_versions_args =
 object (self)
   method write (oprot : Protocol.t) =
-    oprot#writeStructBegin "check_schema_agreement_args";
+    oprot#writeStructBegin "describe_schema_versions_args";
     oprot#writeFieldStop;
     oprot#writeStructEnd
 end
-let rec read_check_schema_agreement_args (iprot : Protocol.t) =
-  let _str467 = new check_schema_agreement_args in
+let rec read_describe_schema_versions_args (iprot : Protocol.t) =
+  let _str460 = new describe_schema_versions_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t468,_id469) = iprot#readFieldBegin in
-        if _t468 = Protocol.T_STOP then
+        let (_,_t461,_id462) = iprot#readFieldBegin in
+        if _t461 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id469 with 
-          | _ -> iprot#skip _t468);
+        (match _id462 with 
+          | _ -> iprot#skip _t461);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str467
+    _str460
 
-class check_schema_agreement_result =
+class describe_schema_versions_result =
 object (self)
   val mutable _success : (string,string list) Hashtbl.t option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "check_schema_agreement_result.success") | Some _x470 -> _x470
-  method set_success _x470 = _success <- Some _x470
+  method grab_success = match _success with None->raise (Field_empty "describe_schema_versions_result.success") | Some _x463 -> _x463
+  method set_success _x463 = _success <- Some _x463
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "check_schema_agreement_result.ire") | Some _x470 -> _x470
-  method set_ire _x470 = _ire <- Some _x470
+  method grab_ire = match _ire with None->raise (Field_empty "describe_schema_versions_result.ire") | Some _x463 -> _x463
+  method set_ire _x463 = _ire <- Some _x463
   method write (oprot : Protocol.t) =
-    oprot#writeStructBegin "check_schema_agreement_result";
+    oprot#writeStructBegin "describe_schema_versions_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_MAP,0);
       oprot#writeMapBegin(Protocol.T_STRING,Protocol.T_LIST,Hashtbl.length _v);
-      Hashtbl.iter (fun _kiter473 -> fun _viter474 -> 
-        oprot#writeString(_kiter473);
-        oprot#writeListBegin(Protocol.T_STRING,List.length _viter474);
-        List.iter (fun _iter475 ->           oprot#writeString(_iter475);
-        ) _viter474;
+      Hashtbl.iter (fun _kiter466 -> fun _viter467 -> 
+        oprot#writeString(_kiter466);
+        oprot#writeListBegin(Protocol.T_STRING,List.length _viter467);
+        List.iter (fun _iter468 ->           oprot#writeString(_iter468);
+        ) _viter467;
         oprot#writeListEnd;
       ) _v;
       oprot#writeMapEnd;
@@ -1858,39 +1832,39 @@ object (self)
     oprot#writeFieldStop;
     oprot#writeStructEnd
 end
-let rec read_check_schema_agreement_result (iprot : Protocol.t) =
-  let _str476 = new check_schema_agreement_result in
+let rec read_describe_schema_versions_result (iprot : Protocol.t) =
+  let _str469 = new describe_schema_versions_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t477,_id478) = iprot#readFieldBegin in
-        if _t477 = Protocol.T_STOP then
+        let (_,_t470,_id471) = iprot#readFieldBegin in
+        if _t470 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id478 with 
-          | 0 -> (if _t477 = Protocol.T_MAP then
-              _str476#set_success 
-                (let (_ktype480,_vtype481,_size479) = iprot#readMapBegin in
-                let _con483 = Hashtbl.create _size479 in
-                  for i = 1 to _size479 do
+        (match _id471 with 
+          | 0 -> (if _t470 = Protocol.T_MAP then
+              _str469#set_success 
+                (let (_ktype473,_vtype474,_size472) = iprot#readMapBegin in
+                let _con476 = Hashtbl.create _size472 in
+                  for i = 1 to _size472 do
                     let _k = iprot#readString in
                     let _v = 
-                      (let (_etype487,_size484) = iprot#readListBegin in
-                        let _con488 = (Array.to_list (Array.init _size484 (fun _ -> iprot#readString))) in
-                          iprot#readListEnd; _con488) in
-                      Hashtbl.add _con483 _k _v
-                  done; iprot#readMapEnd; _con483)
+                      (let (_etype480,_size477) = iprot#readListBegin in
+                        let _con481 = (Array.to_list (Array.init _size477 (fun _ -> iprot#readString))) in
+                          iprot#readListEnd; _con481) in
+                      Hashtbl.add _con476 _k _v
+                  done; iprot#readMapEnd; _con476)
             else
-              iprot#skip _t477)
-          | 1 -> (if _t477 = Protocol.T_STRUCT then
-              _str476#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t470)
+          | 1 -> (if _t470 = Protocol.T_STRUCT then
+              _str469#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t477)
-          | _ -> iprot#skip _t477);
+              iprot#skip _t470)
+          | _ -> iprot#skip _t470);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str476
+    _str469
 
 class describe_keyspaces_args =
 object (self)
@@ -1900,7 +1874,51 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_keyspaces_args (iprot : Protocol.t) =
-  let _str492 = new describe_keyspaces_args in
+  let _str485 = new describe_keyspaces_args in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t486,_id487) = iprot#readFieldBegin in
+        if _t486 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id487 with 
+          | _ -> iprot#skip _t486);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str485
+
+class describe_keyspaces_result =
+object (self)
+  val mutable _success : ksDef list option = None
+  method get_success = _success
+  method grab_success = match _success with None->raise (Field_empty "describe_keyspaces_result.success") | Some _x488 -> _x488
+  method set_success _x488 = _success <- Some _x488
+  val mutable _ire : invalidRequestException option = None
+  method get_ire = _ire
+  method grab_ire = match _ire with None->raise (Field_empty "describe_keyspaces_result.ire") | Some _x488 -> _x488
+  method set_ire _x488 = _ire <- Some _x488
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "describe_keyspaces_result";
+    (match _success with None -> () | Some _v -> 
+      oprot#writeFieldBegin("success",Protocol.T_LIST,0);
+      oprot#writeListBegin(Protocol.T_STRUCT,List.length _v);
+      List.iter (fun _iter491 ->         _iter491#write(oprot);
+      ) _v;
+      oprot#writeListEnd;
+      oprot#writeFieldEnd
+    );
+    (match _ire with None -> () | Some _v -> 
+      oprot#writeFieldBegin("ire",Protocol.T_STRUCT,1);
+      _v#write(oprot);
+      oprot#writeFieldEnd
+    );
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_describe_keyspaces_result (iprot : Protocol.t) =
+  let _str492 = new describe_keyspaces_result in
     ignore(iprot#readStructBegin);
     (try while true do
         let (_,_t493,_id494) = iprot#readFieldBegin in
@@ -1908,54 +1926,23 @@ let rec read_describe_keyspaces_args (iprot : Protocol.t) =
           raise Break
         else ();
         (match _id494 with 
+          | 0 -> (if _t493 = Protocol.T_LIST then
+              _str492#set_success 
+                (let (_etype498,_size495) = iprot#readListBegin in
+                  let _con499 = (Array.to_list (Array.init _size495 (fun _ -> (read_ksDef iprot)))) in
+                    iprot#readListEnd; _con499)
+            else
+              iprot#skip _t493)
+          | 1 -> (if _t493 = Protocol.T_STRUCT then
+              _str492#set_ire (read_invalidRequestException iprot)
+            else
+              iprot#skip _t493)
           | _ -> iprot#skip _t493);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
     _str492
-
-class describe_keyspaces_result =
-object (self)
-  val mutable _success : ksDef list option = None
-  method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_keyspaces_result.success") | Some _x495 -> _x495
-  method set_success _x495 = _success <- Some _x495
-  method write (oprot : Protocol.t) =
-    oprot#writeStructBegin "describe_keyspaces_result";
-    (match _success with None -> () | Some _v -> 
-      oprot#writeFieldBegin("success",Protocol.T_LIST,0);
-      oprot#writeListBegin(Protocol.T_STRUCT,List.length _v);
-      List.iter (fun _iter498 ->         _iter498#write(oprot);
-      ) _v;
-      oprot#writeListEnd;
-      oprot#writeFieldEnd
-    );
-    oprot#writeFieldStop;
-    oprot#writeStructEnd
-end
-let rec read_describe_keyspaces_result (iprot : Protocol.t) =
-  let _str499 = new describe_keyspaces_result in
-    ignore(iprot#readStructBegin);
-    (try while true do
-        let (_,_t500,_id501) = iprot#readFieldBegin in
-        if _t500 = Protocol.T_STOP then
-          raise Break
-        else ();
-        (match _id501 with 
-          | 0 -> (if _t500 = Protocol.T_LIST then
-              _str499#set_success 
-                (let (_etype505,_size502) = iprot#readListBegin in
-                  let _con506 = (Array.to_list (Array.init _size502 (fun _ -> (read_ksDef iprot)))) in
-                    iprot#readListEnd; _con506)
-            else
-              iprot#skip _t500)
-          | _ -> iprot#skip _t500);
-        iprot#readFieldEnd;
-      done; ()
-    with Break -> ());
-    iprot#readStructEnd;
-    _str499
 
 class describe_cluster_name_args =
 object (self)
@@ -1965,27 +1952,27 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_cluster_name_args (iprot : Protocol.t) =
-  let _str510 = new describe_cluster_name_args in
+  let _str503 = new describe_cluster_name_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t511,_id512) = iprot#readFieldBegin in
-        if _t511 = Protocol.T_STOP then
+        let (_,_t504,_id505) = iprot#readFieldBegin in
+        if _t504 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id512 with 
-          | _ -> iprot#skip _t511);
+        (match _id505 with 
+          | _ -> iprot#skip _t504);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str510
+    _str503
 
 class describe_cluster_name_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_cluster_name_result.success") | Some _x513 -> _x513
-  method set_success _x513 = _success <- Some _x513
+  method grab_success = match _success with None->raise (Field_empty "describe_cluster_name_result.success") | Some _x506 -> _x506
+  method set_success _x506 = _success <- Some _x506
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_cluster_name_result";
     (match _success with None -> () | Some _v -> 
@@ -1997,24 +1984,24 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_cluster_name_result (iprot : Protocol.t) =
-  let _str516 = new describe_cluster_name_result in
+  let _str509 = new describe_cluster_name_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t517,_id518) = iprot#readFieldBegin in
-        if _t517 = Protocol.T_STOP then
+        let (_,_t510,_id511) = iprot#readFieldBegin in
+        if _t510 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id518 with 
-          | 0 -> (if _t517 = Protocol.T_STRING then
-              _str516#set_success iprot#readString
+        (match _id511 with 
+          | 0 -> (if _t510 = Protocol.T_STRING then
+              _str509#set_success iprot#readString
             else
-              iprot#skip _t517)
-          | _ -> iprot#skip _t517);
+              iprot#skip _t510)
+          | _ -> iprot#skip _t510);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str516
+    _str509
 
 class describe_version_args =
 object (self)
@@ -2024,27 +2011,27 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_version_args (iprot : Protocol.t) =
-  let _str522 = new describe_version_args in
+  let _str515 = new describe_version_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t523,_id524) = iprot#readFieldBegin in
-        if _t523 = Protocol.T_STOP then
+        let (_,_t516,_id517) = iprot#readFieldBegin in
+        if _t516 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id524 with 
-          | _ -> iprot#skip _t523);
+        (match _id517 with 
+          | _ -> iprot#skip _t516);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str522
+    _str515
 
 class describe_version_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_version_result.success") | Some _x525 -> _x525
-  method set_success _x525 = _success <- Some _x525
+  method grab_success = match _success with None->raise (Field_empty "describe_version_result.success") | Some _x518 -> _x518
+  method set_success _x518 = _success <- Some _x518
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_version_result";
     (match _success with None -> () | Some _v -> 
@@ -2056,31 +2043,31 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_version_result (iprot : Protocol.t) =
-  let _str528 = new describe_version_result in
+  let _str521 = new describe_version_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t529,_id530) = iprot#readFieldBegin in
-        if _t529 = Protocol.T_STOP then
+        let (_,_t522,_id523) = iprot#readFieldBegin in
+        if _t522 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id530 with 
-          | 0 -> (if _t529 = Protocol.T_STRING then
-              _str528#set_success iprot#readString
+        (match _id523 with 
+          | 0 -> (if _t522 = Protocol.T_STRING then
+              _str521#set_success iprot#readString
             else
-              iprot#skip _t529)
-          | _ -> iprot#skip _t529);
+              iprot#skip _t522)
+          | _ -> iprot#skip _t522);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str528
+    _str521
 
 class describe_ring_args =
 object (self)
   val mutable _keyspace : string option = None
   method get_keyspace = _keyspace
-  method grab_keyspace = match _keyspace with None->raise (Field_empty "describe_ring_args.keyspace") | Some _x531 -> _x531
-  method set_keyspace _x531 = _keyspace <- Some _x531
+  method grab_keyspace = match _keyspace with None->raise (Field_empty "describe_ring_args.keyspace") | Some _x524 -> _x524
+  method set_keyspace _x524 = _keyspace <- Some _x524
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_ring_args";
     (match _keyspace with None -> () | Some _v -> 
@@ -2092,41 +2079,41 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_ring_args (iprot : Protocol.t) =
-  let _str534 = new describe_ring_args in
+  let _str527 = new describe_ring_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t535,_id536) = iprot#readFieldBegin in
-        if _t535 = Protocol.T_STOP then
+        let (_,_t528,_id529) = iprot#readFieldBegin in
+        if _t528 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id536 with 
-          | 1 -> (if _t535 = Protocol.T_STRING then
-              _str534#set_keyspace iprot#readString
+        (match _id529 with 
+          | 1 -> (if _t528 = Protocol.T_STRING then
+              _str527#set_keyspace iprot#readString
             else
-              iprot#skip _t535)
-          | _ -> iprot#skip _t535);
+              iprot#skip _t528)
+          | _ -> iprot#skip _t528);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str534
+    _str527
 
 class describe_ring_result =
 object (self)
   val mutable _success : tokenRange list option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_ring_result.success") | Some _x537 -> _x537
-  method set_success _x537 = _success <- Some _x537
+  method grab_success = match _success with None->raise (Field_empty "describe_ring_result.success") | Some _x530 -> _x530
+  method set_success _x530 = _success <- Some _x530
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "describe_ring_result.ire") | Some _x537 -> _x537
-  method set_ire _x537 = _ire <- Some _x537
+  method grab_ire = match _ire with None->raise (Field_empty "describe_ring_result.ire") | Some _x530 -> _x530
+  method set_ire _x530 = _ire <- Some _x530
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_ring_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_LIST,0);
       oprot#writeListBegin(Protocol.T_STRUCT,List.length _v);
-      List.iter (fun _iter540 ->         _iter540#write(oprot);
+      List.iter (fun _iter533 ->         _iter533#write(oprot);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
@@ -2140,31 +2127,31 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_ring_result (iprot : Protocol.t) =
-  let _str541 = new describe_ring_result in
+  let _str534 = new describe_ring_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t542,_id543) = iprot#readFieldBegin in
-        if _t542 = Protocol.T_STOP then
+        let (_,_t535,_id536) = iprot#readFieldBegin in
+        if _t535 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id543 with 
-          | 0 -> (if _t542 = Protocol.T_LIST then
-              _str541#set_success 
-                (let (_etype547,_size544) = iprot#readListBegin in
-                  let _con548 = (Array.to_list (Array.init _size544 (fun _ -> (read_tokenRange iprot)))) in
-                    iprot#readListEnd; _con548)
+        (match _id536 with 
+          | 0 -> (if _t535 = Protocol.T_LIST then
+              _str534#set_success 
+                (let (_etype540,_size537) = iprot#readListBegin in
+                  let _con541 = (Array.to_list (Array.init _size537 (fun _ -> (read_tokenRange iprot)))) in
+                    iprot#readListEnd; _con541)
             else
-              iprot#skip _t542)
-          | 1 -> (if _t542 = Protocol.T_STRUCT then
-              _str541#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t535)
+          | 1 -> (if _t535 = Protocol.T_STRUCT then
+              _str534#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t542)
-          | _ -> iprot#skip _t542);
+              iprot#skip _t535)
+          | _ -> iprot#skip _t535);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str541
+    _str534
 
 class describe_partitioner_args =
 object (self)
@@ -2174,27 +2161,27 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_partitioner_args (iprot : Protocol.t) =
-  let _str552 = new describe_partitioner_args in
+  let _str545 = new describe_partitioner_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t553,_id554) = iprot#readFieldBegin in
-        if _t553 = Protocol.T_STOP then
+        let (_,_t546,_id547) = iprot#readFieldBegin in
+        if _t546 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id554 with 
-          | _ -> iprot#skip _t553);
+        (match _id547 with 
+          | _ -> iprot#skip _t546);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str552
+    _str545
 
 class describe_partitioner_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_partitioner_result.success") | Some _x555 -> _x555
-  method set_success _x555 = _success <- Some _x555
+  method grab_success = match _success with None->raise (Field_empty "describe_partitioner_result.success") | Some _x548 -> _x548
+  method set_success _x548 = _success <- Some _x548
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_partitioner_result";
     (match _success with None -> () | Some _v -> 
@@ -2206,31 +2193,90 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_partitioner_result (iprot : Protocol.t) =
-  let _str558 = new describe_partitioner_result in
+  let _str551 = new describe_partitioner_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t559,_id560) = iprot#readFieldBegin in
-        if _t559 = Protocol.T_STOP then
+        let (_,_t552,_id553) = iprot#readFieldBegin in
+        if _t552 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id560 with 
-          | 0 -> (if _t559 = Protocol.T_STRING then
-              _str558#set_success iprot#readString
+        (match _id553 with 
+          | 0 -> (if _t552 = Protocol.T_STRING then
+              _str551#set_success iprot#readString
             else
-              iprot#skip _t559)
-          | _ -> iprot#skip _t559);
+              iprot#skip _t552)
+          | _ -> iprot#skip _t552);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str558
+    _str551
+
+class describe_snitch_args =
+object (self)
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "describe_snitch_args";
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_describe_snitch_args (iprot : Protocol.t) =
+  let _str557 = new describe_snitch_args in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t558,_id559) = iprot#readFieldBegin in
+        if _t558 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id559 with 
+          | _ -> iprot#skip _t558);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str557
+
+class describe_snitch_result =
+object (self)
+  val mutable _success : string option = None
+  method get_success = _success
+  method grab_success = match _success with None->raise (Field_empty "describe_snitch_result.success") | Some _x560 -> _x560
+  method set_success _x560 = _success <- Some _x560
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "describe_snitch_result";
+    (match _success with None -> () | Some _v -> 
+      oprot#writeFieldBegin("success",Protocol.T_STRING,0);
+      oprot#writeString(_v);
+      oprot#writeFieldEnd
+    );
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_describe_snitch_result (iprot : Protocol.t) =
+  let _str563 = new describe_snitch_result in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t564,_id565) = iprot#readFieldBegin in
+        if _t564 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id565 with 
+          | 0 -> (if _t564 = Protocol.T_STRING then
+              _str563#set_success iprot#readString
+            else
+              iprot#skip _t564)
+          | _ -> iprot#skip _t564);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str563
 
 class describe_keyspace_args =
 object (self)
   val mutable _keyspace : string option = None
   method get_keyspace = _keyspace
-  method grab_keyspace = match _keyspace with None->raise (Field_empty "describe_keyspace_args.keyspace") | Some _x561 -> _x561
-  method set_keyspace _x561 = _keyspace <- Some _x561
+  method grab_keyspace = match _keyspace with None->raise (Field_empty "describe_keyspace_args.keyspace") | Some _x566 -> _x566
+  method set_keyspace _x566 = _keyspace <- Some _x566
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_keyspace_args";
     (match _keyspace with None -> () | Some _v -> 
@@ -2242,35 +2288,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_keyspace_args (iprot : Protocol.t) =
-  let _str564 = new describe_keyspace_args in
+  let _str569 = new describe_keyspace_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t565,_id566) = iprot#readFieldBegin in
-        if _t565 = Protocol.T_STOP then
+        let (_,_t570,_id571) = iprot#readFieldBegin in
+        if _t570 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id566 with 
-          | 1 -> (if _t565 = Protocol.T_STRING then
-              _str564#set_keyspace iprot#readString
+        (match _id571 with 
+          | 1 -> (if _t570 = Protocol.T_STRING then
+              _str569#set_keyspace iprot#readString
             else
-              iprot#skip _t565)
-          | _ -> iprot#skip _t565);
+              iprot#skip _t570)
+          | _ -> iprot#skip _t570);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str564
+    _str569
 
 class describe_keyspace_result =
 object (self)
   val mutable _success : ksDef option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_keyspace_result.success") | Some _x567 -> _x567
-  method set_success _x567 = _success <- Some _x567
+  method grab_success = match _success with None->raise (Field_empty "describe_keyspace_result.success") | Some _x572 -> _x572
+  method set_success _x572 = _success <- Some _x572
   val mutable _nfe : notFoundException option = None
   method get_nfe = _nfe
-  method grab_nfe = match _nfe with None->raise (Field_empty "describe_keyspace_result.nfe") | Some _x567 -> _x567
-  method set_nfe _x567 = _nfe <- Some _x567
+  method grab_nfe = match _nfe with None->raise (Field_empty "describe_keyspace_result.nfe") | Some _x572 -> _x572
+  method set_nfe _x572 = _nfe <- Some _x572
+  val mutable _ire : invalidRequestException option = None
+  method get_ire = _ire
+  method grab_ire = match _ire with None->raise (Field_empty "describe_keyspace_result.ire") | Some _x572 -> _x572
+  method set_ire _x572 = _ire <- Some _x572
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_keyspace_result";
     (match _success with None -> () | Some _v -> 
@@ -2283,79 +2333,79 @@ object (self)
       _v#write(oprot);
       oprot#writeFieldEnd
     );
+    (match _ire with None -> () | Some _v -> 
+      oprot#writeFieldBegin("ire",Protocol.T_STRUCT,2);
+      _v#write(oprot);
+      oprot#writeFieldEnd
+    );
     oprot#writeFieldStop;
     oprot#writeStructEnd
 end
 let rec read_describe_keyspace_result (iprot : Protocol.t) =
-  let _str570 = new describe_keyspace_result in
+  let _str575 = new describe_keyspace_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t571,_id572) = iprot#readFieldBegin in
-        if _t571 = Protocol.T_STOP then
+        let (_,_t576,_id577) = iprot#readFieldBegin in
+        if _t576 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id572 with 
-          | 0 -> (if _t571 = Protocol.T_STRUCT then
-              _str570#set_success (read_ksDef iprot)
+        (match _id577 with 
+          | 0 -> (if _t576 = Protocol.T_STRUCT then
+              _str575#set_success (read_ksDef iprot)
             else
-              iprot#skip _t571)
-          | 1 -> (if _t571 = Protocol.T_STRUCT then
-              _str570#set_nfe (read_notFoundException iprot)
+              iprot#skip _t576)
+          | 1 -> (if _t576 = Protocol.T_STRUCT then
+              _str575#set_nfe (read_notFoundException iprot)
             else
-              iprot#skip _t571)
-          | _ -> iprot#skip _t571);
+              iprot#skip _t576)
+          | 2 -> (if _t576 = Protocol.T_STRUCT then
+              _str575#set_ire (read_invalidRequestException iprot)
+            else
+              iprot#skip _t576)
+          | _ -> iprot#skip _t576);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str570
+    _str575
 
 class describe_splits_args =
 object (self)
-  val mutable _keyspace : string option = None
-  method get_keyspace = _keyspace
-  method grab_keyspace = match _keyspace with None->raise (Field_empty "describe_splits_args.keyspace") | Some _x573 -> _x573
-  method set_keyspace _x573 = _keyspace <- Some _x573
   val mutable _cfName : string option = None
   method get_cfName = _cfName
-  method grab_cfName = match _cfName with None->raise (Field_empty "describe_splits_args.cfName") | Some _x573 -> _x573
-  method set_cfName _x573 = _cfName <- Some _x573
+  method grab_cfName = match _cfName with None->raise (Field_empty "describe_splits_args.cfName") | Some _x578 -> _x578
+  method set_cfName _x578 = _cfName <- Some _x578
   val mutable _start_token : string option = None
   method get_start_token = _start_token
-  method grab_start_token = match _start_token with None->raise (Field_empty "describe_splits_args.start_token") | Some _x573 -> _x573
-  method set_start_token _x573 = _start_token <- Some _x573
+  method grab_start_token = match _start_token with None->raise (Field_empty "describe_splits_args.start_token") | Some _x578 -> _x578
+  method set_start_token _x578 = _start_token <- Some _x578
   val mutable _end_token : string option = None
   method get_end_token = _end_token
-  method grab_end_token = match _end_token with None->raise (Field_empty "describe_splits_args.end_token") | Some _x573 -> _x573
-  method set_end_token _x573 = _end_token <- Some _x573
+  method grab_end_token = match _end_token with None->raise (Field_empty "describe_splits_args.end_token") | Some _x578 -> _x578
+  method set_end_token _x578 = _end_token <- Some _x578
   val mutable _keys_per_split : int option = None
   method get_keys_per_split = _keys_per_split
-  method grab_keys_per_split = match _keys_per_split with None->raise (Field_empty "describe_splits_args.keys_per_split") | Some _x573 -> _x573
-  method set_keys_per_split _x573 = _keys_per_split <- Some _x573
+  method grab_keys_per_split = match _keys_per_split with None->raise (Field_empty "describe_splits_args.keys_per_split") | Some _x578 -> _x578
+  method set_keys_per_split _x578 = _keys_per_split <- Some _x578
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_splits_args";
-    (match _keyspace with None -> () | Some _v -> 
-      oprot#writeFieldBegin("keyspace",Protocol.T_STRING,1);
-      oprot#writeString(_v);
-      oprot#writeFieldEnd
-    );
     (match _cfName with None -> () | Some _v -> 
-      oprot#writeFieldBegin("cfName",Protocol.T_STRING,2);
+      oprot#writeFieldBegin("cfName",Protocol.T_STRING,1);
       oprot#writeString(_v);
       oprot#writeFieldEnd
     );
     (match _start_token with None -> () | Some _v -> 
-      oprot#writeFieldBegin("start_token",Protocol.T_STRING,3);
+      oprot#writeFieldBegin("start_token",Protocol.T_STRING,2);
       oprot#writeString(_v);
       oprot#writeFieldEnd
     );
     (match _end_token with None -> () | Some _v -> 
-      oprot#writeFieldBegin("end_token",Protocol.T_STRING,4);
+      oprot#writeFieldBegin("end_token",Protocol.T_STRING,3);
       oprot#writeString(_v);
       oprot#writeFieldEnd
     );
     (match _keys_per_split with None -> () | Some _v -> 
-      oprot#writeFieldBegin("keys_per_split",Protocol.T_I32,5);
+      oprot#writeFieldBegin("keys_per_split",Protocol.T_I32,4);
       oprot#writeI32(_v);
       oprot#writeFieldEnd
     );
@@ -2363,53 +2413,49 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_splits_args (iprot : Protocol.t) =
-  let _str576 = new describe_splits_args in
+  let _str581 = new describe_splits_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t577,_id578) = iprot#readFieldBegin in
-        if _t577 = Protocol.T_STOP then
+        let (_,_t582,_id583) = iprot#readFieldBegin in
+        if _t582 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id578 with 
-          | 1 -> (if _t577 = Protocol.T_STRING then
-              _str576#set_keyspace iprot#readString
+        (match _id583 with 
+          | 1 -> (if _t582 = Protocol.T_STRING then
+              _str581#set_cfName iprot#readString
             else
-              iprot#skip _t577)
-          | 2 -> (if _t577 = Protocol.T_STRING then
-              _str576#set_cfName iprot#readString
+              iprot#skip _t582)
+          | 2 -> (if _t582 = Protocol.T_STRING then
+              _str581#set_start_token iprot#readString
             else
-              iprot#skip _t577)
-          | 3 -> (if _t577 = Protocol.T_STRING then
-              _str576#set_start_token iprot#readString
+              iprot#skip _t582)
+          | 3 -> (if _t582 = Protocol.T_STRING then
+              _str581#set_end_token iprot#readString
             else
-              iprot#skip _t577)
-          | 4 -> (if _t577 = Protocol.T_STRING then
-              _str576#set_end_token iprot#readString
+              iprot#skip _t582)
+          | 4 -> (if _t582 = Protocol.T_I32 then
+              _str581#set_keys_per_split iprot#readI32
             else
-              iprot#skip _t577)
-          | 5 -> (if _t577 = Protocol.T_I32 then
-              _str576#set_keys_per_split iprot#readI32
-            else
-              iprot#skip _t577)
-          | _ -> iprot#skip _t577);
+              iprot#skip _t582)
+          | _ -> iprot#skip _t582);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str576
+    _str581
 
 class describe_splits_result =
 object (self)
   val mutable _success : string list option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "describe_splits_result.success") | Some _x579 -> _x579
-  method set_success _x579 = _success <- Some _x579
+  method grab_success = match _success with None->raise (Field_empty "describe_splits_result.success") | Some _x584 -> _x584
+  method set_success _x584 = _success <- Some _x584
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "describe_splits_result";
     (match _success with None -> () | Some _v -> 
       oprot#writeFieldBegin("success",Protocol.T_LIST,0);
       oprot#writeListBegin(Protocol.T_STRING,List.length _v);
-      List.iter (fun _iter582 ->         oprot#writeString(_iter582);
+      List.iter (fun _iter587 ->         oprot#writeString(_iter587);
       ) _v;
       oprot#writeListEnd;
       oprot#writeFieldEnd
@@ -2418,34 +2464,34 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_describe_splits_result (iprot : Protocol.t) =
-  let _str583 = new describe_splits_result in
+  let _str588 = new describe_splits_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t584,_id585) = iprot#readFieldBegin in
-        if _t584 = Protocol.T_STOP then
+        let (_,_t589,_id590) = iprot#readFieldBegin in
+        if _t589 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id585 with 
-          | 0 -> (if _t584 = Protocol.T_LIST then
-              _str583#set_success 
-                (let (_etype589,_size586) = iprot#readListBegin in
-                  let _con590 = (Array.to_list (Array.init _size586 (fun _ -> iprot#readString))) in
-                    iprot#readListEnd; _con590)
+        (match _id590 with 
+          | 0 -> (if _t589 = Protocol.T_LIST then
+              _str588#set_success 
+                (let (_etype594,_size591) = iprot#readListBegin in
+                  let _con595 = (Array.to_list (Array.init _size591 (fun _ -> iprot#readString))) in
+                    iprot#readListEnd; _con595)
             else
-              iprot#skip _t584)
-          | _ -> iprot#skip _t584);
+              iprot#skip _t589)
+          | _ -> iprot#skip _t589);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str583
+    _str588
 
 class system_add_column_family_args =
 object (self)
   val mutable _cf_def : cfDef option = None
   method get_cf_def = _cf_def
-  method grab_cf_def = match _cf_def with None->raise (Field_empty "system_add_column_family_args.cf_def") | Some _x591 -> _x591
-  method set_cf_def _x591 = _cf_def <- Some _x591
+  method grab_cf_def = match _cf_def with None->raise (Field_empty "system_add_column_family_args.cf_def") | Some _x596 -> _x596
+  method set_cf_def _x596 = _cf_def <- Some _x596
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_add_column_family_args";
     (match _cf_def with None -> () | Some _v -> 
@@ -2457,35 +2503,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_add_column_family_args (iprot : Protocol.t) =
-  let _str594 = new system_add_column_family_args in
+  let _str599 = new system_add_column_family_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t595,_id596) = iprot#readFieldBegin in
-        if _t595 = Protocol.T_STOP then
+        let (_,_t600,_id601) = iprot#readFieldBegin in
+        if _t600 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id596 with 
-          | 1 -> (if _t595 = Protocol.T_STRUCT then
-              _str594#set_cf_def (read_cfDef iprot)
+        (match _id601 with 
+          | 1 -> (if _t600 = Protocol.T_STRUCT then
+              _str599#set_cf_def (read_cfDef iprot)
             else
-              iprot#skip _t595)
-          | _ -> iprot#skip _t595);
+              iprot#skip _t600)
+          | _ -> iprot#skip _t600);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str594
+    _str599
 
 class system_add_column_family_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "system_add_column_family_result.success") | Some _x597 -> _x597
-  method set_success _x597 = _success <- Some _x597
+  method grab_success = match _success with None->raise (Field_empty "system_add_column_family_result.success") | Some _x602 -> _x602
+  method set_success _x602 = _success <- Some _x602
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "system_add_column_family_result.ire") | Some _x597 -> _x597
-  method set_ire _x597 = _ire <- Some _x597
+  method grab_ire = match _ire with None->raise (Field_empty "system_add_column_family_result.ire") | Some _x602 -> _x602
+  method set_ire _x602 = _ire <- Some _x602
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_add_column_family_result";
     (match _success with None -> () | Some _v -> 
@@ -2502,35 +2548,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_add_column_family_result (iprot : Protocol.t) =
-  let _str600 = new system_add_column_family_result in
+  let _str605 = new system_add_column_family_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t601,_id602) = iprot#readFieldBegin in
-        if _t601 = Protocol.T_STOP then
+        let (_,_t606,_id607) = iprot#readFieldBegin in
+        if _t606 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id602 with 
-          | 0 -> (if _t601 = Protocol.T_STRING then
-              _str600#set_success iprot#readString
+        (match _id607 with 
+          | 0 -> (if _t606 = Protocol.T_STRING then
+              _str605#set_success iprot#readString
             else
-              iprot#skip _t601)
-          | 1 -> (if _t601 = Protocol.T_STRUCT then
-              _str600#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t606)
+          | 1 -> (if _t606 = Protocol.T_STRUCT then
+              _str605#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t601)
-          | _ -> iprot#skip _t601);
+              iprot#skip _t606)
+          | _ -> iprot#skip _t606);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str600
+    _str605
 
 class system_drop_column_family_args =
 object (self)
   val mutable _column_family : string option = None
   method get_column_family = _column_family
-  method grab_column_family = match _column_family with None->raise (Field_empty "system_drop_column_family_args.column_family") | Some _x603 -> _x603
-  method set_column_family _x603 = _column_family <- Some _x603
+  method grab_column_family = match _column_family with None->raise (Field_empty "system_drop_column_family_args.column_family") | Some _x608 -> _x608
+  method set_column_family _x608 = _column_family <- Some _x608
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_drop_column_family_args";
     (match _column_family with None -> () | Some _v -> 
@@ -2542,35 +2588,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_drop_column_family_args (iprot : Protocol.t) =
-  let _str606 = new system_drop_column_family_args in
+  let _str611 = new system_drop_column_family_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t607,_id608) = iprot#readFieldBegin in
-        if _t607 = Protocol.T_STOP then
+        let (_,_t612,_id613) = iprot#readFieldBegin in
+        if _t612 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id608 with 
-          | 1 -> (if _t607 = Protocol.T_STRING then
-              _str606#set_column_family iprot#readString
+        (match _id613 with 
+          | 1 -> (if _t612 = Protocol.T_STRING then
+              _str611#set_column_family iprot#readString
             else
-              iprot#skip _t607)
-          | _ -> iprot#skip _t607);
+              iprot#skip _t612)
+          | _ -> iprot#skip _t612);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str606
+    _str611
 
 class system_drop_column_family_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "system_drop_column_family_result.success") | Some _x609 -> _x609
-  method set_success _x609 = _success <- Some _x609
+  method grab_success = match _success with None->raise (Field_empty "system_drop_column_family_result.success") | Some _x614 -> _x614
+  method set_success _x614 = _success <- Some _x614
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "system_drop_column_family_result.ire") | Some _x609 -> _x609
-  method set_ire _x609 = _ire <- Some _x609
+  method grab_ire = match _ire with None->raise (Field_empty "system_drop_column_family_result.ire") | Some _x614 -> _x614
+  method set_ire _x614 = _ire <- Some _x614
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_drop_column_family_result";
     (match _success with None -> () | Some _v -> 
@@ -2587,39 +2633,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_drop_column_family_result (iprot : Protocol.t) =
-  let _str612 = new system_drop_column_family_result in
+  let _str617 = new system_drop_column_family_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t613,_id614) = iprot#readFieldBegin in
-        if _t613 = Protocol.T_STOP then
+        let (_,_t618,_id619) = iprot#readFieldBegin in
+        if _t618 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id614 with 
-          | 0 -> (if _t613 = Protocol.T_STRING then
-              _str612#set_success iprot#readString
+        (match _id619 with 
+          | 0 -> (if _t618 = Protocol.T_STRING then
+              _str617#set_success iprot#readString
             else
-              iprot#skip _t613)
-          | 1 -> (if _t613 = Protocol.T_STRUCT then
-              _str612#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t618)
+          | 1 -> (if _t618 = Protocol.T_STRUCT then
+              _str617#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t613)
-          | _ -> iprot#skip _t613);
+              iprot#skip _t618)
+          | _ -> iprot#skip _t618);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str612
+    _str617
 
 class system_rename_column_family_args =
 object (self)
   val mutable _old_name : string option = None
   method get_old_name = _old_name
-  method grab_old_name = match _old_name with None->raise (Field_empty "system_rename_column_family_args.old_name") | Some _x615 -> _x615
-  method set_old_name _x615 = _old_name <- Some _x615
+  method grab_old_name = match _old_name with None->raise (Field_empty "system_rename_column_family_args.old_name") | Some _x620 -> _x620
+  method set_old_name _x620 = _old_name <- Some _x620
   val mutable _new_name : string option = None
   method get_new_name = _new_name
-  method grab_new_name = match _new_name with None->raise (Field_empty "system_rename_column_family_args.new_name") | Some _x615 -> _x615
-  method set_new_name _x615 = _new_name <- Some _x615
+  method grab_new_name = match _new_name with None->raise (Field_empty "system_rename_column_family_args.new_name") | Some _x620 -> _x620
+  method set_new_name _x620 = _new_name <- Some _x620
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_rename_column_family_args";
     (match _old_name with None -> () | Some _v -> 
@@ -2636,39 +2682,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_rename_column_family_args (iprot : Protocol.t) =
-  let _str618 = new system_rename_column_family_args in
+  let _str623 = new system_rename_column_family_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t619,_id620) = iprot#readFieldBegin in
-        if _t619 = Protocol.T_STOP then
+        let (_,_t624,_id625) = iprot#readFieldBegin in
+        if _t624 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id620 with 
-          | 1 -> (if _t619 = Protocol.T_STRING then
-              _str618#set_old_name iprot#readString
+        (match _id625 with 
+          | 1 -> (if _t624 = Protocol.T_STRING then
+              _str623#set_old_name iprot#readString
             else
-              iprot#skip _t619)
-          | 2 -> (if _t619 = Protocol.T_STRING then
-              _str618#set_new_name iprot#readString
+              iprot#skip _t624)
+          | 2 -> (if _t624 = Protocol.T_STRING then
+              _str623#set_new_name iprot#readString
             else
-              iprot#skip _t619)
-          | _ -> iprot#skip _t619);
+              iprot#skip _t624)
+          | _ -> iprot#skip _t624);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str618
+    _str623
 
 class system_rename_column_family_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "system_rename_column_family_result.success") | Some _x621 -> _x621
-  method set_success _x621 = _success <- Some _x621
+  method grab_success = match _success with None->raise (Field_empty "system_rename_column_family_result.success") | Some _x626 -> _x626
+  method set_success _x626 = _success <- Some _x626
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "system_rename_column_family_result.ire") | Some _x621 -> _x621
-  method set_ire _x621 = _ire <- Some _x621
+  method grab_ire = match _ire with None->raise (Field_empty "system_rename_column_family_result.ire") | Some _x626 -> _x626
+  method set_ire _x626 = _ire <- Some _x626
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_rename_column_family_result";
     (match _success with None -> () | Some _v -> 
@@ -2685,35 +2731,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_rename_column_family_result (iprot : Protocol.t) =
-  let _str624 = new system_rename_column_family_result in
+  let _str629 = new system_rename_column_family_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t625,_id626) = iprot#readFieldBegin in
-        if _t625 = Protocol.T_STOP then
+        let (_,_t630,_id631) = iprot#readFieldBegin in
+        if _t630 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id626 with 
-          | 0 -> (if _t625 = Protocol.T_STRING then
-              _str624#set_success iprot#readString
+        (match _id631 with 
+          | 0 -> (if _t630 = Protocol.T_STRING then
+              _str629#set_success iprot#readString
             else
-              iprot#skip _t625)
-          | 1 -> (if _t625 = Protocol.T_STRUCT then
-              _str624#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t630)
+          | 1 -> (if _t630 = Protocol.T_STRUCT then
+              _str629#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t625)
-          | _ -> iprot#skip _t625);
+              iprot#skip _t630)
+          | _ -> iprot#skip _t630);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str624
+    _str629
 
 class system_add_keyspace_args =
 object (self)
   val mutable _ks_def : ksDef option = None
   method get_ks_def = _ks_def
-  method grab_ks_def = match _ks_def with None->raise (Field_empty "system_add_keyspace_args.ks_def") | Some _x627 -> _x627
-  method set_ks_def _x627 = _ks_def <- Some _x627
+  method grab_ks_def = match _ks_def with None->raise (Field_empty "system_add_keyspace_args.ks_def") | Some _x632 -> _x632
+  method set_ks_def _x632 = _ks_def <- Some _x632
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_add_keyspace_args";
     (match _ks_def with None -> () | Some _v -> 
@@ -2725,35 +2771,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_add_keyspace_args (iprot : Protocol.t) =
-  let _str630 = new system_add_keyspace_args in
+  let _str635 = new system_add_keyspace_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t631,_id632) = iprot#readFieldBegin in
-        if _t631 = Protocol.T_STOP then
+        let (_,_t636,_id637) = iprot#readFieldBegin in
+        if _t636 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id632 with 
-          | 1 -> (if _t631 = Protocol.T_STRUCT then
-              _str630#set_ks_def (read_ksDef iprot)
+        (match _id637 with 
+          | 1 -> (if _t636 = Protocol.T_STRUCT then
+              _str635#set_ks_def (read_ksDef iprot)
             else
-              iprot#skip _t631)
-          | _ -> iprot#skip _t631);
+              iprot#skip _t636)
+          | _ -> iprot#skip _t636);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str630
+    _str635
 
 class system_add_keyspace_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "system_add_keyspace_result.success") | Some _x633 -> _x633
-  method set_success _x633 = _success <- Some _x633
+  method grab_success = match _success with None->raise (Field_empty "system_add_keyspace_result.success") | Some _x638 -> _x638
+  method set_success _x638 = _success <- Some _x638
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "system_add_keyspace_result.ire") | Some _x633 -> _x633
-  method set_ire _x633 = _ire <- Some _x633
+  method grab_ire = match _ire with None->raise (Field_empty "system_add_keyspace_result.ire") | Some _x638 -> _x638
+  method set_ire _x638 = _ire <- Some _x638
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_add_keyspace_result";
     (match _success with None -> () | Some _v -> 
@@ -2770,35 +2816,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_add_keyspace_result (iprot : Protocol.t) =
-  let _str636 = new system_add_keyspace_result in
+  let _str641 = new system_add_keyspace_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t637,_id638) = iprot#readFieldBegin in
-        if _t637 = Protocol.T_STOP then
+        let (_,_t642,_id643) = iprot#readFieldBegin in
+        if _t642 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id638 with 
-          | 0 -> (if _t637 = Protocol.T_STRING then
-              _str636#set_success iprot#readString
+        (match _id643 with 
+          | 0 -> (if _t642 = Protocol.T_STRING then
+              _str641#set_success iprot#readString
             else
-              iprot#skip _t637)
-          | 1 -> (if _t637 = Protocol.T_STRUCT then
-              _str636#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t642)
+          | 1 -> (if _t642 = Protocol.T_STRUCT then
+              _str641#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t637)
-          | _ -> iprot#skip _t637);
+              iprot#skip _t642)
+          | _ -> iprot#skip _t642);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str636
+    _str641
 
 class system_drop_keyspace_args =
 object (self)
   val mutable _keyspace : string option = None
   method get_keyspace = _keyspace
-  method grab_keyspace = match _keyspace with None->raise (Field_empty "system_drop_keyspace_args.keyspace") | Some _x639 -> _x639
-  method set_keyspace _x639 = _keyspace <- Some _x639
+  method grab_keyspace = match _keyspace with None->raise (Field_empty "system_drop_keyspace_args.keyspace") | Some _x644 -> _x644
+  method set_keyspace _x644 = _keyspace <- Some _x644
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_drop_keyspace_args";
     (match _keyspace with None -> () | Some _v -> 
@@ -2810,35 +2856,35 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_drop_keyspace_args (iprot : Protocol.t) =
-  let _str642 = new system_drop_keyspace_args in
+  let _str647 = new system_drop_keyspace_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t643,_id644) = iprot#readFieldBegin in
-        if _t643 = Protocol.T_STOP then
+        let (_,_t648,_id649) = iprot#readFieldBegin in
+        if _t648 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id644 with 
-          | 1 -> (if _t643 = Protocol.T_STRING then
-              _str642#set_keyspace iprot#readString
+        (match _id649 with 
+          | 1 -> (if _t648 = Protocol.T_STRING then
+              _str647#set_keyspace iprot#readString
             else
-              iprot#skip _t643)
-          | _ -> iprot#skip _t643);
+              iprot#skip _t648)
+          | _ -> iprot#skip _t648);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str642
+    _str647
 
 class system_drop_keyspace_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "system_drop_keyspace_result.success") | Some _x645 -> _x645
-  method set_success _x645 = _success <- Some _x645
+  method grab_success = match _success with None->raise (Field_empty "system_drop_keyspace_result.success") | Some _x650 -> _x650
+  method set_success _x650 = _success <- Some _x650
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "system_drop_keyspace_result.ire") | Some _x645 -> _x645
-  method set_ire _x645 = _ire <- Some _x645
+  method grab_ire = match _ire with None->raise (Field_empty "system_drop_keyspace_result.ire") | Some _x650 -> _x650
+  method set_ire _x650 = _ire <- Some _x650
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_drop_keyspace_result";
     (match _success with None -> () | Some _v -> 
@@ -2855,39 +2901,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_drop_keyspace_result (iprot : Protocol.t) =
-  let _str648 = new system_drop_keyspace_result in
+  let _str653 = new system_drop_keyspace_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t649,_id650) = iprot#readFieldBegin in
-        if _t649 = Protocol.T_STOP then
+        let (_,_t654,_id655) = iprot#readFieldBegin in
+        if _t654 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id650 with 
-          | 0 -> (if _t649 = Protocol.T_STRING then
-              _str648#set_success iprot#readString
+        (match _id655 with 
+          | 0 -> (if _t654 = Protocol.T_STRING then
+              _str653#set_success iprot#readString
             else
-              iprot#skip _t649)
-          | 1 -> (if _t649 = Protocol.T_STRUCT then
-              _str648#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t654)
+          | 1 -> (if _t654 = Protocol.T_STRUCT then
+              _str653#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t649)
-          | _ -> iprot#skip _t649);
+              iprot#skip _t654)
+          | _ -> iprot#skip _t654);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str648
+    _str653
 
 class system_rename_keyspace_args =
 object (self)
   val mutable _old_name : string option = None
   method get_old_name = _old_name
-  method grab_old_name = match _old_name with None->raise (Field_empty "system_rename_keyspace_args.old_name") | Some _x651 -> _x651
-  method set_old_name _x651 = _old_name <- Some _x651
+  method grab_old_name = match _old_name with None->raise (Field_empty "system_rename_keyspace_args.old_name") | Some _x656 -> _x656
+  method set_old_name _x656 = _old_name <- Some _x656
   val mutable _new_name : string option = None
   method get_new_name = _new_name
-  method grab_new_name = match _new_name with None->raise (Field_empty "system_rename_keyspace_args.new_name") | Some _x651 -> _x651
-  method set_new_name _x651 = _new_name <- Some _x651
+  method grab_new_name = match _new_name with None->raise (Field_empty "system_rename_keyspace_args.new_name") | Some _x656 -> _x656
+  method set_new_name _x656 = _new_name <- Some _x656
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_rename_keyspace_args";
     (match _old_name with None -> () | Some _v -> 
@@ -2904,39 +2950,39 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_rename_keyspace_args (iprot : Protocol.t) =
-  let _str654 = new system_rename_keyspace_args in
+  let _str659 = new system_rename_keyspace_args in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t655,_id656) = iprot#readFieldBegin in
-        if _t655 = Protocol.T_STOP then
+        let (_,_t660,_id661) = iprot#readFieldBegin in
+        if _t660 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id656 with 
-          | 1 -> (if _t655 = Protocol.T_STRING then
-              _str654#set_old_name iprot#readString
+        (match _id661 with 
+          | 1 -> (if _t660 = Protocol.T_STRING then
+              _str659#set_old_name iprot#readString
             else
-              iprot#skip _t655)
-          | 2 -> (if _t655 = Protocol.T_STRING then
-              _str654#set_new_name iprot#readString
+              iprot#skip _t660)
+          | 2 -> (if _t660 = Protocol.T_STRING then
+              _str659#set_new_name iprot#readString
             else
-              iprot#skip _t655)
-          | _ -> iprot#skip _t655);
+              iprot#skip _t660)
+          | _ -> iprot#skip _t660);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str654
+    _str659
 
 class system_rename_keyspace_result =
 object (self)
   val mutable _success : string option = None
   method get_success = _success
-  method grab_success = match _success with None->raise (Field_empty "system_rename_keyspace_result.success") | Some _x657 -> _x657
-  method set_success _x657 = _success <- Some _x657
+  method grab_success = match _success with None->raise (Field_empty "system_rename_keyspace_result.success") | Some _x662 -> _x662
+  method set_success _x662 = _success <- Some _x662
   val mutable _ire : invalidRequestException option = None
   method get_ire = _ire
-  method grab_ire = match _ire with None->raise (Field_empty "system_rename_keyspace_result.ire") | Some _x657 -> _x657
-  method set_ire _x657 = _ire <- Some _x657
+  method grab_ire = match _ire with None->raise (Field_empty "system_rename_keyspace_result.ire") | Some _x662 -> _x662
+  method set_ire _x662 = _ire <- Some _x662
   method write (oprot : Protocol.t) =
     oprot#writeStructBegin "system_rename_keyspace_result";
     (match _success with None -> () | Some _v -> 
@@ -2953,58 +2999,231 @@ object (self)
     oprot#writeStructEnd
 end
 let rec read_system_rename_keyspace_result (iprot : Protocol.t) =
-  let _str660 = new system_rename_keyspace_result in
+  let _str665 = new system_rename_keyspace_result in
     ignore(iprot#readStructBegin);
     (try while true do
-        let (_,_t661,_id662) = iprot#readFieldBegin in
-        if _t661 = Protocol.T_STOP then
+        let (_,_t666,_id667) = iprot#readFieldBegin in
+        if _t666 = Protocol.T_STOP then
           raise Break
         else ();
-        (match _id662 with 
-          | 0 -> (if _t661 = Protocol.T_STRING then
-              _str660#set_success iprot#readString
+        (match _id667 with 
+          | 0 -> (if _t666 = Protocol.T_STRING then
+              _str665#set_success iprot#readString
             else
-              iprot#skip _t661)
-          | 1 -> (if _t661 = Protocol.T_STRUCT then
-              _str660#set_ire (read_invalidRequestException iprot)
+              iprot#skip _t666)
+          | 1 -> (if _t666 = Protocol.T_STRUCT then
+              _str665#set_ire (read_invalidRequestException iprot)
             else
-              iprot#skip _t661)
-          | _ -> iprot#skip _t661);
+              iprot#skip _t666)
+          | _ -> iprot#skip _t666);
         iprot#readFieldEnd;
       done; ()
     with Break -> ());
     iprot#readStructEnd;
-    _str660
+    _str665
+
+class system_update_keyspace_args =
+object (self)
+  val mutable _ks_def : ksDef option = None
+  method get_ks_def = _ks_def
+  method grab_ks_def = match _ks_def with None->raise (Field_empty "system_update_keyspace_args.ks_def") | Some _x668 -> _x668
+  method set_ks_def _x668 = _ks_def <- Some _x668
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "system_update_keyspace_args";
+    (match _ks_def with None -> () | Some _v -> 
+      oprot#writeFieldBegin("ks_def",Protocol.T_STRUCT,1);
+      _v#write(oprot);
+      oprot#writeFieldEnd
+    );
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_system_update_keyspace_args (iprot : Protocol.t) =
+  let _str671 = new system_update_keyspace_args in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t672,_id673) = iprot#readFieldBegin in
+        if _t672 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id673 with 
+          | 1 -> (if _t672 = Protocol.T_STRUCT then
+              _str671#set_ks_def (read_ksDef iprot)
+            else
+              iprot#skip _t672)
+          | _ -> iprot#skip _t672);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str671
+
+class system_update_keyspace_result =
+object (self)
+  val mutable _success : string option = None
+  method get_success = _success
+  method grab_success = match _success with None->raise (Field_empty "system_update_keyspace_result.success") | Some _x674 -> _x674
+  method set_success _x674 = _success <- Some _x674
+  val mutable _ire : invalidRequestException option = None
+  method get_ire = _ire
+  method grab_ire = match _ire with None->raise (Field_empty "system_update_keyspace_result.ire") | Some _x674 -> _x674
+  method set_ire _x674 = _ire <- Some _x674
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "system_update_keyspace_result";
+    (match _success with None -> () | Some _v -> 
+      oprot#writeFieldBegin("success",Protocol.T_STRING,0);
+      oprot#writeString(_v);
+      oprot#writeFieldEnd
+    );
+    (match _ire with None -> () | Some _v -> 
+      oprot#writeFieldBegin("ire",Protocol.T_STRUCT,1);
+      _v#write(oprot);
+      oprot#writeFieldEnd
+    );
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_system_update_keyspace_result (iprot : Protocol.t) =
+  let _str677 = new system_update_keyspace_result in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t678,_id679) = iprot#readFieldBegin in
+        if _t678 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id679 with 
+          | 0 -> (if _t678 = Protocol.T_STRING then
+              _str677#set_success iprot#readString
+            else
+              iprot#skip _t678)
+          | 1 -> (if _t678 = Protocol.T_STRUCT then
+              _str677#set_ire (read_invalidRequestException iprot)
+            else
+              iprot#skip _t678)
+          | _ -> iprot#skip _t678);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str677
+
+class system_update_column_family_args =
+object (self)
+  val mutable _cf_def : cfDef option = None
+  method get_cf_def = _cf_def
+  method grab_cf_def = match _cf_def with None->raise (Field_empty "system_update_column_family_args.cf_def") | Some _x680 -> _x680
+  method set_cf_def _x680 = _cf_def <- Some _x680
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "system_update_column_family_args";
+    (match _cf_def with None -> () | Some _v -> 
+      oprot#writeFieldBegin("cf_def",Protocol.T_STRUCT,1);
+      _v#write(oprot);
+      oprot#writeFieldEnd
+    );
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_system_update_column_family_args (iprot : Protocol.t) =
+  let _str683 = new system_update_column_family_args in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t684,_id685) = iprot#readFieldBegin in
+        if _t684 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id685 with 
+          | 1 -> (if _t684 = Protocol.T_STRUCT then
+              _str683#set_cf_def (read_cfDef iprot)
+            else
+              iprot#skip _t684)
+          | _ -> iprot#skip _t684);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str683
+
+class system_update_column_family_result =
+object (self)
+  val mutable _success : string option = None
+  method get_success = _success
+  method grab_success = match _success with None->raise (Field_empty "system_update_column_family_result.success") | Some _x686 -> _x686
+  method set_success _x686 = _success <- Some _x686
+  val mutable _ire : invalidRequestException option = None
+  method get_ire = _ire
+  method grab_ire = match _ire with None->raise (Field_empty "system_update_column_family_result.ire") | Some _x686 -> _x686
+  method set_ire _x686 = _ire <- Some _x686
+  method write (oprot : Protocol.t) =
+    oprot#writeStructBegin "system_update_column_family_result";
+    (match _success with None -> () | Some _v -> 
+      oprot#writeFieldBegin("success",Protocol.T_STRING,0);
+      oprot#writeString(_v);
+      oprot#writeFieldEnd
+    );
+    (match _ire with None -> () | Some _v -> 
+      oprot#writeFieldBegin("ire",Protocol.T_STRUCT,1);
+      _v#write(oprot);
+      oprot#writeFieldEnd
+    );
+    oprot#writeFieldStop;
+    oprot#writeStructEnd
+end
+let rec read_system_update_column_family_result (iprot : Protocol.t) =
+  let _str689 = new system_update_column_family_result in
+    ignore(iprot#readStructBegin);
+    (try while true do
+        let (_,_t690,_id691) = iprot#readFieldBegin in
+        if _t690 = Protocol.T_STOP then
+          raise Break
+        else ();
+        (match _id691 with 
+          | 0 -> (if _t690 = Protocol.T_STRING then
+              _str689#set_success iprot#readString
+            else
+              iprot#skip _t690)
+          | 1 -> (if _t690 = Protocol.T_STRUCT then
+              _str689#set_ire (read_invalidRequestException iprot)
+            else
+              iprot#skip _t690)
+          | _ -> iprot#skip _t690);
+        iprot#readFieldEnd;
+      done; ()
+    with Break -> ());
+    iprot#readStructEnd;
+    _str689
 
 class virtual iface =
 object (self)
-  method virtual login : authenticationRequest option -> AccessLevel.t
+  method virtual login : authenticationRequest option -> unit
   method virtual set_keyspace : string option -> unit
   method virtual get : string option -> columnPath option -> ConsistencyLevel.t option -> columnOrSuperColumn
   method virtual get_slice : string option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> columnOrSuperColumn list
   method virtual get_count : string option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> int
   method virtual multiget_slice : string list option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> (string,columnOrSuperColumn list) Hashtbl.t
-  method virtual multiget_count : string option -> string list option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> (string,int) Hashtbl.t
+  method virtual multiget_count : string list option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> (string,int) Hashtbl.t
   method virtual get_range_slices : columnParent option -> slicePredicate option -> keyRange option -> ConsistencyLevel.t option -> keySlice list
   method virtual get_indexed_slices : columnParent option -> indexClause option -> slicePredicate option -> ConsistencyLevel.t option -> keySlice list
   method virtual insert : string option -> columnParent option -> column option -> ConsistencyLevel.t option -> unit
-  method virtual remove : string option -> columnPath option -> clock option -> ConsistencyLevel.t option -> unit
+  method virtual remove : string option -> columnPath option -> Int64.t option -> ConsistencyLevel.t option -> unit
   method virtual batch_mutate : (string,(string,mutation list) Hashtbl.t) Hashtbl.t option -> ConsistencyLevel.t option -> unit
   method virtual truncate : string option -> unit
-  method virtual check_schema_agreement : (string,string list) Hashtbl.t
+  method virtual describe_schema_versions : (string,string list) Hashtbl.t
   method virtual describe_keyspaces : ksDef list
   method virtual describe_cluster_name : string
   method virtual describe_version : string
   method virtual describe_ring : string option -> tokenRange list
   method virtual describe_partitioner : string
+  method virtual describe_snitch : string
   method virtual describe_keyspace : string option -> ksDef
-  method virtual describe_splits : string option -> string option -> string option -> string option -> int option -> string list
+  method virtual describe_splits : string option -> string option -> string option -> int option -> string list
   method virtual system_add_column_family : cfDef option -> string
   method virtual system_drop_column_family : string option -> string
   method virtual system_rename_column_family : string option -> string option -> string
   method virtual system_add_keyspace : ksDef option -> string
   method virtual system_drop_keyspace : string option -> string
   method virtual system_rename_keyspace : string option -> string option -> string
+  method virtual system_update_keyspace : ksDef option -> string
+  method virtual system_update_column_family : cfDef option -> string
 end
 
 class client (iprot : Protocol.t) (oprot : Protocol.t) =
@@ -3028,12 +3247,11 @@ object (self)
       else ());
       let result = read_login_result iprot in
         iprot#readMessageEnd;
-        match result#get_success with Some v -> v | None -> (
-          (match result#get_authnx with None -> () | Some _v ->
-            raise (AuthenticationException _v));
-          (match result#get_authzx with None -> () | Some _v ->
-            raise (AuthorizationException _v));
-          raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "login failed: unknown result")))
+        (match result#get_authnx with None -> () | Some _v ->
+          raise (AuthenticationException _v));
+        (match result#get_authzx with None -> () | Some _v ->
+          raise (AuthorizationException _v));
+        ()
   method set_keyspace keyspace = 
     self#send_set_keyspace keyspace;
     self#recv_set_keyspace
@@ -3172,13 +3390,12 @@ object (self)
           (match result#get_te with None -> () | Some _v ->
             raise (TimedOutException _v));
           raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "multiget_slice failed: unknown result")))
-  method multiget_count keyspace keys column_parent predicate consistency_level = 
-    self#send_multiget_count keyspace keys column_parent predicate consistency_level;
+  method multiget_count keys column_parent predicate consistency_level = 
+    self#send_multiget_count keys column_parent predicate consistency_level;
     self#recv_multiget_count
-  method private send_multiget_count keyspace keys column_parent predicate consistency_level = 
+  method private send_multiget_count keys column_parent predicate consistency_level = 
     oprot#writeMessageBegin ("multiget_count", Protocol.CALL, seqid);
     let args = new multiget_count_args in
-      args#set_keyspace keyspace;
       args#set_keys keys;
       args#set_column_parent column_parent;
       args#set_predicate predicate;
@@ -3288,15 +3505,15 @@ object (self)
         (match result#get_te with None -> () | Some _v ->
           raise (TimedOutException _v));
         ()
-  method remove key column_path clock consistency_level = 
-    self#send_remove key column_path clock consistency_level;
+  method remove key column_path timestamp consistency_level = 
+    self#send_remove key column_path timestamp consistency_level;
     self#recv_remove
-  method private send_remove key column_path clock consistency_level = 
+  method private send_remove key column_path timestamp consistency_level = 
     oprot#writeMessageBegin ("remove", Protocol.CALL, seqid);
     let args = new remove_args in
       args#set_key key;
       args#set_column_path column_path;
-      args#set_clock clock;
+      args#set_timestamp timestamp;
       args#set_consistency_level consistency_level;
       args#write oprot;
       oprot#writeMessageEnd;
@@ -3365,27 +3582,27 @@ object (self)
         (match result#get_ue with None -> () | Some _v ->
           raise (UnavailableException _v));
         ()
-  method check_schema_agreement  = 
-    self#send_check_schema_agreement;
-    self#recv_check_schema_agreement
-  method private send_check_schema_agreement  = 
-    oprot#writeMessageBegin ("check_schema_agreement", Protocol.CALL, seqid);
-    let args = new check_schema_agreement_args in
+  method describe_schema_versions  = 
+    self#send_describe_schema_versions;
+    self#recv_describe_schema_versions
+  method private send_describe_schema_versions  = 
+    oprot#writeMessageBegin ("describe_schema_versions", Protocol.CALL, seqid);
+    let args = new describe_schema_versions_args in
       args#write oprot;
       oprot#writeMessageEnd;
       oprot#getTransport#flush
-  method private recv_check_schema_agreement  =
+  method private recv_describe_schema_versions  =
     let (fname, mtype, rseqid) = iprot#readMessageBegin in
       (if mtype = Protocol.EXCEPTION then
         let x = Application_Exn.read iprot in
           (iprot#readMessageEnd;           raise (Application_Exn.E x))
       else ());
-      let result = read_check_schema_agreement_result iprot in
+      let result = read_describe_schema_versions_result iprot in
         iprot#readMessageEnd;
         match result#get_success with Some v -> v | None -> (
           (match result#get_ire with None -> () | Some _v ->
             raise (InvalidRequestException _v));
-          raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "check_schema_agreement failed: unknown result")))
+          raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "describe_schema_versions failed: unknown result")))
   method describe_keyspaces  = 
     self#send_describe_keyspaces;
     self#recv_describe_keyspaces
@@ -3404,6 +3621,8 @@ object (self)
       let result = read_describe_keyspaces_result iprot in
         iprot#readMessageEnd;
         match result#get_success with Some v -> v | None -> (
+          (match result#get_ire with None -> () | Some _v ->
+            raise (InvalidRequestException _v));
           raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "describe_keyspaces failed: unknown result")))
   method describe_cluster_name  = 
     self#send_describe_cluster_name;
@@ -3484,6 +3703,25 @@ object (self)
         iprot#readMessageEnd;
         match result#get_success with Some v -> v | None -> (
           raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "describe_partitioner failed: unknown result")))
+  method describe_snitch  = 
+    self#send_describe_snitch;
+    self#recv_describe_snitch
+  method private send_describe_snitch  = 
+    oprot#writeMessageBegin ("describe_snitch", Protocol.CALL, seqid);
+    let args = new describe_snitch_args in
+      args#write oprot;
+      oprot#writeMessageEnd;
+      oprot#getTransport#flush
+  method private recv_describe_snitch  =
+    let (fname, mtype, rseqid) = iprot#readMessageBegin in
+      (if mtype = Protocol.EXCEPTION then
+        let x = Application_Exn.read iprot in
+          (iprot#readMessageEnd;           raise (Application_Exn.E x))
+      else ());
+      let result = read_describe_snitch_result iprot in
+        iprot#readMessageEnd;
+        match result#get_success with Some v -> v | None -> (
+          raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "describe_snitch failed: unknown result")))
   method describe_keyspace keyspace = 
     self#send_describe_keyspace keyspace;
     self#recv_describe_keyspace
@@ -3505,14 +3743,15 @@ object (self)
         match result#get_success with Some v -> v | None -> (
           (match result#get_nfe with None -> () | Some _v ->
             raise (NotFoundException _v));
+          (match result#get_ire with None -> () | Some _v ->
+            raise (InvalidRequestException _v));
           raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "describe_keyspace failed: unknown result")))
-  method describe_splits keyspace cfName start_token end_token keys_per_split = 
-    self#send_describe_splits keyspace cfName start_token end_token keys_per_split;
+  method describe_splits cfName start_token end_token keys_per_split = 
+    self#send_describe_splits cfName start_token end_token keys_per_split;
     self#recv_describe_splits
-  method private send_describe_splits keyspace cfName start_token end_token keys_per_split = 
+  method private send_describe_splits cfName start_token end_token keys_per_split = 
     oprot#writeMessageBegin ("describe_splits", Protocol.CALL, seqid);
     let args = new describe_splits_args in
-      args#set_keyspace keyspace;
       args#set_cfName cfName;
       args#set_start_token start_token;
       args#set_end_token end_token;
@@ -3664,13 +3903,57 @@ object (self)
           (match result#get_ire with None -> () | Some _v ->
             raise (InvalidRequestException _v));
           raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "system_rename_keyspace failed: unknown result")))
+  method system_update_keyspace ks_def = 
+    self#send_system_update_keyspace ks_def;
+    self#recv_system_update_keyspace
+  method private send_system_update_keyspace ks_def = 
+    oprot#writeMessageBegin ("system_update_keyspace", Protocol.CALL, seqid);
+    let args = new system_update_keyspace_args in
+      args#set_ks_def ks_def;
+      args#write oprot;
+      oprot#writeMessageEnd;
+      oprot#getTransport#flush
+  method private recv_system_update_keyspace  =
+    let (fname, mtype, rseqid) = iprot#readMessageBegin in
+      (if mtype = Protocol.EXCEPTION then
+        let x = Application_Exn.read iprot in
+          (iprot#readMessageEnd;           raise (Application_Exn.E x))
+      else ());
+      let result = read_system_update_keyspace_result iprot in
+        iprot#readMessageEnd;
+        match result#get_success with Some v -> v | None -> (
+          (match result#get_ire with None -> () | Some _v ->
+            raise (InvalidRequestException _v));
+          raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "system_update_keyspace failed: unknown result")))
+  method system_update_column_family cf_def = 
+    self#send_system_update_column_family cf_def;
+    self#recv_system_update_column_family
+  method private send_system_update_column_family cf_def = 
+    oprot#writeMessageBegin ("system_update_column_family", Protocol.CALL, seqid);
+    let args = new system_update_column_family_args in
+      args#set_cf_def cf_def;
+      args#write oprot;
+      oprot#writeMessageEnd;
+      oprot#getTransport#flush
+  method private recv_system_update_column_family  =
+    let (fname, mtype, rseqid) = iprot#readMessageBegin in
+      (if mtype = Protocol.EXCEPTION then
+        let x = Application_Exn.read iprot in
+          (iprot#readMessageEnd;           raise (Application_Exn.E x))
+      else ());
+      let result = read_system_update_column_family_result iprot in
+        iprot#readMessageEnd;
+        match result#get_success with Some v -> v | None -> (
+          (match result#get_ire with None -> () | Some _v ->
+            raise (InvalidRequestException _v));
+          raise (Application_Exn.E (Application_Exn.create Application_Exn.MISSING_RESULT "system_update_column_family failed: unknown result")))
 end
 
 class processor (handler : iface) =
 object (self)
   inherit Processor.t
 
-  val processMap = Hashtbl.create 27
+  val processMap = Hashtbl.create 30
   method process iprot oprot =
     let (name, typ, seqid)  = iprot#readMessageBegin in
       if Hashtbl.mem processMap name then
@@ -3690,7 +3973,7 @@ object (self)
       iprot#readMessageEnd;
       let result = new login_result in
         (try
-          result#set_success (handler#login args#get_auth_request);
+          (handler#login args#get_auth_request);
         with
           | AuthenticationException authnx -> 
               result#set_authnx authnx
@@ -3794,7 +4077,7 @@ object (self)
       iprot#readMessageEnd;
       let result = new multiget_count_result in
         (try
-          result#set_success (handler#multiget_count args#get_keyspace args#get_keys args#get_column_parent args#get_predicate args#get_consistency_level);
+          result#set_success (handler#multiget_count args#get_keys args#get_column_parent args#get_predicate args#get_consistency_level);
         with
           | InvalidRequestException ire -> 
               result#set_ire ire
@@ -3866,7 +4149,7 @@ object (self)
       iprot#readMessageEnd;
       let result = new remove_result in
         (try
-          (handler#remove args#get_key args#get_column_path args#get_clock args#get_consistency_level);
+          (handler#remove args#get_key args#get_column_path args#get_timestamp args#get_consistency_level);
         with
           | InvalidRequestException ire -> 
               result#set_ire ire
@@ -3913,17 +4196,17 @@ object (self)
         result#write oprot;
         oprot#writeMessageEnd;
         oprot#getTransport#flush
-  method private process_check_schema_agreement (seqid, iprot, oprot) =
-    let _ = read_check_schema_agreement_args iprot in
+  method private process_describe_schema_versions (seqid, iprot, oprot) =
+    let _ = read_describe_schema_versions_args iprot in
       iprot#readMessageEnd;
-      let result = new check_schema_agreement_result in
+      let result = new describe_schema_versions_result in
         (try
-          result#set_success (handler#check_schema_agreement);
+          result#set_success (handler#describe_schema_versions);
         with
           | InvalidRequestException ire -> 
               result#set_ire ire
         );
-        oprot#writeMessageBegin ("check_schema_agreement", Protocol.REPLY, seqid);
+        oprot#writeMessageBegin ("describe_schema_versions", Protocol.REPLY, seqid);
         result#write oprot;
         oprot#writeMessageEnd;
         oprot#getTransport#flush
@@ -3931,7 +4214,12 @@ object (self)
     let _ = read_describe_keyspaces_args iprot in
       iprot#readMessageEnd;
       let result = new describe_keyspaces_result in
-        result#set_success (handler#describe_keyspaces);
+        (try
+          result#set_success (handler#describe_keyspaces);
+        with
+          | InvalidRequestException ire -> 
+              result#set_ire ire
+        );
         oprot#writeMessageBegin ("describe_keyspaces", Protocol.REPLY, seqid);
         result#write oprot;
         oprot#writeMessageEnd;
@@ -3977,6 +4265,15 @@ object (self)
         result#write oprot;
         oprot#writeMessageEnd;
         oprot#getTransport#flush
+  method private process_describe_snitch (seqid, iprot, oprot) =
+    let _ = read_describe_snitch_args iprot in
+      iprot#readMessageEnd;
+      let result = new describe_snitch_result in
+        result#set_success (handler#describe_snitch);
+        oprot#writeMessageBegin ("describe_snitch", Protocol.REPLY, seqid);
+        result#write oprot;
+        oprot#writeMessageEnd;
+        oprot#getTransport#flush
   method private process_describe_keyspace (seqid, iprot, oprot) =
     let args = read_describe_keyspace_args iprot in
       iprot#readMessageEnd;
@@ -3986,6 +4283,8 @@ object (self)
         with
           | NotFoundException nfe -> 
               result#set_nfe nfe
+          | InvalidRequestException ire -> 
+              result#set_ire ire
         );
         oprot#writeMessageBegin ("describe_keyspace", Protocol.REPLY, seqid);
         result#write oprot;
@@ -3995,7 +4294,7 @@ object (self)
     let args = read_describe_splits_args iprot in
       iprot#readMessageEnd;
       let result = new describe_splits_result in
-        result#set_success (handler#describe_splits args#get_keyspace args#get_cfName args#get_start_token args#get_end_token args#get_keys_per_split);
+        result#set_success (handler#describe_splits args#get_cfName args#get_start_token args#get_end_token args#get_keys_per_split);
         oprot#writeMessageBegin ("describe_splits", Protocol.REPLY, seqid);
         result#write oprot;
         oprot#writeMessageEnd;
@@ -4084,6 +4383,34 @@ object (self)
         result#write oprot;
         oprot#writeMessageEnd;
         oprot#getTransport#flush
+  method private process_system_update_keyspace (seqid, iprot, oprot) =
+    let args = read_system_update_keyspace_args iprot in
+      iprot#readMessageEnd;
+      let result = new system_update_keyspace_result in
+        (try
+          result#set_success (handler#system_update_keyspace args#get_ks_def);
+        with
+          | InvalidRequestException ire -> 
+              result#set_ire ire
+        );
+        oprot#writeMessageBegin ("system_update_keyspace", Protocol.REPLY, seqid);
+        result#write oprot;
+        oprot#writeMessageEnd;
+        oprot#getTransport#flush
+  method private process_system_update_column_family (seqid, iprot, oprot) =
+    let args = read_system_update_column_family_args iprot in
+      iprot#readMessageEnd;
+      let result = new system_update_column_family_result in
+        (try
+          result#set_success (handler#system_update_column_family args#get_cf_def);
+        with
+          | InvalidRequestException ire -> 
+              result#set_ire ire
+        );
+        oprot#writeMessageBegin ("system_update_column_family", Protocol.REPLY, seqid);
+        result#write oprot;
+        oprot#writeMessageEnd;
+        oprot#getTransport#flush
   initializer
     Hashtbl.add processMap "login" self#process_login;
     Hashtbl.add processMap "set_keyspace" self#process_set_keyspace;
@@ -4098,12 +4425,13 @@ object (self)
     Hashtbl.add processMap "remove" self#process_remove;
     Hashtbl.add processMap "batch_mutate" self#process_batch_mutate;
     Hashtbl.add processMap "truncate" self#process_truncate;
-    Hashtbl.add processMap "check_schema_agreement" self#process_check_schema_agreement;
+    Hashtbl.add processMap "describe_schema_versions" self#process_describe_schema_versions;
     Hashtbl.add processMap "describe_keyspaces" self#process_describe_keyspaces;
     Hashtbl.add processMap "describe_cluster_name" self#process_describe_cluster_name;
     Hashtbl.add processMap "describe_version" self#process_describe_version;
     Hashtbl.add processMap "describe_ring" self#process_describe_ring;
     Hashtbl.add processMap "describe_partitioner" self#process_describe_partitioner;
+    Hashtbl.add processMap "describe_snitch" self#process_describe_snitch;
     Hashtbl.add processMap "describe_keyspace" self#process_describe_keyspace;
     Hashtbl.add processMap "describe_splits" self#process_describe_splits;
     Hashtbl.add processMap "system_add_column_family" self#process_system_add_column_family;
@@ -4112,5 +4440,7 @@ object (self)
     Hashtbl.add processMap "system_add_keyspace" self#process_system_add_keyspace;
     Hashtbl.add processMap "system_drop_keyspace" self#process_system_drop_keyspace;
     Hashtbl.add processMap "system_rename_keyspace" self#process_system_rename_keyspace;
+    Hashtbl.add processMap "system_update_keyspace" self#process_system_update_keyspace;
+    Hashtbl.add processMap "system_update_column_family" self#process_system_update_column_family;
 end
 

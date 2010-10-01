@@ -46,33 +46,23 @@ namespace rb CassandraThrift
 #           for every edit that doesn't result in a change to major/minor.
 #
 # See the Semantic Versioning Specification (SemVer) http://semver.org.
-const string VERSION = "11.0.0"
+const string VERSION = "18.1.0"
 
 
 #
 # data structures
 #
 
-/** Encapsulate types of conflict resolution.
- *
- * @param timestamp. User-supplied timestamp. When two columns with this type of clock conflict, the one with the
- *                   highest timestamp is the one whose value the system will converge to. No other assumptions
- *                   are made about what the timestamp represents, but using microseconds-since-epoch is customary.
- */
-struct Clock {
-   1: required i64 timestamp,
-}
-
 /** Basic unit of data within a ColumnFamily.
  * @param name, the name by which this column is set and retrieved.  Maximum 64KB long.
  * @param value. The data associated with the name.  Maximum 2GB long, but in practice you should limit it to small numbers of MB (since Thrift must read the full value into memory to operate on it).
- * @param clock. The clock is used for conflict detection/resolution when two columns with same name need to be compared.
+ * @param timestamp. The timestamp is used for conflict detection/resolution when two columns with same name need to be compared.
  * @param ttl. An optional, positive delay (in seconds) after which the column will be automatically deleted. 
  */
 struct Column {
    1: required binary name,
    2: required binary value,
-   3: required Clock clock,
+   3: required i64 timestamp,
    4: optional i32 ttl,
 }
 
@@ -244,6 +234,10 @@ struct SlicePredicate {
 
 enum IndexOperator {
     EQ,
+    GTE,
+    GT,
+    LTE,
+    LT
 }
 
 struct IndexExpression {
@@ -292,7 +286,7 @@ struct KeyCount {
 }
 
 struct Deletion {
-    1: required Clock clock,
+    1: required i64 timestamp,
     2: optional binary super_column,
     3: optional SlicePredicate predicate,
 }
@@ -313,22 +307,8 @@ struct TokenRange {
     3: required list<string> endpoints,
 }
 
-/** The AccessLevel is an enum that expresses the authorized access level granted to an API user:
- *
- *      NONE       No access permitted.
- *      READONLY   Only read access is allowed.
- *      READWRITE  Read and write access is allowed.
- *      FULL       Read, write, and remove access is allowed.
-*/
-enum AccessLevel {
-    NONE = 0,
-    READONLY = 16,
-    READWRITE = 32,
-    FULL = 64,
-}
-
 /**
-    Authentication requests can contain any data, dependent on the AuthenticationBackend used
+    Authentication requests can contain any data, dependent on the IAuthenticator used
 */
 struct AuthenticationRequest {
     1: required map<string, string> credentials
@@ -352,17 +332,19 @@ struct CfDef {
     1: required string keyspace,
     2: required string name,
     3: optional string column_type="Standard",
-    4: optional string clock_type="Timestamp",
     5: optional string comparator_type="BytesType",
-    6: optional string subcomparator_type="",
-    7: optional string reconciler="",
-    8: optional string comment="",
+    6: optional string subcomparator_type,
+    8: optional string comment,
     9: optional double row_cache_size=0,
     10: optional bool preload_row_cache=0,
     11: optional double key_cache_size=200000,
-    12: optional double read_repair_chance=1.0
-    13: optional list<ColumnDef> column_metadata
-    14: optional i32 gc_grace_seconds
+    12: optional double read_repair_chance=1.0,
+    13: optional list<ColumnDef> column_metadata,
+    14: optional i32 gc_grace_seconds,
+    15: optional string default_validation_class,
+    16: optional i32 id,
+    17: optional i32 min_compaction_threshold,
+    18: optional i32 max_compaction_threshold,
 }
 
 /* describes a keyspace. */
@@ -376,7 +358,7 @@ struct KsDef {
 
 service Cassandra {
   # auth methods
-  AccessLevel login(1: required AuthenticationRequest auth_request) throws (1:AuthenticationException authnx, 2:AuthorizationException authzx),
+  void login(1: required AuthenticationRequest auth_request) throws (1:AuthenticationException authnx, 2:AuthorizationException authzx),
  
   # set keyspace
   void set_keyspace(1: required string keyspace) throws (1:InvalidRequestException ire),
@@ -424,11 +406,10 @@ service Cassandra {
   /**
     Perform a get_count in parallel on the given list<binary> keys. The return value maps keys to the count found.
   */
-  map<binary, i32> multiget_count(1:required string keyspace,
-                2:required list<binary> keys,
-                3:required ColumnParent column_parent,
-                4:required SlicePredicate predicate,
-                5:required ConsistencyLevel consistency_level=ONE)
+  map<binary, i32> multiget_count(1:required list<binary> keys,
+                2:required ColumnParent column_parent,
+                3:required SlicePredicate predicate,
+                4:required ConsistencyLevel consistency_level=ONE)
       throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
 
   /**
@@ -459,13 +440,13 @@ service Cassandra {
        throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
 
   /**
-    Remove data from the row specified by key at the granularity specified by column_path, and the given clock. Note
+    Remove data from the row specified by key at the granularity specified by column_path, and the given timestamp. Note
     that all the values in column_path besides column_path.column_family are truly optional: you can remove the entire
     row by just specifying the ColumnFamily, or you can remove a SuperColumn or a single Column by specifying those levels too.
    */
   void remove(1:required binary key,
               2:required ColumnPath column_path,
-              3:required Clock clock,
+              3:required i64 timestamp,
               4:ConsistencyLevel consistency_level=ONE)
        throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
 
@@ -493,15 +474,16 @@ service Cassandra {
   // rather than user data.  The nodeprobe program provides usage examples.
   
   /** 
-   * ask the cluster if they all are using the same migration id. returns a map of version->hosts-on-that-version.
-   * hosts that did not respond will be under the key DatabaseDescriptor.INITIAL_VERSION. agreement can be determined
-   * by checking if the size of the map is 1. 
+   * for each schema version present in the cluster, returns a list of nodes at that version.
+   * hosts that do not respond will be under the key DatabaseDescriptor.INITIAL_VERSION. 
+   * the cluster is all on the same version if the size of the map is 1. 
    */
-  map<string, list<string>> check_schema_agreement()
+  map<string, list<string>> describe_schema_versions()
        throws (1: InvalidRequestException ire),
 
   /** list the defined keyspaces in this cluster */
-  list<KsDef> describe_keyspaces(),
+  list<KsDef> describe_keyspaces()
+    throws (1:InvalidRequestException ire),
 
   /** get the cluster name */
   string describe_cluster_name(),
@@ -523,20 +505,22 @@ service Cassandra {
   /** returns the partitioner used by this cluster */
   string describe_partitioner(),
 
+  /** returns the snitch used by this cluster */
+  string describe_snitch(),
+
   /** describe specified keyspace */
   KsDef describe_keyspace(1:required string keyspace)
-        throws (1:NotFoundException nfe),
+    throws (1:NotFoundException nfe, 2:InvalidRequestException ire),
 
   /** experimental API for hadoop/parallel query support.  
       may change violently and without warning. 
 
       returns list of token strings such that first subrange is (list[0], list[1]],
       next is (list[1], list[2]], etc. */
-  list<string> describe_splits(1:required string keyspace,
-                               2:required string cfName,
-                               3:required string start_token, 
-                               4:required string end_token,
-                               5:required i32 keys_per_split),
+  list<string> describe_splits(1:required string cfName,
+                               2:required string start_token, 
+                               3:required string end_token,
+                               4:required i32 keys_per_split),
 
   /** adds a column family. returns the new schema id. */
   string system_add_column_family(1:required CfDef cf_def)
@@ -562,4 +546,11 @@ service Cassandra {
   string system_rename_keyspace(1:required string old_name, 2:required string new_name)
     throws (1:InvalidRequestException ire),
   
+  /** updates properties of a keyspace. returns the new schema id. */
+  string system_update_keyspace(1:required KsDef ks_def)
+    throws (1:InvalidRequestException ire),
+        
+  /** updates properties of a column family. returns the new schema id. */
+  string system_update_column_family(1:required CfDef cf_def)
+    throws (1:InvalidRequestException ire),
 }

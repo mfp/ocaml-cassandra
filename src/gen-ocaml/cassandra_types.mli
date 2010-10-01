@@ -22,16 +22,10 @@ module IndexOperator :
 sig
   type t = 
     | EQ
-  val to_i : t -> int
-  val of_i : int -> t
-end
-module AccessLevel : 
-sig
-  type t = 
-    | NONE
-    | READONLY
-    | READWRITE
-    | FULL
+    | GTE
+    | GT
+    | LTE
+    | LT
   val to_i : t -> int
   val of_i : int -> t
 end
@@ -42,14 +36,6 @@ sig
   val to_i : t -> int
   val of_i : int -> t
 end
-class clock :
-object
-  method get_timestamp : Int64.t option
-  method grab_timestamp : Int64.t
-  method set_timestamp : Int64.t -> unit
-  method write : Protocol.t -> unit
-end
-val read_clock : Protocol.t -> clock
 class column :
 object
   method get_name : string option
@@ -58,9 +44,9 @@ object
   method get_value : string option
   method grab_value : string
   method set_value : string -> unit
-  method get_clock : clock option
-  method grab_clock : clock
-  method set_clock : clock -> unit
+  method get_timestamp : Int64.t option
+  method grab_timestamp : Int64.t
+  method set_timestamp : Int64.t -> unit
   method get_ttl : int option
   method grab_ttl : int
   method set_ttl : int -> unit
@@ -214,9 +200,9 @@ end
 val read_keyCount : Protocol.t -> keyCount
 class deletion :
 object
-  method get_clock : clock option
-  method grab_clock : clock
-  method set_clock : clock -> unit
+  method get_timestamp : Int64.t option
+  method grab_timestamp : Int64.t
+  method set_timestamp : Int64.t -> unit
   method get_super_column : string option
   method grab_super_column : string
   method set_super_column : string -> unit
@@ -287,18 +273,12 @@ object
   method get_column_type : string option
   method grab_column_type : string
   method set_column_type : string -> unit
-  method get_clock_type : string option
-  method grab_clock_type : string
-  method set_clock_type : string -> unit
   method get_comparator_type : string option
   method grab_comparator_type : string
   method set_comparator_type : string -> unit
   method get_subcomparator_type : string option
   method grab_subcomparator_type : string
   method set_subcomparator_type : string -> unit
-  method get_reconciler : string option
-  method grab_reconciler : string
-  method set_reconciler : string -> unit
   method get_comment : string option
   method grab_comment : string
   method set_comment : string -> unit
@@ -320,6 +300,18 @@ object
   method get_gc_grace_seconds : int option
   method grab_gc_grace_seconds : int
   method set_gc_grace_seconds : int -> unit
+  method get_default_validation_class : string option
+  method grab_default_validation_class : string
+  method set_default_validation_class : string -> unit
+  method get_id : int option
+  method grab_id : int
+  method set_id : int -> unit
+  method get_min_compaction_threshold : int option
+  method grab_min_compaction_threshold : int
+  method set_min_compaction_threshold : int -> unit
+  method get_max_compaction_threshold : int option
+  method grab_max_compaction_threshold : int
+  method set_max_compaction_threshold : int -> unit
   method write : Protocol.t -> unit
 end
 val read_cfDef : Protocol.t -> cfDef

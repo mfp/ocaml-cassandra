@@ -60,6 +60,8 @@ let exn_printer = function
       Some (sprintf "Cassandra_error (%s)" (string_of_cassandra_error err))
   | _ -> None
 
+let client_version = Cassandra_consts.vERSION
+
 type timestamp = Int64.t
 type column = { c_name : string; c_value : string; c_timestamp : timestamp; }
 type supercolumn = { sc_name : string; sc_columns : column list }
@@ -176,20 +178,12 @@ DEFINE Wrap_opt(x) =
     Some (x)
   with Cassandra_error(Not_found, _) -> None
 
-open AccessLevel
-
-let of_access_level = function
-  | NONE -> `NONE
-  | READONLY -> `READONLY
-  | READWRITE -> `READWRITE
-  | FULL -> `FULL
-
 let login ks credentials = Wrap
   let auth = new authenticationRequest in
   let h = Hashtbl.create 13 in
     List.iter (fun (k, v) -> Hashtbl.add h k v) credentials;
     auth#set_credentials h;
-    of_access_level (ks.ks_client#login auth)
+    ks.ks_client#login auth
 
 let set_keyspace t ?(level = `ONE) ?(rewrite_keys = []) name = Wrap
   let rewrite_map =
@@ -214,19 +208,17 @@ let consistency_level = function
 let clevel ks =
   Option.map_default consistency_level (consistency_level ks.ks_level)
 
-let mk_clock t = let c = new clock in c#set_timestamp t; c
-
 let column c =
   let r = new column in
     r#set_name c.c_name;
     r#set_value c.c_value;
-    r#set_clock (mk_clock c.c_timestamp);
+    r#set_timestamp c.c_timestamp;
     r
 
 let of_column c =
   {
     c_name = c#grab_name; c_value = c#grab_value;
-    c_timestamp = c#grab_clock#grab_timestamp;
+    c_timestamp = c#grab_timestamp;
   }
 
 let supercolumn c =
@@ -382,8 +374,6 @@ let mk_timestamp = function
     None -> make_timestamp ()
   | Some t -> t
 
-let mk_clock t = mk_clock (mk_timestamp t)
-
 let make_column name ?timestamp value =
   { c_name=name; c_timestamp=mk_timestamp timestamp; c_value=value; }
 
@@ -399,24 +389,24 @@ let remove_key t ?level ~cf ?timestamp key = Wrap
   let cpath = new columnPath in
     cpath#set_column_family cf;
     t.ks_client#remove (map_key t ~cf key) cpath
-      (mk_clock timestamp) (clevel t level)
+      (mk_timestamp timestamp) (clevel t level)
 
 let remove_column t ?level ~cf ~key ?sc ?timestamp name = Wrap
   t.ks_client#remove (map_key t ~cf key)
     (column_path ~cf ?sc name)
-    (mk_clock timestamp) (clevel t level)
+    (mk_timestamp timestamp) (clevel t level)
 
 let remove_supercolumn t ?level ~cf ~key ?timestamp name = Wrap
   t.ks_client#remove (map_key t ~cf key)
     (supercolumn_path ~cf name)
-    (mk_clock timestamp) (clevel t level)
+    (mk_timestamp timestamp) (clevel t level)
 
 let truncate t ~cf = Wrap
   t.ks_client#truncate cf
 
 let make_deletion ?sc ?predicate timestamp =
   let r = new deletion in
-    r#set_clock (mk_clock timestamp);
+    r#set_timestamp (mk_timestamp timestamp);
     Option.may r#set_super_column sc;
     Option.may r#set_predicate (Option.map slice_predicate predicate);
     r

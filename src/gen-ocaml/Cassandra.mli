@@ -9,64 +9,70 @@ open Cassandra_types
 
 class virtual iface :
 object
-  method virtual login : authenticationRequest option -> AccessLevel.t
+  method virtual login : authenticationRequest option -> unit
   method virtual set_keyspace : string option -> unit
   method virtual get : string option -> columnPath option -> ConsistencyLevel.t option -> columnOrSuperColumn
   method virtual get_slice : string option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> columnOrSuperColumn list
   method virtual get_count : string option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> int
   method virtual multiget_slice : string list option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> (string,columnOrSuperColumn list) Hashtbl.t
-  method virtual multiget_count : string option -> string list option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> (string,int) Hashtbl.t
+  method virtual multiget_count : string list option -> columnParent option -> slicePredicate option -> ConsistencyLevel.t option -> (string,int) Hashtbl.t
   method virtual get_range_slices : columnParent option -> slicePredicate option -> keyRange option -> ConsistencyLevel.t option -> keySlice list
   method virtual get_indexed_slices : columnParent option -> indexClause option -> slicePredicate option -> ConsistencyLevel.t option -> keySlice list
   method virtual insert : string option -> columnParent option -> column option -> ConsistencyLevel.t option -> unit
-  method virtual remove : string option -> columnPath option -> clock option -> ConsistencyLevel.t option -> unit
+  method virtual remove : string option -> columnPath option -> Int64.t option -> ConsistencyLevel.t option -> unit
   method virtual batch_mutate : (string,(string,mutation list) Hashtbl.t) Hashtbl.t option -> ConsistencyLevel.t option -> unit
   method virtual truncate : string option -> unit
-  method virtual check_schema_agreement : (string,string list) Hashtbl.t
+  method virtual describe_schema_versions : (string,string list) Hashtbl.t
   method virtual describe_keyspaces : ksDef list
   method virtual describe_cluster_name : string
   method virtual describe_version : string
   method virtual describe_ring : string option -> tokenRange list
   method virtual describe_partitioner : string
+  method virtual describe_snitch : string
   method virtual describe_keyspace : string option -> ksDef
-  method virtual describe_splits : string option -> string option -> string option -> string option -> int option -> string list
+  method virtual describe_splits : string option -> string option -> string option -> int option -> string list
   method virtual system_add_column_family : cfDef option -> string
   method virtual system_drop_column_family : string option -> string
   method virtual system_rename_column_family : string option -> string option -> string
   method virtual system_add_keyspace : ksDef option -> string
   method virtual system_drop_keyspace : string option -> string
   method virtual system_rename_keyspace : string option -> string option -> string
+  method virtual system_update_keyspace : ksDef option -> string
+  method virtual system_update_column_family : cfDef option -> string
 end
 
 class client : Protocol.t -> Protocol.t -> 
 object
-  method login : authenticationRequest -> AccessLevel.t
+  method login : authenticationRequest -> unit
   method set_keyspace : string -> unit
   method get : string -> columnPath -> ConsistencyLevel.t -> columnOrSuperColumn
   method get_slice : string -> columnParent -> slicePredicate -> ConsistencyLevel.t -> columnOrSuperColumn list
   method get_count : string -> columnParent -> slicePredicate -> ConsistencyLevel.t -> int
   method multiget_slice : string list -> columnParent -> slicePredicate -> ConsistencyLevel.t -> (string,columnOrSuperColumn list) Hashtbl.t
-  method multiget_count : string -> string list -> columnParent -> slicePredicate -> ConsistencyLevel.t -> (string,int) Hashtbl.t
+  method multiget_count : string list -> columnParent -> slicePredicate -> ConsistencyLevel.t -> (string,int) Hashtbl.t
   method get_range_slices : columnParent -> slicePredicate -> keyRange -> ConsistencyLevel.t -> keySlice list
   method get_indexed_slices : columnParent -> indexClause -> slicePredicate -> ConsistencyLevel.t -> keySlice list
   method insert : string -> columnParent -> column -> ConsistencyLevel.t -> unit
-  method remove : string -> columnPath -> clock -> ConsistencyLevel.t -> unit
+  method remove : string -> columnPath -> Int64.t -> ConsistencyLevel.t -> unit
   method batch_mutate : (string,(string,mutation list) Hashtbl.t) Hashtbl.t -> ConsistencyLevel.t -> unit
   method truncate : string -> unit
-  method check_schema_agreement : (string,string list) Hashtbl.t
+  method describe_schema_versions : (string,string list) Hashtbl.t
   method describe_keyspaces : ksDef list
   method describe_cluster_name : string
   method describe_version : string
   method describe_ring : string -> tokenRange list
   method describe_partitioner : string
+  method describe_snitch : string
   method describe_keyspace : string -> ksDef
-  method describe_splits : string -> string -> string -> string -> int -> string list
+  method describe_splits : string -> string -> string -> int -> string list
   method system_add_column_family : cfDef -> string
   method system_drop_column_family : string -> string
   method system_rename_column_family : string -> string -> string
   method system_add_keyspace : ksDef -> string
   method system_drop_keyspace : string -> string
   method system_rename_keyspace : string -> string -> string
+  method system_update_keyspace : ksDef -> string
+  method system_update_column_family : cfDef -> string
 end
 
 class processor : iface ->

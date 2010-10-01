@@ -31,7 +31,7 @@ let make_pool servers ?credentials ?level ?rewrite_keys ~keyspace max_conns =
              let ks = Cassandra.set_keyspace conn ?level ?rewrite_keys keyspace in
                begin match credentials with
                    Some [] | None -> ()
-                 | Some l -> let (_:Cassandra.access_level) = Cassandra.login ks l in ()
+                 | Some l -> Cassandra.login ks l
                end;
                (conn, ks))
           cp.servers.(Random.int (Array.length cp.servers))
