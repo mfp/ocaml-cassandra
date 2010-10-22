@@ -445,6 +445,21 @@ let find_insert_default f h k =
       Hashtbl.add h k v;
       v
 
+let show_mutation m =
+  let cs = m#grab_column_or_supercolumn in
+  match cs#get_column with
+  | Some col -> sprintf "(%S,%S)" col#grab_name col#grab_value
+  | None -> let sc = cs#grab_super_column in
+    sprintf "[%S] <- %s" sc#grab_name
+    (String.concat ", " (List.map (fun col -> sprintf "(%S,%S)" col#grab_name col#grab_value) sc#grab_columns))
+
+let show_batch out h =
+  Hashtbl.iter (fun k h1 ->
+    ksprintf out "key %S\n" k;
+      Hashtbl.iter (fun cf l ->
+        ksprintf out "cf %s\n" cf;
+        List.iter (fun v -> ksprintf out "%s\n" (show_mutation v)) l) h1) h
+
 let batch_mutate t ?level l = Wrap
   let h = Hashtbl.create (List.length l) in
     List.iter
@@ -456,7 +471,8 @@ let batch_mutate t ?level l = Wrap
            (fun (cf, muts) ->
               let key = map_key t cf key in
               let h1 = find_insert_default (fun () -> Hashtbl.create 13) h key in
-                Hashtbl.add h1 cf (List.map mutation muts))
+              let l = find_insert_default (fun () -> []) h1 cf in
+              Hashtbl.replace h1 cf ((List.map mutation muts) @ l))
            (List.rev l1))
       l;
     t.ks_client#batch_mutate h (clevel t level)
